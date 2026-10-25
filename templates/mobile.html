@@ -11,9 +11,9 @@
         @media (prefers-reduced-motion: reduce) { .pop { animation: none; } }
     </style>
 </head>
-<body class="bg-[#181825] text-[#cdd6f4] font-sans antialiased min-h-screen p-3 flex flex-col justify-between">
+<body class="bg-[#181825] text-[#cdd6f4] font-sans antialiased min-h-screen p-3 flex flex-col">
 
-    <div class="max-w-md mx-auto space-y-3 w-full">
+    <div class="max-w-md mx-auto w-full flex-1 flex flex-col gap-3 pb-28">
 
         <!-- CABECERA MÓVIL PRO -->
         <header class="bg-[#1e1e2e] border border-[#313244] p-3 rounded-2xl flex justify-between items-center shadow-lg">
@@ -27,6 +27,7 @@
                         <option value="EUR">EUR (€)</option>
                     </select>
                 </div>
+                <button id="btn-usuario" onclick="cambiarUsuario()" title="Cambiar de código" class="mt-1 text-[9px] text-gray-400 underline max-w-[8rem] truncate">👤 —</button>
             </div>
             <div class="flex items-center gap-2">
                 <div class="bg-[#11111b] border border-[#313244] px-2.5 py-1 rounded-xl text-right">
@@ -53,7 +54,7 @@
         </section>
 
         <!-- VISTA 3: TORNEO (PESTAÑAS SÓLO VISIBLES AQUÍ DENTRO) -->
-        <section id="vista-torneo" class="space-y-3 hidden">
+        <section id="vista-torneo" class="flex-1 flex flex-col gap-3 hidden">
             <div class="flex justify-between items-center bg-[#1e1e2e] border border-[#313244] p-2.5 rounded-xl">
                 <button onclick="mostrarLigas(deporteActual)" class="bg-[#11111b] border border-[#313244] text-gray-300 px-2.5 py-1 rounded-lg text-[11px] font-bold">← Ligas</button>
                 <span id="liga-nombre" class="text-xs font-bold text-[#89b4fa] text-right ml-2">Liga activa</span>
@@ -68,11 +69,8 @@
             </div>
 
             <!-- PESTAÑA 1: GRUPOS Y EQUIPOS -->
-            <div id="mseccion-1" class="space-y-2">
-                <div class="space-y-1.5">
-                    <button id="btn-simular" onclick="simularPartido()" class="w-full bg-blue-600 active:bg-blue-500 text-white font-bold py-2.5 rounded-xl transition text-xs shadow-md">Simular partido</button>
-                    <button onclick="reiniciarTorneo()" class="w-full bg-red-600/20 border border-red-500/40 text-red-400 font-bold py-1.5 rounded-xl transition text-[11px]">🔄 Reiniciar torneo</button>
-                </div>
+            <div id="mseccion-1" class="flex-1 flex flex-col gap-3">
+                <button onclick="reiniciarTorneo()" class="w-full bg-red-600/20 border border-red-500/40 text-red-400 font-bold py-1.5 rounded-xl transition text-[11px]">🔄 Reiniciar torneo</button>
 
                 <div class="bg-[#1e1e2e] border border-[#313244] p-3 rounded-xl space-y-2">
                     <div class="flex justify-between items-center">
@@ -80,10 +78,10 @@
                         <span id="contador-asignados" class="text-[10px] text-gray-400"></span>
                     </div>
                     <p class="text-[10px] text-gray-400">Toca un equipo para elegir su grupo (A-E).</p>
-                    <div id="contenedor-equipos" class="max-h-40 overflow-y-auto space-y-1.5 pr-1"></div>
+                    <div id="contenedor-equipos" class="max-h-[30vh] overflow-y-auto space-y-1.5 pr-1"></div>
                 </div>
 
-                <div class="bg-[#1e1e2e] border border-[#313244] p-3 rounded-xl space-y-2">
+                <div class="flex-1 bg-[#1e1e2e] border border-[#313244] p-3 rounded-xl space-y-2">
                     <h3 class="text-xs font-semibold text-[#89b4fa]">🏟️ Grupos</h3>
                     <p class="text-[10px] text-gray-400">Toca un equipo del grupo para cambiarlo o quitarlo.</p>
                     <div id="contenedor-grupos" class="grid grid-cols-2 gap-2"></div>
@@ -94,14 +92,15 @@
             </div>
 
             <!-- PESTAÑA 2: CALENDARIO -->
-            <div id="mseccion-2" class="space-y-2 hidden bg-[#1e1e2e] border border-[#313244] p-3 rounded-xl">
+            <div id="mseccion-2" class="flex-1 flex flex-col gap-2 hidden bg-[#1e1e2e] border border-[#313244] p-3 rounded-xl">
                 <h3 class="text-xs font-semibold text-[#89b4fa]">📅 Calendario de Partidos</h3>
-                <div id="contenedor-calendario-m" class="max-h-80 overflow-y-auto space-y-2 text-[11px]"></div>
+                <p class="text-[10px] text-gray-400">Los partidos se juegan en este mismo orden, de arriba hacia abajo.</p>
+                <div id="contenedor-calendario-m" class="space-y-2 text-[11px]"></div>
             </div>
 
             <!-- PESTAÑA 3: POSICIONES E HISTORIAL -->
-            <div id="mseccion-3" class="space-y-3 hidden">
-                <div class="bg-[#1e1e2e] border border-[#313244] p-3 rounded-xl space-y-2">
+            <div id="mseccion-3" class="flex-1 flex flex-col gap-3 hidden">
+                <div class="flex-1 bg-[#1e1e2e] border border-[#313244] p-3 rounded-xl space-y-2">
                     <h3 class="text-xs font-semibold text-[#89b4fa]">📊 Posiciones</h3>
                     <div id="contenedor-posiciones-m" class="space-y-3 text-[11px]"></div>
                 </div>
@@ -111,27 +110,35 @@
                         <h3 class="text-xs font-semibold text-[#89b4fa]">📋 Historial de Partidos</h3>
                         <span class="text-[10px] text-gray-400">Partidos: <strong id="contador-partidos">0</strong></span>
                     </div>
-                    <div id="contenedor-historial" class="max-h-48 overflow-y-auto space-y-1.5 pr-1"></div>
+                    <div id="contenedor-historial" class="space-y-1.5"></div>
                 </div>
             </div>
 
             <!-- PESTAÑA 4: PREDICCIONES -->
-            <div id="mseccion-4" class="space-y-3 hidden">
-                <div class="bg-[#1e1e2e] border border-[#313244] p-3 rounded-xl space-y-2">
-                    <h3 class="text-xs font-semibold text-[#89b4fa]">🎯 Partidos para predecir</h3>
-                    <div id="contenedor-predicciones" class="max-h-64 overflow-y-auto space-y-1.5 pr-1"></div>
+            <div id="mseccion-4" class="flex-1 flex flex-col gap-3 hidden">
+                <div class="bg-[#1e1e2e] border border-[#313244] p-3 rounded-xl space-y-3">
+                    <button onclick="abrirPrediccion()" class="w-full bg-[#a6e3a1] active:bg-[#95d890] text-[#11111b] font-bold py-3 rounded-xl text-sm shadow">🎯 Hacer predicción</button>
+                    <div id="resumen-predicciones" class="grid grid-cols-4 gap-2"></div>
                 </div>
-                <div class="bg-[#1e1e2e] border border-[#313244] p-3 rounded-xl space-y-2">
+                <div class="flex-1 bg-[#1e1e2e] border border-[#313244] p-3 rounded-xl space-y-2">
                     <h3 class="text-xs font-semibold text-[#89b4fa]">📋 Mis predicciones</h3>
-                    <div id="contenedor-mis-predicciones" class="max-h-64 overflow-y-auto space-y-1.5 pr-1"></div>
+                    <div id="contenedor-mis-predicciones" class="space-y-1.5"></div>
                 </div>
             </div>
         </section>
     </div>
 
+    <!-- BOTÓN SIMULAR: siempre visible dentro del torneo, en cualquier pestaña -->
+    <div id="barra-simular" class="hidden fixed bottom-0 inset-x-0 z-30 px-3 pb-3 pt-6 bg-gradient-to-t from-[#181825] via-[#181825]/95 to-transparent pointer-events-none">
+        <div class="max-w-md mx-auto space-y-1 pointer-events-auto">
+            <p id="siguiente-partido" class="text-[10px] text-gray-400 text-center truncate"></p>
+            <button id="btn-simular" onclick="simularPartido()" class="w-full bg-blue-600 active:bg-blue-500 text-white font-bold py-3 rounded-xl transition text-sm shadow-lg disabled:opacity-40 disabled:cursor-not-allowed">⚽ Simular siguiente partido</button>
+        </div>
+    </div>
+
     <!-- MODALES -->
     <div id="groupModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-40 p-4">
-        <div class="pop bg-[#1e1e2e] border border-[#313244] w-full max-w-xs p-4 rounded-2xl shadow-2xl space-y-3 text-center relative">
+        <div class="pop bg-[#1e1e2e] border border-[#313244] w-full max-w-xs p-4 rounded-2xl shadow-2xl space-y-3 text-center relative max-h-full overflow-y-auto">
             <button onclick="cerrarModalGrupo()" aria-label="Cerrar" class="absolute top-3 right-3 text-gray-400 font-bold text-xs">✕</button>
             <h3 class="text-xs font-bold text-[#89b4fa]">Elegir grupo</h3>
             <div id="modalTeamInfo" class="flex items-center justify-center gap-2 text-xs text-gray-200"></div>
@@ -144,7 +151,11 @@
             <button onclick="cerrarPrediccion()" aria-label="Cerrar" class="absolute top-3 right-3 text-gray-400 hover:text-white font-bold">✕</button>
             <div class="text-center">
                 <h3 class="text-sm font-bold text-[#89b4fa]">Hacer predicción</h3>
-                <p id="predPartidoInfo" class="text-[11px] text-gray-400"></p>
+                <p class="text-[11px] text-gray-400">Elige el partido y cómo crees que termina.</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-400 mb-1.5">Partido</p>
+                <select id="predPartido" onchange="cambiarPartidoPred()" class="w-full bg-[#11111b] border border-[#313244] text-white text-xs px-3 py-2.5 rounded-xl outline-none"></select>
             </div>
             <div id="predEquipos" class="flex items-center justify-center gap-2 text-xs font-bold text-white"></div>
             <div>
@@ -164,7 +175,7 @@
     </div>
 
     <div id="rechargeModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden items-center justify-center z-40 p-4">
-        <div class="pop bg-[#1e1e2e] border border-[#313244] w-full max-w-xs p-4 rounded-2xl shadow-2xl space-y-3 relative">
+        <div class="pop bg-[#1e1e2e] border border-[#313244] w-full max-w-xs p-4 rounded-2xl shadow-2xl space-y-3 relative max-h-full overflow-y-auto">
             <button onclick="cerrarRecarga()" aria-label="Cerrar" class="absolute top-3 right-3 text-gray-400 font-bold text-xs">✕</button>
             <div class="text-center space-y-0.5">
                 <h3 class="text-xs font-bold text-white">💳 Pasarela de Pago Simulada</h3>
@@ -210,7 +221,22 @@
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[90%] max-w-sm text-center bg-[#313244] border border-[#45475a] text-white text-[11px] font-semibold px-3 py-2 rounded-xl shadow-2xl z-50 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+    <!-- ENTRAR CON TU CÓDIGO DE JUGADOR -->
+    <div id="loginModal" class="fixed inset-0 bg-[#181825] hidden items-center justify-center z-[60] p-4">
+        <div class="pop bg-[#1e1e2e] border border-[#313244] w-full max-w-sm p-6 rounded-2xl shadow-2xl space-y-4 text-center">
+            <div class="text-5xl">⚔️</div>
+            <h3 class="text-lg font-bold text-white">Arena Legends</h3>
+            <p class="text-xs text-gray-400 leading-relaxed">Escribe tu código de jugador. Con el mismo código verás tu saldo y tu progreso en el celular y en el computador. Si es nuevo, se crea solo.</p>
+            <input id="inputCodigo" type="text" maxlength="40" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Tu código (mínimo 4 caracteres)"
+                   onkeydown="if (event.key === 'Enter') entrar()"
+                   class="w-full bg-[#11111b] border border-[#313244] text-white text-sm px-3 py-3 rounded-xl outline-none text-center">
+            <p id="loginError" class="text-xs text-[#f38ba8] min-h-[1rem]"></p>
+            <button id="btnEntrar" onclick="entrar()" class="w-full bg-[#a6e3a1] hover:bg-[#95d890] text-[#11111b] font-bold py-3 rounded-xl transition text-sm shadow-md disabled:opacity-50">Entrar</button>
+            <p class="text-[10px] text-gray-500">Es como tu contraseña: elige uno que otras personas no adivinen.</p>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-28 left-1/2 -translate-x-1/2 w-[90%] max-w-sm text-center bg-[#313244] border border-[#45475a] text-white text-[11px] font-semibold px-3 py-2 rounded-xl shadow-2xl z-50 opacity-0 pointer-events-none transition-opacity duration-300"></div>
 
     <script id="torneo-data" type="application/json">
         {{ state | tojson }}
@@ -222,6 +248,11 @@
         let ligaActual = state.liga_activa;
         let equipoElegido = null;
         let monedaSeleccionada = "COP";
+
+        // El progreso vive en el servidor, ligado a tu código de jugador: así lo ves igual en el
+        // celular y en el computador. En este navegador solo se recuerda el código.
+        const CLAVE_CODIGO = 'arena_legends_codigo';
+        let codigo = '';
 
         const tasasCambio = {
             "COP": { simbolo: "$", divisor: 1, formatoDecimal: 0 },
@@ -243,7 +274,8 @@
 
         const equiposLiga = () => state.equipos_por_liga[ligaActual] || [];
         const partidosLiga = () => state.matches.filter(m => m.liga === ligaActual);
-        
+        const sinJugar = m => m.home_score === null || m.home_score === undefined;
+
         function nombreLiga(codigo) {
             for (const ligas of Object.values(state.ligas)) {
                 const liga = ligas.find(l => l.codigo === codigo);
@@ -267,8 +299,8 @@
                 : `/static/escudos/${esc(escudoVal)}`;
 
             return `
-                <img src="${srcFinal}" 
-                     alt="${nombre}" 
+                <img src="${srcFinal}"
+                     alt="${nombre}"
                      class="${tam} object-contain shrink-0"
                      onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'">
                 <span class="text-base shrink-0" style="display:none">${bandera}</span>
@@ -352,13 +384,19 @@
             temporizadorToast = setTimeout(() => toast.classList.add('opacity-0'), 3000);
         }
 
+        // Cada petición lleva tu código y la liga que estás viendo; el servidor guarda el progreso
+        // y devuelve el estado nuevo.
         async function api(url, cuerpo = {}) {
             try {
                 const res = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(cuerpo)
+                    body: JSON.stringify({ ...cuerpo, codigo, liga: ligaActual })
                 });
+                if (res.status === 401) {
+                    mostrarLogin('Escribe un código de al menos 4 caracteres.');
+                    return null;
+                }
                 const data = await res.json();
                 if (data.status === 'success') return data;
                 await mostrarMensaje(data.tipo || 'error', data.titulo || 'Ups, algo salió mal', data.message || 'Ocurrió un error inesperado.');
@@ -370,6 +408,7 @@
 
         function mostrarVista(nombre) {
             ['deportes', 'ligas', 'torneo'].forEach(v => $(`vista-${v}`).classList.toggle('hidden', v !== nombre));
+            $('barra-simular').classList.toggle('hidden', nombre !== 'torneo');
             window.scrollTo({ top: 0 });
         }
 
@@ -410,7 +449,6 @@
             state = data.state;
             ligaActual = codigo;
             $('liga-nombre').textContent = nombreLiga(codigo);
-            $('btn-simular').textContent = `⚽ Simular partido`;
             cambiarPestanaM(1);
             renderTorneo();
             mostrarVista('torneo');
@@ -420,6 +458,27 @@
             renderSaldo();
             renderEquipos();
             renderGrupos();
+            actualizarBarraSimular();
+        }
+
+        // Muestra qué partido se juega a continuación y bloquea el botón si ya terminó todo.
+        function actualizarBarraSimular() {
+            const calendario = construirCalendario();
+            const siguiente = calendario.find(sinJugar);
+            const btn = $('btn-simular');
+            const etiqueta = $('siguiente-partido');
+            btn.textContent = `${ICONOS[state.deporte_activo] || '⚽'} Simular siguiente partido`;
+
+            if (!calendario.length) {
+                btn.disabled = false;
+                etiqueta.textContent = 'Asigna equipos a los grupos para empezar el torneo';
+            } else if (!siguiente) {
+                btn.disabled = true;
+                etiqueta.textContent = '✅ Fase de grupos completa';
+            } else {
+                btn.disabled = false;
+                etiqueta.textContent = `Siguiente: #${siguiente.id} · ${siguiente.home} vs ${siguiente.away} · ${siguiente.fecha}`;
+            }
         }
 
         function renderEquipos() {
@@ -453,7 +512,7 @@
                         <span class="text-red-400 font-bold px-1">✕</span>
                     </div>`).join('')
                     : '<p class="text-[9px] text-gray-500 italic text-center py-1">Vacío</p>';
-                
+
                 const card = document.createElement('div');
                 card.className = 'bg-[#11111b] border border-[#313244] rounded-lg p-2 space-y-1';
                 card.innerHTML = `<div class="flex justify-between items-center border-b border-[#313244] pb-1"><span class="text-[10px] font-bold text-[#89b4fa]">Grupo ${grupo}</span><span class="text-[9px] text-gray-400">(${miembros.length}/${state.max_group_capacity})</span></div><div class="space-y-1">${filas}</div>`;
@@ -464,12 +523,20 @@
             });
         }
 
+        // La fecha de cada partido se cuenta desde la fecha de inicio guardada,
+        // así no cambia de un día para otro.
+        function fechaPartido(id) {
+            const inicio = state.fecha_inicio || new Date().toISOString().split('T')[0];
+            const f = new Date(inicio + 'T12:00:00');
+            f.setDate(f.getDate() + id);
+            return f.toISOString().split('T')[0];
+        }
+
         // Calendario fijo: mismo orden y mismos números siempre; los partidos jugados
-        // aparecen en su lugar con su marcador.
+        // aparecen en su lugar con su marcador. El servidor juega los partidos en este orden.
         function construirCalendario() {
             const equipos = equiposLiga();
             const jugados = partidosLiga();
-            const hoy = Date.now();
             const lista = [];
             state.groups.forEach(g => {
                 const miembros = equipos.filter(t => t.group === g);
@@ -479,7 +546,7 @@
                         const jugado = jugados.find(m =>
                             (m.home === a.name && m.away === b.name) || (m.home === b.name && m.away === a.name));
                         const id = lista.length + 1;
-                        const fecha = new Date(hoy + id * 86400000).toISOString().split('T')[0];
+                        const fecha = fechaPartido(id);
                         lista.push(jugado ? { ...jugado, id, fecha } : {
                             id, liga: ligaActual, group: g, fecha,
                             home: a.name, home_escudo: a.escudo, home_flag: a.flag,
@@ -495,24 +562,25 @@
         function renderCalendarioM() {
             const cont = $('contenedor-calendario-m');
             cont.innerHTML = '';
-            
-            let equipos = equiposLiga();
-            let gruposUnicos = [...new Set(equipos.map(t => t.group).filter(Boolean))];
 
-            if(gruposUnicos.length === 0) {
+            const equipos = equiposLiga();
+            const gruposUnicos = [...new Set(equipos.map(t => t.group).filter(Boolean))];
+
+            if (gruposUnicos.length === 0) {
                 cont.innerHTML = '<p class="text-gray-400 text-center py-6 text-xs font-semibold">Asigna los equipos a los grupos para ver el calendario.</p>';
                 return;
             }
 
             const partidosMostrados = construirCalendario();
+            const siguienteId = (partidosMostrados.find(sinJugar) || {}).id;
 
             partidosMostrados.forEach((m, idx) => {
                 const idPartido = m.id || (idx + 1);
-                const fechaPart = m.fecha || '2026-10-22';
-                const seJugo = (m.home_score !== null && m.home_score !== undefined);
-                const marcadorTexto = seJugo
+                const marcadorTexto = !sinJugar(m)
                     ? `<span class="text-[#a6e3a1] font-extrabold text-xs">${m.home_score} - ${m.away_score}</span>`
-                    : `<span class="text-gray-300 font-bold text-[10px] tracking-wide">PENDIENTE</span>`;
+                    : (m.id === siguienteId
+                        ? `<span class="text-[#f9e2af] font-bold text-[10px] tracking-wide">▶ SIGUIENTE</span>`
+                        : `<span class="text-gray-300 font-bold text-[10px] tracking-wide">PENDIENTE</span>`);
 
                 const localObj = { name: m.home, escudo: m.home_escudo, flag: m.home_flag };
                 const visitaObj = { name: m.away, escudo: m.away_escudo, flag: m.away_flag };
@@ -522,7 +590,7 @@
                 div.innerHTML = `
                     <div class="flex justify-between text-[10px] text-gray-400 border-b border-[#313244]/60 pb-1 font-medium">
                         <span class="text-[#89b4fa] font-bold">#${idPartido} · Grupo ${esc(m.group)}</span>
-                        <span>📅 ${fechaPart}</span>
+                        <span>📅 ${m.fecha}</span>
                     </div>
                     <div class="flex justify-between items-center text-white text-[11px] pt-0.5">
                         <div class="flex items-center gap-1.5 min-w-0 flex-1">
@@ -538,55 +606,121 @@
             });
         }
 
+        // ---------- TABLA DE POSICIONES ----------
+        function calcularPosiciones(g) {
+            const miembros = equiposLiga().filter(t => t.group === g);
+            const stats = miembros.map(t => ({ name: t.name, flag: t.flag, escudo: t.escudo,
+                pj: 0, pg: 0, pe: 0, pp: 0, gf: 0, gc: 0, pts: 0, ultimos: [] }));
+
+            // state.matches viene del más nuevo al más viejo; se invierte para ir en orden de juego.
+            const jugados = partidosLiga().filter(m => m.group === g && !sinJugar(m)).slice().reverse();
+            jugados.forEach(m => {
+                const local = stats.find(s => s.name === m.home);
+                const visita = stats.find(s => s.name === m.away);
+                if (!local || !visita) return;
+                local.pj++; visita.pj++;
+                local.gf += m.home_score; local.gc += m.away_score;
+                visita.gf += m.away_score; visita.gc += m.home_score;
+
+                if (m.home_score > m.away_score) {
+                    local.pg++; local.pts += 3; local.ultimos.push('G');
+                    visita.pp++; visita.ultimos.push('P');
+                } else if (m.home_score < m.away_score) {
+                    visita.pg++; visita.pts += 3; visita.ultimos.push('G');
+                    local.pp++; local.ultimos.push('P');
+                } else {
+                    local.pe++; visita.pe++; local.pts += 1; visita.pts += 1;
+                    local.ultimos.push('E'); visita.ultimos.push('E');
+                }
+            });
+
+            stats.sort((a, b) => b.pts - a.pts || (b.gf - b.gc) - (a.gf - a.gc) || b.gf - a.gf);
+            return stats;
+        }
+
+        // Últimos 5 partidos en serie: ✓ ganó, – empató, ✕ perdió (el más reciente va resaltado).
+        const FORMA_ICONO = { G: ['bg-green-500', '✓', 'Ganó'], E: ['bg-gray-500', '–', 'Empató'], P: ['bg-red-500', '✕', 'Perdió'] };
+        function formaHtml(ultimos) {
+            const ult = ultimos.slice(-5);
+            if (!ult.length) return '<span class="text-gray-500">-</span>';
+            return ult.map((r, i) => {
+                const [fondo, simbolo, titulo] = FORMA_ICONO[r];
+                const anillo = i === ult.length - 1 ? ' ring-2 ring-white/70' : '';
+                return `<span title="${titulo}" class="inline-flex items-center justify-center w-5 h-5 rounded-full ${fondo} text-white text-[11px] font-bold leading-none${anillo}">${simbolo}</span>`;
+            }).join('');
+        }
+
+        // El club queda fijo a la izquierda y las demás columnas se deslizan de lado.
+        function tablaPosicionesHtml(stats, fondo) {
+            const th = 'px-2 py-2 text-center font-semibold';
+            const td = 'px-2 py-2 text-center';
+            return `
+            <div class="overflow-x-auto">
+                <table class="w-full text-[11px] text-left border-collapse">
+                    <thead>
+                        <tr class="text-gray-400 border-b border-[#313244]">
+                            <th class="sticky left-0 z-10 ${fondo} px-2 py-2 font-semibold min-w-[9.5rem]">Club</th>
+                            <th class="${th}">PJ</th>
+                            <th class="${th}">PG</th>
+                            <th class="${th}">PE</th>
+                            <th class="${th}">PP</th>
+                            <th class="${th}">GF</th>
+                            <th class="${th}">GC</th>
+                            <th class="${th}">DG</th>
+                            <th class="${th}">PTS</th>
+                            <th class="${th} min-w-[7.5rem]">Últimos 5</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${stats.map((s, i) => {
+                            const dg = s.gf - s.gc;
+                            return `
+                        <tr class="border-b border-[#313244]/40">
+                            <td class="sticky left-0 z-10 ${fondo} px-2 py-2 shadow-[4px_0_6px_-4px_rgba(0,0,0,0.8)]">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="w-3 text-gray-400 font-bold">${i + 1}</span>
+                                    ${escudoHtml(s, 'w-5 h-5')}
+                                    <span class="font-bold text-white leading-tight">${esc(s.name)}</span>
+                                </div>
+                            </td>
+                            <td class="${td}">${s.pj}</td>
+                            <td class="${td}">${s.pg}</td>
+                            <td class="${td}">${s.pe}</td>
+                            <td class="${td}">${s.pp}</td>
+                            <td class="${td}">${s.gf}</td>
+                            <td class="${td}">${s.gc}</td>
+                            <td class="${td} font-mono">${dg > 0 ? '+' + dg : dg}</td>
+                            <td class="${td} font-bold text-[#a6e3a1]">${s.pts}</td>
+                            <td class="px-2 py-2"><div class="flex items-center justify-center gap-1">${formaHtml(s.ultimos)}</div></td>
+                        </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>`;
+        }
+
         function renderPosicionesM() {
             const cont = $('contenedor-posiciones-m');
             cont.innerHTML = '';
-            const equipos = equiposLiga();
-            const partidos = partidosLiga();
+            let hayGrupos = false;
 
             state.groups.forEach(g => {
-                const miembros = equipos.filter(t => t.group === g);
-                if(miembros.length === 0) return;
-                let stats = miembros.map(t => ({ name: t.name, flag: t.flag, escudo: t.escudo, pj:0, pg:0, pe:0, pp:0, gf:0, gc:0, pts:0, ultimos:[] }));
-                
-                partidos.filter(m => m.group === g).forEach(m => {
-                    const l = stats.find(s => s.name === m.home);
-                    const v = stats.find(s => s.name === m.away);
-                    if(l && v && m.home_score !== null && m.home_score !== undefined) {
-                        l.pj++; v.pj++;
-                        l.gf += m.home_score; l.gc += m.away_score;
-                        v.gf += m.away_score; v.gc += m.home_score;
-                        if(m.home_score > m.away_score) { l.pg++; l.pts += 3; l.ultimos.push('G'); v.pp++; v.ultimos.push('P'); }
-                        else if(m.home_score < m.away_score) { v.pg++; v.pts += 3; v.ultimos.push('G'); l.pp++; l.ultimos.push('P'); }
-                        else { l.pe++; l.pts += 1; l.ultimos.push('E'); v.pe++; v.pts += 1; v.ultimos.push('E'); }
-                    }
-                });
-                stats.sort((a,b) => b.pts - a.pts || (b.gf - b.gc) - (a.gf - a.gc));
-
+                if (!equiposLiga().some(t => t.group === g)) return;
+                hayGrupos = true;
                 const div = document.createElement('div');
                 div.className = "bg-[#11111b] border border-[#313244] p-2 rounded-lg space-y-1.5";
                 div.innerHTML = `<span class="text-[10px] font-bold text-[#89b4fa] block border-b border-[#313244] pb-1">GRUPO ${g}</span>
-                    ${stats.map((s,i) => {
-                        const ultimosHtml = s.ultimos.length > 0 ? s.ultimos.map(u => {
-                            if(u === 'G') return `<span class="bg-green-600/30 text-green-400 px-1 py-0.2 rounded text-[8px] font-bold">G</span>`;
-                            if(u === 'E') return `<span class="bg-yellow-600/30 text-yellow-400 px-1 py-0.2 rounded text-[8px] font-bold">E</span>`;
-                            return `<span class="bg-red-600/30 text-red-400 px-1 py-0.2 rounded text-[8px] font-bold">P</span>`;
-                        }).join(' ') : '<span class="text-gray-500 text-[8px]">-</span>';
-
-                        return `<div class="flex justify-between items-center text-[10px] py-0.5 border-b border-[#1e1e2e]">
-                            <span class="text-white truncate max-w-[120px] flex items-center gap-1">${i+1}. ${escudoHtml(s, 'w-3.5 h-3.5')} ${esc(s.name)}</span>
-                            <div class="flex gap-1 items-center">
-                                ${ultimosHtml}
-                                <span class="text-[#a6e3a1] font-bold ml-1">${s.pts} PTS</span>
-                            </div>
-                        </div>`;
-                    }).join('')}`;
+                    ${tablaPosicionesHtml(calcularPosiciones(g), 'bg-[#11111b]')}`;
                 cont.appendChild(div);
             });
+
+            if (!hayGrupos) {
+                cont.innerHTML = '<p class="text-gray-400 text-center py-6 text-xs font-semibold">Asigna los equipos a los grupos para ver la tabla.</p>';
+            }
         }
 
         function renderHistorial() {
-            const partidos = partidosLiga().filter(m => m.home_score !== null && m.home_score !== undefined);
+            const partidos = partidosLiga().filter(m => !sinJugar(m));
             $('contador-partidos').textContent = partidos.length;
             const contenedor = $('contenedor-historial');
 
@@ -624,52 +758,67 @@
         const tienePrediccion = m => (state.predictions || []).some(p =>
             p.estado === 'pendiente' && p.liga === ligaActual && mismoCruce(p, m));
 
+        const partidosPredecibles = () => construirCalendario().filter(m => sinJugar(m) && !tienePrediccion(m));
+
         function montoPredEnCOP() {
             const valor = parseFloat($('predMonto').value) || 0;
             return valor * tasasCambio[monedaSeleccionada].divisor;
         }
 
+        function textoResultado(p) {
+            if (p.resultado === 'local') return `Ganó ${p.home}`;
+            if (p.resultado === 'visita') return `Ganó ${p.away}`;
+            return 'Empate';
+        }
+
+        // Pestaña de apuestas: solo el resumen y "Mis predicciones" (el botón abre la ventana).
         function renderPredicciones() {
-            const pendientes = construirCalendario().filter(m => m.home_score === null);
+            const mias = (state.predictions || []).filter(p => p.liga === ligaActual);
+            const ganadas = mias.filter(p => p.estado === 'ganada').length;
+            const perdidas = mias.filter(p => p.estado === 'perdida').length;
+            const pendientes = mias.filter(p => p.estado === 'pendiente').length;
+            const neto = mias.filter(p => p.estado !== 'pendiente')
+                .reduce((suma, p) => suma + (p.estado === 'ganada' ? p.premio - p.monto : -p.monto), 0);
 
-            $('contenedor-predicciones').innerHTML = pendientes.length
-                ? pendientes.map(m => `
-                    <div class="p-3 bg-[#11111b] border border-[#313244] rounded-xl flex items-center justify-between gap-3">
-                        <div class="min-w-0 text-xs text-white font-bold truncate">#${m.id} · Grupo ${esc(m.group)} — ${esc(m.home)} vs ${esc(m.away)}</div>
-                        ${tienePrediccion(m)
-                            ? '<span class="shrink-0 text-[10px] text-[#f9e2af] bg-yellow-600/20 px-2 py-1 rounded border border-yellow-500/30">Ya apostaste</span>'
-                            : `<button onclick="abrirPrediccion(${m.id})" class="shrink-0 bg-[#a6e3a1] hover:bg-[#95d890] text-[#11111b] font-bold px-3 py-1.5 rounded-lg text-xs">🎯 Predecir</button>`}
-                    </div>`).join('')
-                : '<p class="text-gray-500 text-xs text-center py-6">No hay partidos pendientes. Asigna equipos a grupos en la pestaña 1.</p>';
+            const tarjeta = (titulo, valor, color) => `
+                <div class="p-2 bg-[#11111b] border border-[#313244] rounded-xl text-center min-w-0">
+                    <div class="text-[9px] text-gray-400">${titulo}</div>
+                    <div class="text-[11px] font-bold ${color} truncate">${valor}</div>
+                </div>`;
+            $('resumen-predicciones').innerHTML =
+                tarjeta('Ganadas', ganadas, 'text-[#a6e3a1]') +
+                tarjeta('Perdidas', perdidas, 'text-[#f38ba8]') +
+                tarjeta('Pendientes', pendientes, 'text-[#f9e2af]') +
+                tarjeta('Balance', `${neto >= 0 ? '+' : '-'}${formatearMoneda(Math.abs(neto))}`, neto >= 0 ? 'text-[#a6e3a1]' : 'text-[#f38ba8]');
 
-            const mias = (state.predictions || []).filter(p => p.liga === ligaActual).slice().reverse();
             const colores = { pendiente: 'text-[#f9e2af]', ganada: 'text-[#a6e3a1]', perdida: 'text-[#f38ba8]' };
-
             $('contenedor-mis-predicciones').innerHTML = mias.length
-                ? mias.map(p => {
+                ? mias.slice().reverse().map(p => {
                     const pick = p.eleccion === 'local' ? p.home : (p.eleccion === 'visita' ? p.away : 'Empate');
-                    const detalle = p.estado === 'ganada' ? `Ganaste ${formatearMoneda(p.premio)}` : formatearMoneda(p.monto);
+                    let pie = '<span class="text-[#f9e2af]">Esperando el resultado del partido…</span>';
+                    if (p.estado !== 'pendiente' && p.marcador) {
+                        const ganancia = p.estado === 'ganada'
+                            ? `<span class="text-[#a6e3a1] font-bold">+${formatearMoneda(p.premio - p.monto)}</span>`
+                            : `<span class="text-[#f38ba8] font-bold">-${formatearMoneda(p.monto)}</span>`;
+                        pie = `Resultado: <strong class="text-white">${esc(textoResultado(p))}</strong> (${p.marcador[0]} - ${p.marcador[1]}) · ${ganancia}`;
+                    }
                     return `
-                    <div class="p-3 bg-[#11111b] border border-[#313244] rounded-xl space-y-1">
-                        <div class="text-xs font-bold text-white truncate">${esc(p.home)} vs ${esc(p.away)}</div>
-                        <div class="flex justify-between text-[11px] text-gray-400">
-                            <span>Tu pronóstico: <strong class="text-white">${esc(pick)}</strong> (x${p.cuota.toFixed(2)})</span>
-                            <span class="${colores[p.estado]} font-bold">${p.estado.toUpperCase()} · ${detalle}</span>
+                    <div class="p-3 bg-[#11111b] border border-[#313244] rounded-xl space-y-1.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-xs font-bold text-white truncate">${esc(p.home)} vs ${esc(p.away)}</span>
+                            <span class="shrink-0 text-[10px] font-bold ${colores[p.estado]}">${p.estado.toUpperCase()}</span>
                         </div>
+                        <div class="flex flex-wrap justify-between gap-x-3 text-[11px] text-gray-400">
+                            <span>Tu pronóstico: <strong class="text-white">${esc(pick)}</strong> (x${p.cuota.toFixed(2)})</span>
+                            <span>Apostado: ${formatearMoneda(p.monto)}</span>
+                        </div>
+                        <div class="text-[11px] text-gray-400">${pie}</div>
                     </div>`;
                 }).join('')
                 : '<p class="text-gray-500 text-xs text-center py-6">Aún no has hecho predicciones.</p>';
         }
 
-        function abrirPrediccion(id) {
-            partidoPred = construirCalendario().find(m => m.id === id);
-            if (!partidoPred) return;
-            eleccionPred = null;
-
-            $('predPartidoInfo').textContent = `Partido #${id} · Grupo ${partidoPred.group}`;
-            $('predEquipos').innerHTML =
-                `<span class="truncate">${esc(partidoPred.home)}</span><span class="text-[#89b4fa]">vs</span><span class="truncate">${esc(partidoPred.away)}</span>`;
-
+        function renderOpcionesPred() {
             const sinEmpate = SIN_EMPATE.includes(state.deporte_activo);
             const opciones = sinEmpate ? ['local', 'visita'] : ['local', 'empate', 'visita'];
             const cont = $('predOpciones');
@@ -683,11 +832,40 @@
                 btn.onclick = () => elegirResultado(op);
                 cont.appendChild(btn);
             });
+        }
+
+        function cambiarPartidoPred() {
+            partidoPred = construirCalendario().find(m => m.id === Number($('predPartido').value));
+            if (!partidoPred) return;
+            eleccionPred = null;
+            const local = { name: partidoPred.home, escudo: partidoPred.home_escudo, flag: partidoPred.home_flag };
+            const visita = { name: partidoPred.away, escudo: partidoPred.away_escudo, flag: partidoPred.away_flag };
+            $('predEquipos').innerHTML =
+                `${escudoHtml(local, 'w-7 h-7')}<span class="truncate">${esc(partidoPred.home)}</span>` +
+                `<span class="text-[#89b4fa]">vs</span>` +
+                `<span class="truncate">${esc(partidoPred.away)}</span>${escudoHtml(visita, 'w-7 h-7')}`;
+            renderOpcionesPred();
+            actualizarGanancia();
+        }
+
+        function abrirPrediccion() {
+            const lista = partidosPredecibles();
+            if (!lista.length) {
+                const hayCalendario = construirCalendario().length > 0;
+                mostrarMensaje('info', 'Sin partidos disponibles',
+                    hayCalendario
+                        ? 'No quedan partidos pendientes sin predicción en esta liga.'
+                        : 'Primero asigna equipos a los grupos en la pestaña 1.');
+                return;
+            }
+
+            $('predPartido').innerHTML = lista.map(m =>
+                `<option value="${m.id}">#${m.id} · Grupo ${esc(m.group)} — ${esc(m.home)} vs ${esc(m.away)}</option>`).join('');
 
             $('predMontoLabel').textContent = `Monto a apostar (${monedaSeleccionada})`;
             $('predMonto').value = monedaSeleccionada === 'COP' ? 10000 : (monedaSeleccionada === 'USD' ? 3 : 2);
             $('predSaldo').textContent = formatearMoneda(state.balance_cop);
-            actualizarGanancia();
+            cambiarPartidoPred();
 
             $('predictModal').classList.remove('hidden');
             $('predictModal').classList.add('flex');
@@ -713,6 +891,7 @@
         }
 
         async function confirmarPrediccion() {
+            if (!partidoPred) return;
             if (!eleccionPred) {
                 await mostrarMensaje('aviso', 'Elige un resultado', 'Selecciona Local, Empate o Visita antes de confirmar.');
                 return;
@@ -742,7 +921,7 @@
 
             const contenedor = $('groupOptions');
             contenedor.innerHTML = '';
-            
+
             if (team.group) {
                 const btnQuitar = document.createElement('button');
                 btnQuitar.textContent = '❌ Quitar de grupo actual';
@@ -792,7 +971,7 @@
 
         async function reiniciarTorneo() {
             const confirmado = await mostrarMensaje('confirmar', '¿Reiniciar el torneo?',
-                'Se borrarán los grupos y partidos. Tu saldo se conserva.',
+                'Se borrarán los grupos, los partidos y tus predicciones. Tu saldo se conserva (y se te devuelve lo apostado en predicciones pendientes).',
                 { confirmar: true, textoOk: 'Sí, reiniciar' });
             if (!confirmado) return;
 
@@ -859,14 +1038,14 @@
                     const px = Math.min(472, Math.max(28, x));
                     sim.pos[lado][i] = [px, y];
                     const el = document.getElementById(`pj-${lado}-${i}`);
-                    if(el) el.style.transform = `translate(${px}px, ${y}px)`;
+                    if (el) el.style.transform = `translate(${px}px, ${y}px)`;
                 });
             }
             const ventaja = (sim.empuje.home - sim.empuje.away) / 300;
             const lado = Math.random() < .5 + ventaja ? 'home' : 'away';
             const [bx, by] = sim.pos[lado][1 + Math.floor(Math.random() * 10)];
             const balon = document.getElementById('simBalon');
-            if(balon) balon.style.transform = `translate(${bx + 8}px, ${by + 8}px)`;
+            if (balon) balon.style.transform = `translate(${bx + 8}px, ${by + 8}px)`;
         }
 
         function construirPanelGenerico(live) {
@@ -973,6 +1152,9 @@
             $('simModal').classList.remove('flex');
             renderTorneo();
             renderPredicciones();
+            renderCalendarioM();
+            renderPosicionesM();
+            renderHistorial();
             const m = state.matches[0];
             mostrarToast(`${ICONOS[m.deporte] || '🏆'} ${m.home} ${m.home_score} - ${m.away_score} ${m.away}`);
 
@@ -1013,10 +1195,10 @@
             }
 
             let montoEnCOP = montoIngresado;
-            if(monedaSeleccionada === "USD") montoEnCOP = montoIngresado * tasasCambio.USD.divisor;
-            if(monedaSeleccionada === "EUR") montoEnCOP = montoIngresado * tasasCambio.EUR.divisor;
+            if (monedaSeleccionada === "USD") montoEnCOP = montoIngresado * tasasCambio.USD.divisor;
+            if (monedaSeleccionada === "EUR") montoEnCOP = montoIngresado * tasasCambio.EUR.divisor;
 
-            if(montoEnCOP < 50000) {
+            if (montoEnCOP < 50000) {
                 await mostrarMensaje('aviso', 'Monto mínimo requerido', 'El monto mínimo de recarga es de 50.000 COP.');
                 return;
             }
@@ -1029,8 +1211,104 @@
             await mostrarMensaje('exito', 'Recarga exitosa', `Se acreditaron correctamente. Tu nuevo saldo es ${formatearMoneda(state.balance_cop)}.`);
         }
 
-        renderSaldo();
-        mostrarDeportes();
+        // ---------- ENTRAR Y CARGAR EL PROGRESO ----------
+        function mostrarLogin(aviso = '') {
+            $('loginError').textContent = aviso;
+            $('inputCodigo').value = codigo || '';
+            $('loginModal').classList.remove('hidden');
+            $('loginModal').classList.add('flex');
+            setTimeout(() => $('inputCodigo').focus(), 50);
+        }
+
+        function ocultarLogin() {
+            $('loginModal').classList.add('hidden');
+            $('loginModal').classList.remove('flex');
+        }
+
+        async function cargarProgreso() {
+            const data = await api('/api/load');
+            if (!data) return false;
+            state = data.state;
+            deporteActual = state.deporte_activo;
+            ligaActual = state.liga_activa;
+            $('btn-usuario').textContent = `👤 ${codigo}`;
+            renderSaldo();
+            mostrarDeportes();
+            return true;
+        }
+
+        async function entrar() {
+            const valor = $('inputCodigo').value.trim().toLowerCase();
+            if (valor.length < 4) {
+                $('loginError').textContent = 'Escribe al menos 4 caracteres.';
+                return;
+            }
+            const boton = $('btnEntrar');
+            boton.disabled = true;
+            boton.textContent = 'Entrando...';
+            const anterior = codigo;
+            codigo = valor;
+            const listo = await cargarProgreso();
+            boton.disabled = false;
+            boton.textContent = 'Entrar';
+            if (listo) {
+                try { localStorage.setItem(CLAVE_CODIGO, codigo); } catch (e) { /* navegador sin almacenamiento */ }
+                ocultarLogin();
+            } else {
+                codigo = anterior;
+                $('loginError').textContent = 'No pudimos entrar. Revisa tu conexión e intenta de nuevo.';
+            }
+        }
+
+        async function cambiarUsuario() {
+            const confirmado = await mostrarMensaje('confirmar', '¿Cambiar de código?',
+                'Tu progreso queda guardado con tu código. Podrás volver a entrar con él cuando quieras, desde cualquier dispositivo.',
+                { confirmar: true, textoOk: 'Cambiar' });
+            if (!confirmado) return;
+            try { localStorage.removeItem(CLAVE_CODIGO); } catch (e) { /* nada */ }
+            location.reload();
+        }
+
+        // Al volver a la pestaña (por ejemplo, después de jugar en el otro dispositivo) se actualiza todo.
+        function refrescarVista() {
+            renderSaldo();
+            if (!$('vista-torneo').classList.contains('hidden')) {
+                renderTorneo();
+                renderCalendarioM();
+                renderPosicionesM();
+                renderPredicciones();
+                renderHistorial();
+            }
+        }
+
+        async function refrescarSilencioso() {
+            if (!codigo || sim) return;
+            try {
+                const res = await fetch('/api/load', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ codigo, liga: ligaActual })
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data.status !== 'success') return;
+                state = data.state;
+                refrescarVista();
+            } catch (e) { /* sin conexión: se deja lo que hay en pantalla */ }
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') refrescarSilencioso();
+        });
+
+        async function iniciar() {
+            try { codigo = localStorage.getItem(CLAVE_CODIGO) || ''; } catch (e) { codigo = ''; }
+            if (!codigo) { mostrarLogin(); return; }
+            const listo = await cargarProgreso();
+            if (!listo) mostrarLogin('No pudimos cargar tu progreso. Revisa tu conexión y vuelve a entrar.');
+        }
+
+        iniciar();
     </script>
 </body>
 </html>

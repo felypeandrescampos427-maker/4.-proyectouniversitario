@@ -1,17 +1,32 @@
-"""Arena Legends - servidor Flask (versión móvil)."""
+"""Arena Legends - servidor Flask (versión móvil).
+
+El progreso (saldo, grupos, partidos y predicciones) se guarda en el SERVIDOR, ligado a un
+"código de jugador". Con el mismo código ves lo mismo en el celular y en el computador.
+
+Dónde se guarda:
+  - En Render: en Upstash Redis (gratis), cuando existen las variables de entorno
+    UPSTASH_REDIS_REST_URL y UPSTASH_REDIS_REST_TOKEN. Render borra los archivos del
+    servidor cada vez que se reinicia, por eso allí no se puede usar un archivo.
+  - En tu PC (sin esas variables): en archivos dentro de la carpeta progreso_local/.
+"""
 import copy
+import hashlib
 import json
 import math
 import os
 import random
+from datetime import date
 
+import requests
 from flask import Flask, jsonify, render_template, request
 
 app = Flask(__name__)
 
-DATA_FILE = "progreso_torneo.json"
 PLANTILLA = "mobile.html"
 PUERTO = 5001
+UPSTASH_URL = os.environ.get("UPSTASH_REDIS_REST_URL", "").strip().rstrip("/")
+UPSTASH_TOKEN = os.environ.get("UPSTASH_REDIS_REST_TOKEN", "").strip()
+CARPETA_LOCAL = os.path.join(os.path.dirname(os.path.abspath(__file__)), "progreso_local")
 SALDO_INICIAL = 100_000.0
 MAX_RECARGA = 100_000_000
 
@@ -49,6 +64,11 @@ MONTO_MIN_PREDICCION = 1_000
 NOMBRE_LIGA = {
     liga["codigo"]: liga["nombre"]
     for ligas in LIGAS_DISPONIBLES.values()
+    for liga in ligas
+}
+DEPORTE_DE_LIGA = {
+    liga["codigo"]: deporte
+    for deporte, ligas in LIGAS_DISPONIBLES.items()
     for liga in ligas
 }
 
@@ -116,7 +136,7 @@ EQUIPOS_POR_LIGA = {
         ("Patriotas Boyacá", "patriotas.png"),
         ("Deportivo Pasto", "pasto.png"),
     ]),
-    "PD": _equipos("🇪🇸", 101, [
+    "PD": _equipos("🇪🇸", 1, [
         ("Real Madrid", "realmadrid.png"),
         ("FC Barcelona", "barcelona.png"),
         ("Atlético de Madrid", "atletico.png"),
@@ -138,7 +158,7 @@ EQUIPOS_POR_LIGA = {
         ("Málaga CF", "malaga.png"),
         ("Racing de Santander", "racing.png"),
     ]),
-    "PL": _equipos("🇬🇧", 201, [
+    "PL": _equipos("🇬🇧", 101, [
         ("Manchester City", "mancity.png"),
         ("Arsenal FC", "arsenal.png"),
         ("Liverpool FC", "liverpool.png"),
@@ -190,26 +210,44 @@ DEFAULT_STATE = {
     "predictions": [],
 }
 
+CAMPOS_PREDICCION = ("id", "liga", "home", "away", "eleccion", "cuota", "monto", "estado")
+
 
 # ---------------------------------------------------------------------------
-# Persistencia
+# Estado (se guarda en el servidor, ligado al código de jugador)
 # ---------------------------------------------------------------------------
 def estado_inicial():
-    return copy.deepcopy(DEFAULT_STATE)
+    data = copy.deepcopy(DEFAULT_STATE)
+    # El calendario cuenta los días desde esta fecha; así las fechas no cambian cada día.
+    data["fecha_inicio"] = date.today().isoformat()
+    return data
 
 
 def normalizar(data):
-    """Pone al día un archivo guardado: la configuración manda el código,
-    pero se conservan el saldo, los grupos asignados, los partidos jugados
-    y las predicciones."""
+    """Pone al día el estado que manda el navegador: la configuración manda el código,
+    pero se conservan el saldo, los grupos asignados, los partidos y las predicciones."""
     base = estado_inicial()
-    data.pop("api_keys", None)  # las claves nunca deben viajar al navegador
+    data.pop("api_keys", None)
     data.pop("logs", None)
 
     for clave in ("ligas", "groups", "max_group_capacity", "cuotas", "monto_min_prediccion"):
         data[clave] = base[clave]
-    for clave in ("balance_cop", "deporte_activo", "liga_activa", "matches", "predictions"):
-        data.setdefault(clave, base[clave])
+
+    try:
+        saldo = float(data.get("balance_cop", base["balance_cop"]))
+        data["balance_cop"] = saldo if math.isfinite(saldo) and saldo >= 0 else base["balance_cop"]
+    except (TypeError, ValueError):
+        data["balance_cop"] = base["balance_cop"]
+
+    if data.get("deporte_activo") not in LIGAS_DISPONIBLES:
+        data["deporte_activo"] = base["deporte_activo"]
+    if data.get("liga_activa") not in EQUIPOS_POR_LIGA:
+        data["liga_activa"] = base["liga_activa"]
+
+    try:
+        date.fromisoformat(str(data.get("fecha_inicio")))
+    except ValueError:
+        data["fecha_inicio"] = base["fecha_inicio"]
 
     guardados_por_liga = data.get("equipos_por_liga", {})
     data["equipos_por_liga"] = {}
@@ -220,29 +258,127 @@ def normalizar(data):
             for equipo in equipos_base
         ]
 
-    data["matches"] = [m for m in data["matches"] if "liga" in m]
+    partidos = data.get("matches")
+    data["matches"] = [m for m in partidos if isinstance(m, dict) and "liga" in m] \
+        if isinstance(partidos, list) else []
     # Los partidos guardados pueden traer nombres de escudo antiguos: se actualizan.
     for m in data["matches"]:
         m["home_escudo"] = resolver_escudo(m.get("home_escudo", ""))
         m["away_escudo"] = resolver_escudo(m.get("away_escudo", ""))
+
+    predicciones = data.get("predictions")
+    data["predictions"] = [
+        p for p in predicciones
+        if isinstance(p, dict) and all(c in p for c in CAMPOS_PREDICCION)
+    ] if isinstance(predicciones, list) else []
     return data
 
 
-def save_data(data):
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+class CodigoInvalido(Exception):
+    pass
 
 
-def load_data():
-    if os.path.exists(DATA_FILE):
+class ErrorAlmacenamiento(Exception):
+    pass
+
+
+def limpiar_codigo(valor):
+    """El código no distingue mayúsculas y debe tener entre 4 y 40 caracteres."""
+    codigo = str(valor or "").strip().lower()
+    return codigo if 4 <= len(codigo) <= 40 else None
+
+
+def clave_de(codigo):
+    """Lo que se guarda no lleva el código en claro, sino su huella (SHA-256)."""
+    return "arena:" + hashlib.sha256(codigo.encode("utf-8")).hexdigest()[:40]
+
+
+def usa_upstash():
+    return bool(UPSTASH_URL and UPSTASH_TOKEN)
+
+
+def _redis(comando):
+    """Ejecuta un comando de Redis por la API REST de Upstash."""
+    try:
+        r = requests.post(UPSTASH_URL, headers={"Authorization": f"Bearer {UPSTASH_TOKEN}"},
+                          json=comando, timeout=8)
+        r.raise_for_status()
+        return r.json().get("result")
+    except (requests.RequestException, ValueError) as e:
+        raise ErrorAlmacenamiento(str(e)) from e
+
+
+def _ruta_local(clave):
+    return os.path.join(CARPETA_LOCAL, clave.split(":", 1)[1] + ".json")
+
+
+def leer_crudo(clave):
+    if usa_upstash():
+        return _redis(["GET", clave])
+    try:
+        with open(_ruta_local(clave), "r", encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        return None
+    except OSError as e:
+        raise ErrorAlmacenamiento(str(e)) from e
+
+
+def guardar_crudo(clave, texto):
+    if usa_upstash():
+        _redis(["SET", clave, texto])
+        return
+    try:
+        os.makedirs(CARPETA_LOCAL, exist_ok=True)
+        with open(_ruta_local(clave), "w", encoding="utf-8") as f:
+            f.write(texto)
+    except OSError as e:
+        raise ErrorAlmacenamiento(str(e)) from e
+
+
+def leer_estado(codigo):
+    crudo = leer_crudo(clave_de(codigo))
+    if not crudo:
+        return None
+    try:
+        return json.loads(crudo)
+    except ValueError:
+        return None
+
+
+def guardar_estado(codigo, data):
+    guardar_crudo(clave_de(codigo), json.dumps(data, ensure_ascii=False))
+
+
+def abrir(req):
+    """Lee el progreso del código que mandó el navegador (o crea uno nuevo).
+    Si el navegador dice en qué liga está, esa pasa a ser la liga activa: así el celular
+    y el PC pueden estar en ligas distintas sin pisarse."""
+    codigo = limpiar_codigo(req.get("codigo"))
+    if not codigo:
+        raise CodigoInvalido()
+
+    guardado = leer_estado(codigo)
+    data = None
+    if isinstance(guardado, dict):
         try:
-            with open(DATA_FILE, "r", encoding="utf-8") as f:
-                return normalizar(json.load(f))
-        except (OSError, json.JSONDecodeError, KeyError, TypeError):
-            pass
-    data = estado_inicial()
-    save_data(data)
-    return data
+            data = normalizar(guardado)
+        except (KeyError, TypeError, ValueError, AttributeError):
+            data = None
+    if data is None:
+        data = estado_inicial()
+
+    liga = req.get("liga")
+    if liga in DEPORTE_DE_LIGA:
+        data["liga_activa"] = liga
+        data["deporte_activo"] = DEPORTE_DE_LIGA[liga]
+    return codigo, data
+
+
+def responder(codigo, data, **extra):
+    """Guarda el progreso y responde con el estado nuevo."""
+    guardar_estado(codigo, data)
+    return ok(data, **extra)
 
 
 # ---------------------------------------------------------------------------
@@ -255,6 +391,18 @@ def ok(data, **extra):
 def error(mensaje, titulo="Ups, algo salió mal", tipo="error", codigo=400):
     """tipo: 'error' o 'aviso'. El navegador lo usa para elegir el color del mensaje."""
     return jsonify({"status": "error", "tipo": tipo, "titulo": titulo, "message": mensaje}), codigo
+
+
+@app.errorhandler(CodigoInvalido)
+def _codigo_invalido(_):
+    return error("Escribe un código de jugador de al menos 4 caracteres.",
+                 "Código no válido", "aviso", 401)
+
+
+@app.errorhandler(ErrorAlmacenamiento)
+def _almacenamiento(_):
+    return error("No pudimos leer o guardar tu progreso. Intenta de nuevo en unos segundos.",
+                 "Problema al guardar", "error", 503)
 
 
 def generar_marcador(deporte):
@@ -467,22 +615,31 @@ def construir_transmision(deporte, local, visitante, puntos_local, puntos_visita
 # Predicciones
 # ---------------------------------------------------------------------------
 def resolver_predicciones(data, partido):
-    """Cierra las predicciones pendientes de este partido y paga las acertadas."""
+    """Cierra las predicciones pendientes de este partido, guarda el resultado
+    y paga las acertadas."""
     par = frozenset((partido["home"], partido["away"]))
-    if partido["home_score"] > partido["away_score"]:
-        ganador = partido["home"]
-    elif partido["home_score"] < partido["away_score"]:
-        ganador = partido["away"]
-    else:
-        ganador = None  # empate
-
     for p in data["predictions"]:
         if p["estado"] != "pendiente" or p["liga"] != partido["liga"]:
             continue
         if frozenset((p["home"], p["away"])) != par:
             continue
-        elegido = {"local": p["home"], "visita": p["away"], "empate": None}[p["eleccion"]]
-        if elegido == ganador:
+
+        # Los goles se miran desde el equipo "local" de la predicción.
+        if p["home"] == partido["home"]:
+            goles_home, goles_away = partido["home_score"], partido["away_score"]
+        else:
+            goles_home, goles_away = partido["away_score"], partido["home_score"]
+
+        if goles_home > goles_away:
+            resultado = "local"
+        elif goles_home < goles_away:
+            resultado = "visita"
+        else:
+            resultado = "empate"
+
+        p["marcador"] = [goles_home, goles_away]
+        p["resultado"] = resultado
+        if p["eleccion"] == resultado:
             p["estado"] = "ganada"
             p["premio"] = round(p["monto"] * p["cuota"], 2)
             data["balance_cop"] = round(data["balance_cop"] + p["premio"], 2)
@@ -495,22 +652,39 @@ def resolver_predicciones(data, partido):
 # ---------------------------------------------------------------------------
 @app.route("/")
 def index():
-    return render_template(PLANTILLA, state=load_data())
+    return render_template(PLANTILLA, state=estado_inicial())
 
 
-@app.route("/api/get_state", methods=["GET"])
-def get_state():
-    return jsonify(load_data())
+@app.route("/api/health", methods=["GET"])
+def health():
+    """Sirve para comprobar dónde se está guardando el progreso (no muestra secretos)."""
+    try:
+        guardar_crudo("arena:ping", "ok")
+        funciona = leer_crudo("arena:ping") == "ok"
+    except ErrorAlmacenamiento:
+        funciona = False
+    return jsonify({"almacenamiento": "upstash" if usa_upstash() else "archivo local",
+                    "funciona": funciona})
+
+
+@app.route("/api/load", methods=["POST"])
+def load_state():
+    """Entrega el progreso guardado con este código (o crea uno nuevo)."""
+    req = request.get_json(silent=True) or {}
+    codigo, data = abrir(req)
+    return responder(codigo, data)
 
 
 @app.route("/api/reset", methods=["POST"])
 def reset_state():
-    """Reinicia grupos y partidos, pero conserva el saldo del usuario."""
-    saldo = load_data()["balance_cop"]
+    """Reinicia grupos y partidos. Conserva el saldo y devuelve lo apostado en
+    predicciones que aún no se habían jugado."""
+    req = request.get_json(silent=True) or {}
+    codigo, actual = abrir(req)
+    reembolso = sum(p["monto"] for p in actual["predictions"] if p["estado"] == "pendiente")
     data = estado_inicial()
-    data["balance_cop"] = saldo
-    save_data(data)
-    return ok(data)
+    data["balance_cop"] = round(actual["balance_cop"] + reembolso, 2)
+    return responder(codigo, data)
 
 
 @app.route("/api/deposit", methods=["POST"])
@@ -527,27 +701,25 @@ def deposit():
         return error(f"Por recarga puedes agregar hasta $ {MAX_RECARGA:,.0f}.".replace(",", "."),
                      "Monto demasiado alto", "aviso")
 
-    data = load_data()
+    codigo, data = abrir(req)
     data["balance_cop"] = round(data["balance_cop"] + monto, 2)
-    save_data(data)
-    return ok(data)
+    return responder(codigo, data)
 
 
 @app.route("/api/set_active_league", methods=["POST"])
 def set_active_league():
     req = request.get_json(silent=True) or {}
     deporte = req.get("deporte")
-    codigo = req.get("codigo_liga")
+    codigo_liga = req.get("codigo_liga")
 
     codigos_validos = {liga["codigo"] for liga in LIGAS_DISPONIBLES.get(deporte, [])}
-    if codigo not in codigos_validos:
+    if codigo_liga not in codigos_validos:
         return error("Esa liga no existe para el deporte elegido.", "Liga no encontrada")
 
-    data = load_data()
+    codigo, data = abrir(req)
     data["deporte_activo"] = deporte
-    data["liga_activa"] = codigo
-    save_data(data)
-    return ok(data)
+    data["liga_activa"] = codigo_liga
+    return responder(codigo, data)
 
 
 @app.route("/api/assign_group", methods=["POST"])
@@ -556,7 +728,7 @@ def assign_group():
     team_id = req.get("team_id")
     grupo = req.get("group")
 
-    data = load_data()
+    codigo, data = abrir(req)
     liga = data["liga_activa"]
     equipos = data["equipos_por_liga"].get(liga, [])
 
@@ -577,8 +749,7 @@ def assign_group():
                      "Elige otro grupo.", "Grupo lleno", "aviso")
 
     equipo["group"] = grupo
-    save_data(data)
-    return ok(data)
+    return responder(codigo, data)
 
 
 @app.route("/api/predict", methods=["POST"])
@@ -590,7 +761,7 @@ def predict():
     except (TypeError, ValueError):
         return error("Escribe un monto válido, solo con números.", "Monto no válido", "aviso")
 
-    data = load_data()
+    codigo, data = abrir(req)
     liga = data["liga_activa"]
     deporte = data["deporte_activo"]
     equipos = data["equipos_por_liga"].get(liga, [])
@@ -629,14 +800,16 @@ def predict():
         "monto": monto,
         "estado": "pendiente",
         "premio": 0,
+        "marcador": None,
+        "resultado": None,
     })
-    save_data(data)
-    return ok(data)
+    return responder(codigo, data)
 
 
 @app.route("/api/simulate_match", methods=["POST"])
 def simulate_match():
-    data = load_data()
+    req = request.get_json(silent=True) or {}
+    codigo, data = abrir(req)
     liga = data["liga_activa"]
     deporte = data["deporte_activo"]
     equipos = data["equipos_por_liga"].get(liga, [])
@@ -648,7 +821,7 @@ def simulate_match():
                      "al menos 2 equipos en el mismo grupo. Toca un equipo de la lista y "
                      "asígnale un grupo.", "No se puede iniciar el torneo", "aviso")
 
-    # Solo se simulan cruces que aún no se han jugado, para que cuadre con el calendario.
+    # Los partidos se juegan en el MISMO orden del calendario (grupo A, B, C...).
     jugados = {frozenset((m["home"], m["away"])) for m in data["matches"] if m["liga"] == liga}
     pendientes = [
         (g, a, b)
@@ -661,7 +834,7 @@ def simulate_match():
         return error("Ya se jugaron todos los partidos de la fase de grupos.",
                      "Fase de grupos completa", "aviso")
 
-    grupo, local, visitante = random.choice(pendientes)
+    grupo, local, visitante = pendientes[0]
     goles_local, goles_visitante = generar_marcador(deporte)
 
     nuevo_id = max((m["id"] for m in data["matches"]), default=100) + 1
@@ -681,9 +854,8 @@ def simulate_match():
         "played": True,
     })
     resolver_predicciones(data, data["matches"][0])
-    save_data(data)
     transmision = construir_transmision(deporte, local, visitante, goles_local, goles_visitante)
-    return ok(data, live=transmision)
+    return responder(codigo, data, live=transmision)
 
 
 if __name__ == "__main__":

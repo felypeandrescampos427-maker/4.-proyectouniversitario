@@ -2,3 +2,4 @@
 __pycache__/
 *.pyc
 progreso_torneo.json
+ progreso_local/
