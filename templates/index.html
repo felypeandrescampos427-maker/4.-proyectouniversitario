@@ -733,7 +733,7 @@
                         </div>
                     </td>
                     <td class="p-3.5 text-center font-bold">${marcadorTexto}</td>
-                    <td class="p-3.5 text-center text-gray-300 text-xs font-mono rounded-r-xl">${m.probabilidades || '33.3% / 33.3% / 33.4%'}</td>
+                    <td class="p-3.5 text-center text-gray-300 text-xs font-mono rounded-r-xl">${probsTexto(m.home, m.away)}</td>
                 `;
                 tbody.appendChild(tr);
 
@@ -965,6 +965,19 @@
                 : '<p class="text-gray-500 text-xs text-center py-6 lg:col-span-2">Aún no has hecho predicciones.</p>';
         }
 
+        // Cuotas y porcentajes propios de cada partido (los manda el servidor).
+        function datosPartido(home, away) {
+            return (state.partidos_cuotas || {})[`${home}|${away}`] || null;
+        }
+        function cuotasDe(home, away) {
+            const d = datosPartido(home, away);
+            return d ? d.cuotas : state.cuotas;
+        }
+        function probsTexto(home, away) {
+            const d = datosPartido(home, away);
+            return d ? `${d.probs.local}%${d.probs.empate ? ' / ' + d.probs.empate + '%' : ''} / ${d.probs.visita}%` : '—';
+        }
+
         function renderOpcionesPred() {
             const sinEmpate = SIN_EMPATE.includes(state.deporte_activo);
             const opciones = sinEmpate ? ['local', 'visita'] : ['local', 'empate', 'visita'];
@@ -975,7 +988,7 @@
                 const btn = document.createElement('button');
                 btn.dataset.op = op;
                 btn.className = OPC_BASE;
-                btn.innerHTML = `<span class="text-[11px]">${ETIQUETA_ELECCION[op]}</span><span class="text-sm font-bold text-white">${state.cuotas[op].toFixed(2)}</span>`;
+                btn.innerHTML = `<span class="text-[11px]">${ETIQUETA_ELECCION[op]}</span><span class="text-sm font-bold text-white">${(cuotasDe(partidoPred.home, partidoPred.away)[op] || 0).toFixed(2)}</span>`;
                 btn.onclick = () => elegirResultado(op);
                 cont.appendChild(btn);
             });
@@ -1028,7 +1041,7 @@
 
         function actualizarGanancia() {
             $('predGanancia').textContent = eleccionPred
-                ? formatearMoneda(montoPredEnCOP() * state.cuotas[eleccionPred])
+                ? formatearMoneda(montoPredEnCOP() * cuotasDe(partidoPred.home, partidoPred.away)[eleccionPred])
                 : 'Elige un resultado';
         }
 

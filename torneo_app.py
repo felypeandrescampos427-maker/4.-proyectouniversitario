@@ -57,8 +57,9 @@ RANGOS_MARCADOR = {
 # En estos deportes no existe el empate, así que se repite el sorteo si salen iguales.
 DEPORTES_SIN_EMPATE = {"Baloncesto", "Béisbol", "eSports"}
 
-# Predicciones: cuota = cuánto se multiplica lo apostado si aciertas.
-CUOTAS = {"local": 2.10, "empate": 3.20, "visita": 3.50}
+# Predicciones: cuota = cuánto se multiplica lo apostado si aciertas. Se calcula según las
+# probabilidades reales de cada deporte (ver probabilidades()), con un 5 % de margen.
+MARGEN_CUOTAS = 0.95
 MONTO_MIN_PREDICCION = 1_000
 
 NOMBRE_LIGA = {
@@ -256,7 +257,6 @@ DEFAULT_STATE = {
     "groups": ["A", "B", "C", "D", "E"],
     "max_group_capacity": 4,
     "matches": [],
-    "cuotas": CUOTAS,
     "monto_min_prediccion": MONTO_MIN_PREDICCION,
     "predictions": [],
 }
@@ -284,7 +284,9 @@ def normalizar(data):
     data.pop("api_keys", None)
     data.pop("logs", None)
 
-    for clave in ("ligas", "groups", "max_group_capacity", "cuotas", "monto_min_prediccion"):
+    data.pop("cuotas", None)  # las cuotas se calculan al responder, según el deporte
+    data.pop("partidos_cuotas", None)
+    for clave in ("ligas", "groups", "max_group_capacity", "monto_min_prediccion"):
         data[clave] = base[clave]
 
     try:
@@ -445,8 +447,67 @@ def responder(codigo, data, **extra):
 # ---------------------------------------------------------------------------
 # Respuestas
 # ---------------------------------------------------------------------------
+def probabilidades(deporte):
+    """Probabilidad real de local / empate / visita según cómo se genera el marcador."""
+    if deporte in DEPORTES_SIN_EMPATE:
+        return {"local": 0.5, "empate": 0.0, "visita": 0.5}
+    minimo, maximo = RANGOS_MARCADOR.get(deporte, (0, 5))
+    empate = 1 / (maximo - minimo + 1)  # los dos lados sortean entre N valores iguales
+    return {"local": (1 - empate) / 2, "empate": empate, "visita": (1 - empate) / 2}
+
+
+def cuotas_para(deporte):
+    """Cuota de cada resultado (en deportes sin empate no existe la clave 'empate')."""
+    return {r: round(MARGEN_CUOTAS / p, 2) for r, p in probabilidades(deporte).items() if p > 0}
+
+
+def probs_partido(deporte, liga, home, away):
+    """Probabilidades de ESTE partido. Salen de una "semilla" hecha con la liga y los dos
+    equipos: cada partido tiene las suyas (unos los gana más el local, otros el visitante),
+    pero para el mismo partido siempre son las mismas, no cambian al recargar la página."""
+    a, b = sorted((home, away))
+    h = hashlib.sha256(f"{liga}|{a}|{b}".encode("utf-8")).hexdigest()
+    r1 = int(h[:8], 16) / 0xFFFFFFFF
+    r2 = int(h[8:16], 16) / 0xFFFFFFFF
+    fuerza_a = 0.20 + 0.60 * r1            # parte del reparto que se lleva el equipo "a"
+    if deporte in DEPORTES_SIN_EMPATE:
+        empate = 0.0
+    else:
+        empate = 0.15 + 0.15 * r2          # entre 15 % y 30 %
+    pa = (1 - empate) * fuerza_a
+    pb = (1 - empate) - pa
+    local, visita = (pa, pb) if home == a else (pb, pa)
+    return {"local": local, "empate": empate, "visita": visita}
+
+
+def cuotas_partido(deporte, liga, home, away):
+    probs = probs_partido(deporte, liga, home, away)
+    return {r: round(MARGEN_CUOTAS / p, 2) for r, p in probs.items() if p > 0}
+
+
+def resumen_partidos(data):
+    """Cuotas y porcentajes de todos los partidos posibles de la liga activa
+    (clave "local|visitante", en los dos órdenes)."""
+    liga, deporte = data["liga_activa"], data["deporte_activo"]
+    equipos = data["equipos_por_liga"].get(liga, [])
+    salida = {}
+    for g in data["groups"]:
+        miembros = [t for t in equipos if t["group"] == g]
+        for i, a in enumerate(miembros):
+            for b in miembros[i + 1:]:
+                for h, v in ((a["name"], b["name"]), (b["name"], a["name"])):
+                    p = probs_partido(deporte, liga, h, v)
+                    salida[f"{h}|{v}"] = {
+                        "cuotas": cuotas_partido(deporte, liga, h, v),
+                        "probs": {r: round(x * 100, 1) for r, x in p.items()},
+                    }
+    return salida
+
+
 def ok(data, **extra):
-    return jsonify({"status": "success", "state": data, **extra})
+    estado = {**data, "cuotas": cuotas_para(data["deporte_activo"]),
+              "partidos_cuotas": resumen_partidos(data)}
+    return jsonify({"status": "success", "state": estado, **extra})
 
 
 def error(mensaje, titulo="Ups, algo salió mal", tipo="error", codigo=400):
@@ -464,6 +525,21 @@ def _codigo_invalido(_):
 def _almacenamiento(_):
     return error("No pudimos leer o guardar tu progreso. Intenta de nuevo en unos segundos.",
                  "Problema al guardar", "error", 503)
+
+
+def generar_marcador_para(deporte, probs):
+    """Sortea el resultado con las probabilidades del partido y luego un marcador que lo cumpla."""
+    resultado = random.choices(["local", "empate", "visita"],
+                               weights=[probs["local"], probs["empate"], probs["visita"]])[0]
+    for _ in range(500):
+        local, visitante = generar_marcador(deporte)
+        if (resultado == "local" and local > visitante) or \
+           (resultado == "visita" and local < visitante) or \
+           (resultado == "empate" and local == visitante):
+            return local, visitante
+    minimo, maximo = RANGOS_MARCADOR.get(deporte, (0, 5))
+    return {"local": (minimo + 1, minimo), "visita": (minimo, minimo + 1),
+            "empate": (minimo, minimo)}[resultado]
 
 
 def generar_marcador(deporte):
@@ -827,7 +903,7 @@ def predict():
     deporte = data["deporte_activo"]
     equipos = data["equipos_por_liga"].get(liga, [])
 
-    if eleccion not in CUOTAS or (eleccion == "empate" and deporte in DEPORTES_SIN_EMPATE):
+    if eleccion not in cuotas_para(deporte):
         return error("Elige un resultado válido para este deporte.", "Resultado no válido", "aviso")
     if not math.isfinite(monto) or monto < MONTO_MIN_PREDICCION:
         return error(f"El monto mínimo es $ {MONTO_MIN_PREDICCION:,.0f}.".replace(",", "."),
@@ -848,6 +924,7 @@ def predict():
            and frozenset((p["home"], p["away"])) == par for p in data["predictions"]):
         return error("Ya tienes una predicción para este partido.", "Predicción repetida", "aviso")
 
+    cuota = cuotas_partido(deporte, liga, home, away)[eleccion]
     data["balance_cop"] = round(data["balance_cop"] - monto, 2)
     data["predictions"].append({
         "id": max((p["id"] for p in data["predictions"]), default=0) + 1,
@@ -857,7 +934,7 @@ def predict():
         "home": home,
         "away": away,
         "eleccion": eleccion,
-        "cuota": CUOTAS[eleccion],
+        "cuota": cuota,
         "monto": monto,
         "estado": "pendiente",
         "premio": 0,
@@ -896,7 +973,8 @@ def simulate_match():
                      "Fase de grupos completa", "aviso")
 
     grupo, local, visitante = pendientes[0]
-    goles_local, goles_visitante = generar_marcador(deporte)
+    goles_local, goles_visitante = generar_marcador_para(
+        deporte, probs_partido(deporte, liga, local["name"], visitante["name"]))
 
     nuevo_id = max((m["id"] for m in data["matches"]), default=100) + 1
     data["matches"].insert(0, {
