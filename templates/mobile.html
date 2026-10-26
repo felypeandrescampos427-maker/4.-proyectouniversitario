@@ -489,7 +489,7 @@
         // Muestra qué partido se juega a continuación y bloquea el botón si ya terminó todo.
         function actualizarBarraSimular() {
             const calendario = construirCalendario();
-            const siguiente = calendario.find(sinJugar);
+            const siguiente = calendario.find(m => sinJugar(m) && !m.porDefinir);
             const btn = $('btn-simular');
             const etiqueta = $('siguiente-partido');
             btn.textContent = `${ICONOS[state.deporte_activo] || '⚽'} Simular siguiente partido`;
@@ -499,7 +499,7 @@
                 etiqueta.textContent = 'Asigna equipos a los grupos para empezar el torneo';
             } else if (!siguiente) {
                 btn.disabled = true;
-                etiqueta.textContent = '✅ Fase de grupos completa';
+                etiqueta.textContent = (state.campeon ? `🏆 Campeón: ${state.campeon}` : '✅ Fase de grupos completa');
             } else {
                 btn.disabled = false;
                 etiqueta.textContent = `Siguiente: #${siguiente.id} · ${siguiente.home} vs ${siguiente.away} · ${siguiente.fecha}`;
@@ -561,7 +561,7 @@
         // aparecen en su lugar con su marcador. El servidor juega los partidos en este orden.
         function construirCalendario() {
             const equipos = equiposLiga();
-            const jugados = partidosLiga();
+            const jugados = partidosLiga().filter(m => (m.fase || 'grupos') === 'grupos');
             const lista = [];
             state.groups.forEach(g => {
                 const miembros = equipos.filter(t => t.group === g);
@@ -581,6 +581,17 @@
                     }
                 }
             });
+            // Fases finales (las arma el servidor cuando termina la fase de grupos).
+            (state.eliminatorias || []).forEach(x => {
+                const id = lista.length + 1;
+                lista.push({
+                    id, liga: ligaActual, group: x.titulo, etiqueta: x.titulo, fase: x.fase,
+                    fecha: fechaPartido(id), porDefinir: x.estado === 'por_definir',
+                    home: x.home || 'Por definir', home_escudo: x.home_escudo, home_flag: x.home_flag || '❔',
+                    away: x.away || 'Por definir', away_escudo: x.away_escudo, away_flag: x.away_flag || '❔',
+                    home_score: x.home_score, away_score: x.away_score
+                });
+            });
             return lista;
         }
 
@@ -597,7 +608,7 @@
             }
 
             const partidosMostrados = construirCalendario();
-            const siguienteId = (partidosMostrados.find(sinJugar) || {}).id;
+            const siguienteId = (partidosMostrados.find(m => sinJugar(m) && !m.porDefinir) || {}).id;
 
             partidosMostrados.forEach((m, idx) => {
                 const idPartido = m.id || (idx + 1);
@@ -614,7 +625,7 @@
                 div.className = "p-2.5 bg-[#212230] border border-[#313244] rounded-xl space-y-2 shadow-md";
                 div.innerHTML = `
                     <div class="flex justify-between text-[10px] text-gray-400 border-b border-[#313244]/60 pb-1 font-medium">
-                        <span class="text-[#89b4fa] font-bold">#${idPartido} · Grupo ${esc(m.group)}</span>
+                        <span class="text-[#89b4fa] font-bold">#${idPartido} · ${esc(m.etiqueta || 'Grupo ' + m.group)}</span>
                         <span>📅 ${m.fecha}</span>
                     </div>
                     <div class="flex justify-between items-center text-white text-[11px] pt-0.5">
@@ -758,7 +769,7 @@
                 const visita = { name: m.away, escudo: m.away_escudo, flag: m.away_flag };
                 return `
                 <div class="p-2 bg-[#11111b] border border-[#313244] rounded-lg space-y-1">
-                    <div class="flex justify-between text-[9px] text-gray-400"><span>Grupo ${esc(m.group)}</span><span>${esc(m.deporte)}</span></div>
+                    <div class="flex justify-between text-[9px] text-gray-400"><span>${esc(m.fase && m.fase !== 'grupos' ? TITULOS_FASE[m.fase] : 'Grupo ' + m.group)}</span><span>${esc(m.deporte)}</span></div>
                     <div class="flex items-center justify-between gap-1 text-[10px] font-bold text-white">
                         <div class="flex items-center gap-1 min-w-0 flex-1">${escudoHtml(local, 'w-4 h-4')}<span class="truncate">${esc(m.home)}</span></div>
                         <span class="text-[#a6e3a1] shrink-0 px-1">${m.home_score} - ${m.away_score}</span>
@@ -778,12 +789,13 @@
         const OPC_SEL  = 'flex flex-col items-center gap-0.5 py-2 rounded-xl border text-gray-300 transition bg-[#89b4fa]/15 border-[#89b4fa]';
 
         const mismoCruce = (p, m) =>
-            (p.home === m.home && p.away === m.away) || (p.home === m.away && p.away === m.home);
+            (p.fase || 'grupos') === (m.fase || 'grupos') &&
+            ((p.home === m.home && p.away === m.away) || (p.home === m.away && p.away === m.home));
 
         const tienePrediccion = m => (state.predictions || []).some(p =>
             p.estado === 'pendiente' && p.liga === ligaActual && mismoCruce(p, m));
 
-        const partidosPredecibles = () => construirCalendario().filter(m => sinJugar(m) && !tienePrediccion(m));
+        const partidosPredecibles = () => construirCalendario().filter(m => sinJugar(m) && !m.porDefinir && !tienePrediccion(m));
 
         function montoPredEnCOP() {
             const valor = parseFloat($('predMonto').value) || 0;
@@ -830,7 +842,7 @@
                     return `
                     <div class="p-3 bg-[#11111b] border border-[#313244] rounded-xl space-y-1.5">
                         <div class="flex items-center justify-between gap-2">
-                            <span class="text-xs font-bold text-white truncate">${esc(p.home)} vs ${esc(p.away)}</span>
+                            <span class="text-xs font-bold text-white truncate">${esc(p.home)} vs ${esc(p.away)}${p.fase && p.fase !== 'grupos' ? ' · ' + TITULOS_FASE[p.fase] : ''}</span>
                             <span class="shrink-0 text-[10px] font-bold ${colores[p.estado]}">${p.estado.toUpperCase()}</span>
                         </div>
                         <div class="flex flex-wrap justify-between gap-x-3 text-[11px] text-gray-400">
@@ -844,20 +856,22 @@
         }
 
         // Cuotas y porcentajes propios de cada partido (los manda el servidor).
-        function datosPartido(home, away) {
-            return (state.partidos_cuotas || {})[`${home}|${away}`] || null;
+        const TITULOS_FASE = { previa: 'Previa', octavos: 'Octavos de final', cuartos: 'Cuartos de final', semis: 'Semifinal', final: 'Final' };
+        function datosPartido(home, away, fase) {
+            const clave = fase && fase !== 'grupos' ? `${home}|${away}|${fase}` : `${home}|${away}`;
+            return (state.partidos_cuotas || {})[clave] || null;
         }
-        function cuotasDe(home, away) {
-            const d = datosPartido(home, away);
+        function cuotasDe(home, away, fase) {
+            const d = datosPartido(home, away, fase);
             return d ? d.cuotas : state.cuotas;
         }
-        function probsTexto(home, away) {
-            const d = datosPartido(home, away);
+        function probsTexto(home, away, fase) {
+            const d = datosPartido(home, away, fase);
             return d ? `${d.probs.local}%${d.probs.empate ? ' / ' + d.probs.empate + '%' : ''} / ${d.probs.visita}%` : '—';
         }
 
         function renderOpcionesPred() {
-            const sinEmpate = SIN_EMPATE.includes(state.deporte_activo);
+            const sinEmpate = SIN_EMPATE.includes(state.deporte_activo) || (partidoPred.fase && partidoPred.fase !== 'grupos');
             const opciones = sinEmpate ? ['local', 'visita'] : ['local', 'empate', 'visita'];
             const cont = $('predOpciones');
             cont.className = `grid gap-2 ${sinEmpate ? 'grid-cols-2' : 'grid-cols-3'}`;
@@ -866,7 +880,7 @@
                 const btn = document.createElement('button');
                 btn.dataset.op = op;
                 btn.className = OPC_BASE;
-                btn.innerHTML = `<span class="text-[11px]">${ETIQUETA_ELECCION[op]}</span><span class="text-sm font-bold text-white">${(cuotasDe(partidoPred.home, partidoPred.away)[op] || 0).toFixed(2)}</span>`;
+                btn.innerHTML = `<span class="text-[11px]">${ETIQUETA_ELECCION[op]}</span><span class="text-sm font-bold text-white">${(cuotasDe(partidoPred.home, partidoPred.away, partidoPred.fase)[op] || 0).toFixed(2)}</span>`;
                 btn.onclick = () => elegirResultado(op);
                 cont.appendChild(btn);
             });
@@ -898,7 +912,7 @@
             }
 
             $('predPartido').innerHTML = lista.map(m =>
-                `<option value="${m.id}">#${m.id} · Grupo ${esc(m.group)} — ${esc(m.home)} vs ${esc(m.away)}</option>`).join('');
+                `<option value="${m.id}">#${m.id} · ${esc(m.etiqueta || 'Grupo ' + m.group)} — ${esc(m.home)} vs ${esc(m.away)}</option>`).join('');
 
             $('predMontoLabel').textContent = `Monto a apostar (${monedaSeleccionada})`;
             $('predMonto').value = monedaSeleccionada === 'COP' ? 10000 : (monedaSeleccionada === 'USD' ? 3 : 2);
@@ -919,7 +933,7 @@
 
         function actualizarGanancia() {
             $('predGanancia').textContent = eleccionPred
-                ? formatearMoneda(montoPredEnCOP() * cuotasDe(partidoPred.home, partidoPred.away)[eleccionPred])
+                ? formatearMoneda(montoPredEnCOP() * cuotasDe(partidoPred.home, partidoPred.away, partidoPred.fase)[eleccionPred])
                 : 'Elige un resultado';
         }
 
@@ -944,7 +958,7 @@
                 return;
             }
 
-            const data = await api('/api/predict', { home: partidoPred.home, away: partidoPred.away, eleccion: eleccionPred, monto });
+            const data = await api('/api/predict', { home: partidoPred.home, away: partidoPred.away, eleccion: eleccionPred, monto, fase: partidoPred.fase || 'grupos' });
             if (!data) return;
             state = data.state;
             cerrarPrediccion();
@@ -1195,6 +1209,9 @@
             renderHistorial();
             const m = state.matches[0];
             mostrarToast(`${ICONOS[m.deporte] || '🏆'} ${m.home} ${m.home_score} - ${m.away_score} ${m.away}`);
+            if (m.fase === 'final' && state.campeon) {
+                mostrarMensaje('info', '🏆 ¡Tenemos campeón!', `${state.campeon} ganó el torneo.`);
+            }
 
             const resueltas = (state.predictions || []).filter(p => pendientesAntes.includes(p.id) && p.estado !== 'pendiente');
             if (resueltas.length) {

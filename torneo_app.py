@@ -286,6 +286,8 @@ def normalizar(data):
 
     data.pop("cuotas", None)  # las cuotas se calculan al responder, según el deporte
     data.pop("partidos_cuotas", None)
+    data.pop("eliminatorias", None)
+    data.pop("campeon", None)
     for clave in ("ligas", "groups", "max_group_capacity", "monto_min_prediccion"):
         data[clave] = base[clave]
 
@@ -447,6 +449,100 @@ def responder(codigo, data, **extra):
 # ---------------------------------------------------------------------------
 # Respuestas
 # ---------------------------------------------------------------------------
+TITULOS_FASE = {"previa": "Previa", "octavos": "Octavos de final", "cuartos": "Cuartos de final",
+                "semis": "Semifinales", "final": "Final"}
+_BYE = object()
+
+
+def _es_grupos(m):
+    return m.get("fase", "grupos") == "grupos"
+
+
+def clasificados(data, liga):
+    """Los primeros de cada grupo, de mejor a peor (puntos, diferencia de gol, goles a favor).
+    Devuelve [] mientras falten partidos de la fase de grupos."""
+    grupos = {}
+    for t in data["equipos_por_liga"].get(liga, []):
+        if t["group"]:
+            grupos.setdefault(t["group"], []).append(t)
+    jugados = [m for m in data["matches"] if m["liga"] == liga and _es_grupos(m)]
+    vistos = {frozenset((m["home"], m["away"])) for m in jugados}
+    primeros = []
+    for g, miembros in grupos.items():
+        if len(miembros) < 2:
+            continue
+        for i, a in enumerate(miembros):
+            for b in miembros[i + 1:]:
+                if frozenset((a["name"], b["name"])) not in vistos:
+                    return []
+        tabla = {t["name"]: [0, 0, 0] for t in miembros}  # puntos, diferencia, goles a favor
+        for m in jugados:
+            if m["home"] in tabla and m["away"] in tabla:
+                gh, ga = m["home_score"], m["away_score"]
+                for nombre, gf, gc in ((m["home"], gh, ga), (m["away"], ga, gh)):
+                    tabla[nombre][0] += 3 if gf > gc else (1 if gf == gc else 0)
+                    tabla[nombre][1] += gf - gc
+                    tabla[nombre][2] += gf
+        mejor = min(miembros, key=lambda t: (-tabla[t["name"]][0], -tabla[t["name"]][1],
+                                              -tabla[t["name"]][2], t["name"]))
+        primeros.append((tuple(-x for x in tabla[mejor["name"]]), mejor["name"], mejor))
+    primeros.sort(key=lambda x: (x[0], x[1]))
+    return [x[2] for x in primeros]
+
+
+def eliminatorias(data, liga):
+    """Cruces de las fases finales: clasifican los primeros de cada grupo. Si no son una
+    potencia de 2 (con 5 grupos, por ejemplo) los mejores pasan directo: hay una previa
+    antes de las semifinales. Devuelve (lista de cruces, campeón o None)."""
+    sembrados = clasificados(data, liga)
+    n = len(sembrados)
+    if n < 2:
+        return [], None
+    tam = 2
+    while tam < n:
+        tam *= 2
+    orden = [1]
+    while len(orden) < tam:
+        total = len(orden) * 2 + 1
+        orden = [x for s in orden for x in (s, total - s)]
+    entradas = [sembrados[s - 1] if s <= n else _BYE for s in orden]
+    jugados = [m for m in data["matches"] if m["liga"] == liga and not _es_grupos(m)]
+    lista = []
+    while True:
+        fase = "previa" if _BYE in entradas else \
+            {2: "final", 4: "semis", 8: "cuartos", 16: "octavos"}.get(len(entradas), "previa")
+        siguientes = []
+        for i in range(0, len(entradas), 2):
+            a, b = entradas[i], entradas[i + 1]
+            if a is _BYE or b is _BYE:
+                siguientes.append(b if a is _BYE else a)  # pasa directo a la siguiente ronda
+                continue
+            partido, ganador, estado = None, None, "por_definir"
+            if a and b:
+                estado = "pendiente"
+                partido = next((m for m in jugados if m.get("fase") == fase and
+                                frozenset((m["home"], m["away"])) == frozenset((a["name"], b["name"]))),
+                               None)
+            if partido:
+                estado = "jugado"
+                gana_local = partido["home_score"] > partido["away_score"]
+                nombre = partido["home"] if gana_local else partido["away"]
+                ganador = a if a["name"] == nombre else b
+            lista.append({
+                "fase": fase, "titulo": TITULOS_FASE[fase], "estado": estado,
+                "home": a["name"] if a else None, "home_escudo": a["escudo"] if a else "",
+                "home_flag": a["flag"] if a else "",
+                "away": b["name"] if b else None, "away_escudo": b["escudo"] if b else "",
+                "away_flag": b["flag"] if b else "",
+                "home_score": partido["home_score"] if partido else None,
+                "away_score": partido["away_score"] if partido else None,
+            })
+            siguientes.append(ganador)
+        if len(entradas) == 2:
+            return lista, siguientes[0]
+        entradas = siguientes
+
+
 def probabilidades(deporte):
     """Probabilidad real de local / empate / visita según cómo se genera el marcador."""
     if deporte in DEPORTES_SIN_EMPATE:
@@ -461,17 +557,18 @@ def cuotas_para(deporte):
     return {r: round(MARGEN_CUOTAS / p, 2) for r, p in probabilidades(deporte).items() if p > 0}
 
 
-def probs_partido(deporte, liga, home, away):
+def probs_partido(deporte, liga, home, away, fase="grupos"):
     """Probabilidades de ESTE partido. Salen de una "semilla" hecha con la liga y los dos
     equipos: cada partido tiene las suyas (unos los gana más el local, otros el visitante),
     pero para el mismo partido siempre son las mismas, no cambian al recargar la página."""
     a, b = sorted((home, away))
-    h = hashlib.sha256(f"{liga}|{a}|{b}".encode("utf-8")).hexdigest()
+    semilla = f"{liga}|{a}|{b}" if fase == "grupos" else f"{liga}|{fase}|{a}|{b}"
+    h = hashlib.sha256(semilla.encode("utf-8")).hexdigest()
     r1 = int(h[:8], 16) / 0xFFFFFFFF
     r2 = int(h[8:16], 16) / 0xFFFFFFFF
     fuerza_a = 0.20 + 0.60 * r1            # parte del reparto que se lleva el equipo "a"
-    if deporte in DEPORTES_SIN_EMPATE:
-        empate = 0.0
+    if deporte in DEPORTES_SIN_EMPATE or fase != "grupos":
+        empate = 0.0                       # en las fases finales siempre hay un ganador
     else:
         empate = 0.15 + 0.15 * r2          # entre 15 % y 30 %
     pa = (1 - empate) * fuerza_a
@@ -480,8 +577,8 @@ def probs_partido(deporte, liga, home, away):
     return {"local": local, "empate": empate, "visita": visita}
 
 
-def cuotas_partido(deporte, liga, home, away):
-    probs = probs_partido(deporte, liga, home, away)
+def cuotas_partido(deporte, liga, home, away, fase="grupos"):
+    probs = probs_partido(deporte, liga, home, away, fase)
     return {r: round(MARGEN_CUOTAS / p, 2) for r, p in probs.items() if p > 0}
 
 
@@ -501,12 +598,22 @@ def resumen_partidos(data):
                         "cuotas": cuotas_partido(deporte, liga, h, v),
                         "probs": {r: round(x * 100, 1) for r, x in p.items()},
                     }
+    for x in eliminatorias(data, liga)[0]:
+        if x["home"] and x["away"]:
+            h, v, f = x["home"], x["away"], x["fase"]
+            p = probs_partido(deporte, liga, h, v, f)
+            salida[f"{h}|{v}|{f}"] = {
+                "cuotas": cuotas_partido(deporte, liga, h, v, f),
+                "probs": {r: round(y * 100, 1) for r, y in p.items()},
+            }
     return salida
 
 
 def ok(data, **extra):
+    cruces, campeon = eliminatorias(data, data["liga_activa"])
     estado = {**data, "cuotas": cuotas_para(data["deporte_activo"]),
-              "partidos_cuotas": resumen_partidos(data)}
+              "partidos_cuotas": resumen_partidos(data),
+              "eliminatorias": cruces, "campeon": campeon["name"] if campeon else None}
     return jsonify({"status": "success", "state": estado, **extra})
 
 
@@ -760,6 +867,8 @@ def resolver_predicciones(data, partido):
             continue
         if frozenset((p["home"], p["away"])) != par:
             continue
+        if p.get("fase", "grupos") != partido.get("fase", "grupos"):
+            continue
 
         # Los goles se miran desde el equipo "local" de la predicción.
         if p["home"] == partido["home"]:
@@ -893,6 +1002,7 @@ def assign_group():
 def predict():
     req = request.get_json(silent=True) or {}
     home, away, eleccion = req.get("home"), req.get("away"), req.get("eleccion")
+    fase = req.get("fase") or "grupos"
     try:
         monto = float(req.get("monto"))
     except (TypeError, ValueError):
@@ -912,25 +1022,37 @@ def predict():
         return error("No tienes saldo suficiente. Recarga e intenta de nuevo.",
                      "Saldo insuficiente", "aviso")
 
-    a = next((t for t in equipos if t["name"] == home), None)
-    b = next((t for t in equipos if t["name"] == away), None)
-    if a is None or b is None or a is b or a["group"] is None or a["group"] != b["group"]:
-        return error("Ese partido no existe en el calendario.", "Partido no encontrado")
-
     par = frozenset((home, away))
-    if any(frozenset((m["home"], m["away"])) == par for m in data["matches"] if m["liga"] == liga):
-        return error("Ese partido ya se jugó.", "Partido jugado", "aviso")
-    if any(p["estado"] == "pendiente" and p["liga"] == liga
+    if fase == "grupos":
+        a = next((t for t in equipos if t["name"] == home), None)
+        b = next((t for t in equipos if t["name"] == away), None)
+        if a is None or b is None or a is b or a["group"] is None or a["group"] != b["group"]:
+            return error("Ese partido no existe en el calendario.", "Partido no encontrado")
+        if any(frozenset((m["home"], m["away"])) == par
+               for m in data["matches"] if m["liga"] == liga and _es_grupos(m)):
+            return error("Ese partido ya se jugó.", "Partido jugado", "aviso")
+        grupo_pred = a["group"]
+    else:
+        if not any(x["fase"] == fase and x["home"] == home and x["away"] == away
+                   and x["estado"] == "pendiente" for x in eliminatorias(data, liga)[0]):
+            return error("Ese partido no está disponible para predecir.", "Partido no encontrado")
+        grupo_pred = None
+    if any(p["estado"] == "pendiente" and p["liga"] == liga and p.get("fase", "grupos") == fase
            and frozenset((p["home"], p["away"])) == par for p in data["predictions"]):
         return error("Ya tienes una predicción para este partido.", "Predicción repetida", "aviso")
 
-    cuota = cuotas_partido(deporte, liga, home, away)[eleccion]
+    cuotas_p = cuotas_partido(deporte, liga, home, away, fase)
+    if eleccion not in cuotas_p:
+        return error("En las fases finales no hay empate: elige Local o Visita.",
+                     "Resultado no válido", "aviso")
+    cuota = cuotas_p[eleccion]
     data["balance_cop"] = round(data["balance_cop"] - monto, 2)
     data["predictions"].append({
         "id": max((p["id"] for p in data["predictions"]), default=0) + 1,
         "liga": liga,
         "deporte": deporte,
-        "group": a["group"],
+        "group": grupo_pred,
+        "fase": fase,
         "home": home,
         "away": away,
         "eleccion": eleccion,
@@ -968,19 +1090,30 @@ def simulate_match():
         for b in miembros[i + 1:]
         if frozenset((a["name"], b["name"])) not in jugados
     ]
-    if not pendientes:
-        return error("Ya se jugaron todos los partidos de la fase de grupos.",
-                     "Fase de grupos completa", "aviso")
-
-    grupo, local, visitante = pendientes[0]
+    fase = "grupos"
+    if pendientes:
+        grupo, local, visitante = pendientes[0]
+    else:
+        cruces, campeon = eliminatorias(data, liga)
+        siguiente = next((x for x in cruces if x["estado"] == "pendiente"), None)
+        if siguiente is None:
+            if campeon:
+                return error(f"El torneo terminó. ¡{campeon['name']} es el campeón!",
+                             "Torneo terminado", "aviso")
+            return error("Ya se jugaron todos los partidos de la fase de grupos.",
+                         "Fase de grupos completa", "aviso")
+        fase, grupo = siguiente["fase"], None
+        local = next(t for t in equipos if t["name"] == siguiente["home"])
+        visitante = next(t for t in equipos if t["name"] == siguiente["away"])
     goles_local, goles_visitante = generar_marcador_para(
-        deporte, probs_partido(deporte, liga, local["name"], visitante["name"]))
+        deporte, probs_partido(deporte, liga, local["name"], visitante["name"], fase))
 
     nuevo_id = max((m["id"] for m in data["matches"]), default=100) + 1
     data["matches"].insert(0, {
         "id": nuevo_id,
         "liga": liga,
         "group": grupo,
+        "fase": fase,
         "deporte": deporte,
         "home": local["name"],
         "home_escudo": local["escudo"],
