@@ -14,11 +14,17 @@ import hashlib
 import json
 import math
 import os
+import hmac
 import random
+import re
+import secrets
+import threading
+import time
 from datetime import date
 
 import requests
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, g, jsonify, render_template, request
+from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 
@@ -26,6 +32,12 @@ PLANTILLA = "index.html"
 PUERTO = 5000
 UPSTASH_URL = os.environ.get("UPSTASH_REDIS_REST_URL", "").strip().rstrip("/")
 UPSTASH_TOKEN = os.environ.get("UPSTASH_REDIS_REST_TOKEN", "").strip()
+# Correo (Brevo): con estas dos variables en Render se mandan los códigos de verificación.
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "").strip()
+EMAIL_REMITENTE = os.environ.get("EMAIL_REMITENTE", "").strip()
+SESION_SEGUNDOS = 7 * 24 * 3600      # la sesión dura 7 días en cada dispositivo
+CODIGO_VENCE_SEGUNDOS = 600          # el código de verificación vale 10 minutos
+CODIGO_MAX_INTENTOS = 5
 CARPETA_LOCAL = os.path.join(os.path.dirname(os.path.abspath(__file__)), "progreso_local")
 SALDO_INICIAL = 100_000.0
 MAX_RECARGA = 100_000_000
@@ -61,6 +73,54 @@ DEPORTES_SIN_EMPATE = {"Baloncesto", "Béisbol", "eSports"}
 # probabilidades reales de cada deporte (ver probabilidades()), con un 5 % de margen.
 MARGEN_CUOTAS = 0.95
 MONTO_MIN_PREDICCION = 1_000
+
+# ---------------------------------------------------------------------------
+# Nivel de cada equipo (1 = muy débil, 10 = de los mejores). De aquí salen las cuotas:
+# el equipo con más nivel es favorito (cuota baja) y gana más veces al simular.
+# Puedes cambiar cualquier número; los equipos que no estén aquí valen 5.
+# ---------------------------------------------------------------------------
+NIVELES = {
+    # Liga BetPlay
+    "Atlético Nacional": 8, "Millonarios FC": 8, "América de Cali": 6, "Junior de Barranquilla": 8,
+    "Independiente Santa Fe": 6, "Deportivo Cali": 6, "Independiente Medellín": 7, "Once Caldas": 5,
+    "Deportes Tolima": 7, "Atlético Bucaramanga": 5, "Envigado FC": 4, "Deportivo Pereira": 4,
+    "Inter de Bogotá": 4, "Águilas Doradas": 4, "Boyacá Chicó": 3, "Alianza FC": 3,
+    "Fortaleza CEIF": 3, "Jaguares de Córdoba": 3, "Patriotas Boyacá": 3, "Deportivo Pasto": 4,
+    # LaLiga
+    "Real Madrid": 10, "FC Barcelona": 10, "Atlético de Madrid": 9, "Sevilla FC": 6,
+    "Real Sociedad": 7, "Villarreal CF": 7, "Athletic Club": 8, "Real Betis": 7, "Valencia CF": 6,
+    "Celta de Vigo": 5, "Osasuna": 5, "Getafe CF": 5, "Rayo Vallecano": 5, "Deportivo Alavés": 4,
+    "Elche CF": 3, "RCD Espanyol": 4, "Levante UD": 3, "Deportivo La Coruña": 3, "Málaga CF": 3,
+    "Racing de Santander": 3,
+    # Premier League
+    "Manchester City": 10, "Arsenal FC": 10, "Liverpool FC": 10, "Manchester United": 7,
+    "Chelsea FC": 8, "Tottenham Hotspur": 8, "Aston Villa": 7, "Newcastle United": 8,
+    "Brighton & Hove Albion": 6, "Crystal Palace": 6, "Everton FC": 5, "Fulham FC": 5,
+    "Brentford FC": 5, "AFC Bournemouth": 5, "Nottingham Forest": 5, "Leeds United": 4,
+    "Sunderland AFC": 3, "Coventry City": 2, "Ipswich Town": 3, "Hull City": 2,
+    # NBA
+    "Los Angeles Lakers": 7, "Golden State Warriors": 7, "Boston Celtics": 9, "Chicago Bulls": 4,
+    "Atlanta Hawks": 5, "Brooklyn Nets": 3, "Charlotte Hornets": 3, "Cleveland Cavaliers": 8,
+    "Detroit Pistons": 5, "Indiana Pacers": 7, "Miami Heat": 6, "Milwaukee Bucks": 6,
+    "New York Knicks": 8, "Orlando Magic": 6, "Philadelphia 76ers": 5, "Toronto Raptors": 4,
+    "Washington Wizards": 2, "Dallas Mavericks": 6, "Denver Nuggets": 8, "Houston Rockets": 7,
+    # MLB
+    "New York Yankees": 9, "Los Angeles Dodgers": 10, "Baltimore Orioles": 6, "Boston Red Sox": 6,
+    "Tampa Bay Rays": 5, "Toronto Blue Jays": 6, "Chicago White Sox": 2, "Cleveland Guardians": 7,
+    "Detroit Tigers": 6, "Kansas City Royals": 5, "Minnesota Twins": 5, "Houston Astros": 8,
+    "Los Angeles Angels": 3, "Athletics": 3, "Seattle Mariners": 6, "Texas Rangers": 6,
+    "Atlanta Braves": 8, "Miami Marlins": 4, "New York Mets": 7, "Philadelphia Phillies": 8,
+    # League of Legends
+    "T1": 10, "Gen.G": 10, "Hanwha Life Esports": 8, "Dplus KIA": 8, "KT Rolster": 6,
+    "JD Gaming": 8, "Bilibili Gaming": 9, "Top Esports": 8, "Weibo Gaming": 7, "LNG Esports": 7,
+    "G2 Esports": 7, "Fnatic": 5, "Team Vitality": 5, "MAD Lions KOI": 5, "Cloud9": 5,
+    "Team Liquid": 5, "FlyQuest": 5, "100 Thieves": 4, "PSG Talon": 5, "CTBC Flying Oyster": 4,
+}
+VENTAJA_LOCAL = {"Fútbol": 0.6, "Baloncesto": 0.5, "Béisbol": 0.3, "eSports": 0.0}
+
+
+def nivel(nombre):
+    return NIVELES.get(nombre, 5)
 
 NOMBRE_LIGA = {
     liga["codigo"]: liga["nombre"]
@@ -415,13 +475,278 @@ def guardar_estado(codigo, data):
     guardar_crudo(clave_de(codigo), json.dumps(data, ensure_ascii=False))
 
 
+_candados_locales = {}
+_candados_guardia = threading.Lock()
+SCRIPT_SOLTAR = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) end return 0"
+
+
+def _tomar_candado(clave):
+    """Un solo cambio a la vez por jugador: si dos pestañas (PC y celular) mandan una acción
+    al mismo tiempo, la segunda espera a que termine la primera, así no se pisan los datos.
+    Dentro del servidor se usa un candado normal; con Upstash, además, uno compartido
+    (por si Render corre varios procesos)."""
+    with _candados_guardia:
+        local = _candados_locales.setdefault(clave, threading.Lock())
+    if not local.acquire(timeout=10):
+        raise ErrorAlmacenamiento("candado ocupado")
+    token = None
+    if usa_upstash():
+        token = secrets.token_hex(8)
+        try:
+            for _ in range(60):
+                if _redis(["SET", clave + ":candado", token, "NX", "EX", "10"]):
+                    break
+                time.sleep(0.15)
+            else:
+                raise ErrorAlmacenamiento("candado ocupado")
+        except Exception:
+            local.release()
+            raise
+    g.candado = (clave, local, token)
+
+
+@app.teardown_request
+def _soltar_candado(_exc):
+    candado = g.pop("candado", None)
+    if not candado:
+        return
+    clave, local, token = candado
+    try:
+        if token:
+            _redis(["EVAL", SCRIPT_SOLTAR, 1, clave + ":candado", token])
+    except ErrorAlmacenamiento:
+        pass  # si no se puede soltar, el candado vence solo a los 10 segundos
+    finally:
+        local.release()
+
+
+# ---------------------------------------------------------------------------
+# Cuentas: correo + contraseña + código de verificación que llega al correo
+# ---------------------------------------------------------------------------
+class SesionInvalida(Exception):
+    pass
+
+
+class ErrorLimite(Exception):
+    pass
+
+
+class ErrorCorreo(Exception):
+    pass
+
+
+def _ruta_kv(clave):
+    return os.path.join(CARPETA_LOCAL, "kv", hashlib.sha256(clave.encode("utf-8")).hexdigest() + ".json")
+
+
+def kv_get(clave):
+    """Lee un valor (con vencimiento opcional). Upstash en Render; archivos en tu PC."""
+    if usa_upstash():
+        return _redis(["GET", clave])
+    try:
+        with open(_ruta_kv(clave), "r", encoding="utf-8") as f:
+            reg = json.load(f)
+    except (FileNotFoundError, ValueError):
+        return None
+    except OSError as e:
+        raise ErrorAlmacenamiento(str(e)) from e
+    if reg.get("exp") and reg["exp"] < time.time():
+        kv_del(clave)
+        return None
+    return reg.get("v")
+
+
+def kv_set(clave, texto, ex=None):
+    if usa_upstash():
+        _redis(["SET", clave, texto] + (["EX", int(ex)] if ex else []))
+        return
+    try:
+        os.makedirs(os.path.dirname(_ruta_kv(clave)), exist_ok=True)
+        with open(_ruta_kv(clave), "w", encoding="utf-8") as f:
+            json.dump({"v": texto, "exp": time.time() + ex if ex else None}, f)
+    except OSError as e:
+        raise ErrorAlmacenamiento(str(e)) from e
+
+
+def kv_del(clave):
+    if usa_upstash():
+        _redis(["DEL", clave])
+        return
+    try:
+        os.remove(_ruta_kv(clave))
+    except FileNotFoundError:
+        pass
+    except OSError as e:
+        raise ErrorAlmacenamiento(str(e)) from e
+
+
+def limite(clave, maximo, ventana, mensaje="Demasiados intentos. Espera un rato e intenta de nuevo."):
+    """Cuenta cuántas veces se hizo algo en una ventana de tiempo y corta si se pasa."""
+    if usa_upstash():
+        n = _redis(["INCR", clave])
+        if n == 1:
+            _redis(["EXPIRE", clave, int(ventana)])
+    else:
+        n = int(kv_get(clave) or 0) + 1
+        reg = _ruta_kv(clave)
+        previo = None
+        try:
+            with open(reg, "r", encoding="utf-8") as f:
+                previo = json.load(f).get("exp")
+        except (OSError, ValueError):
+            pass
+        os.makedirs(os.path.dirname(reg), exist_ok=True)
+        with open(reg, "w", encoding="utf-8") as f:
+            json.dump({"v": str(n), "exp": previo or time.time() + ventana}, f)
+    if n > maximo:
+        raise ErrorLimite(mensaje)
+
+
+def _ip():
+    return (request.headers.get("X-Forwarded-For", "").split(",")[0].strip()
+            or request.remote_addr or "?")
+
+
+def _h(texto):
+    return hashlib.sha256(texto.encode("utf-8")).hexdigest()
+
+
+def correo_valido(valor):
+    valor = str(valor or "").strip().lower()
+    if len(valor) > 254 or not re.fullmatch(r"[^@\s]{1,64}@[^@\s]{1,200}\.[^@\s.]{2,}", valor):
+        return None
+    return valor
+
+
+def id_cuenta(correo):
+    return _h("cuenta|" + correo)[:40]
+
+
+def _cuenta(correo):
+    crudo = kv_get("arena:cuenta:" + id_cuenta(correo))
+    try:
+        return json.loads(crudo) if crudo else None
+    except ValueError:
+        return None
+
+
+def _guardar_cuenta(correo, cuenta):
+    kv_set("arena:cuenta:" + id_cuenta(correo), json.dumps(cuenta, ensure_ascii=False))
+
+
+def correo_oculto(correo):
+    usuario, dominio = correo.split("@", 1)
+    return usuario[:2] + "***@" + dominio
+
+
+def enviar_correo(destino, asunto, html, texto):
+    """Manda un correo con la API de Brevo. En tu PC (sin Upstash ni Brevo) solo lo muestra
+    en la terminal para que puedas probar."""
+    if not (BREVO_API_KEY and EMAIL_REMITENTE):
+        if usa_upstash():
+            print("[correo] Faltan BREVO_API_KEY o EMAIL_REMITENTE en las variables de entorno.")
+            raise ErrorCorreo("sin configurar")
+        print(f"[CORREO DE PRUEBA] Para {destino} · {asunto}\n{texto}")
+        return
+    try:
+        r = requests.post(
+            "https://api.brevo.com/v3/smtp/email",
+            headers={"api-key": BREVO_API_KEY, "accept": "application/json",
+                     "content-type": "application/json"},
+            json={"sender": {"name": "Arena Legends", "email": EMAIL_REMITENTE},
+                  "to": [{"email": destino}], "subject": asunto,
+                  "htmlContent": html, "textContent": texto},
+            timeout=10)
+    except requests.RequestException as e:
+        print("[correo] No se pudo conectar con Brevo:", type(e).__name__)
+        raise ErrorCorreo("sin conexión") from e
+    if r.status_code >= 300:
+        print(f"[correo] Brevo respondió {r.status_code}: {r.text[:200]}")
+        raise ErrorCorreo("rechazado")
+
+
+def enviar_codigo(correo, proposito):
+    """Crea un código de 6 dígitos (vale 10 minutos), lo guarda cifrado y lo manda al correo."""
+    cid = id_cuenta(correo)
+    limite(f"arena:rl:envios:{cid}", 5, 3600, "Pediste demasiados códigos. Intenta de nuevo en una hora.")
+    limite(f"arena:rl:enviosip:{_h(_ip())[:20]}", 20, 3600, "Demasiadas solicitudes desde tu red. Intenta más tarde.")
+    if kv_get(f"arena:espera:{cid}:{proposito}"):
+        raise ErrorLimite("Espera unos segundos antes de pedir otro código.")
+    codigo = f"{secrets.randbelow(10 ** 6):06d}"
+    sal = secrets.token_hex(8)
+    clave = f"arena:cod:{cid}:{proposito}"
+    kv_set(clave, json.dumps({"h": _h(sal + codigo), "sal": sal, "intentos": 0}), ex=CODIGO_VENCE_SEGUNDOS)
+    accion = "crear tu cuenta" if proposito == "registro" else "iniciar sesión"
+    texto = (f"Tu código de verificación de Arena Legends es: {codigo}\n\n"
+             f"Sirve para {accion} y vence en 10 minutos. Si no fuiste tú, ignora este correo.")
+    html = (f"<div style='font-family:Arial,sans-serif;max-width:420px;margin:auto'>"
+            f"<h2 style='color:#1e66f5'>⚔️ Arena Legends</h2>"
+            f"<p>Tu código de verificación para {accion} es:</p>"
+            f"<p style='font-size:34px;font-weight:bold;letter-spacing:8px;text-align:center'>{codigo}</p>"
+            f"<p style='color:#666;font-size:13px'>Vence en 10 minutos. Si no fuiste tú, ignora este correo.</p></div>")
+    try:
+        enviar_correo(correo, f"{codigo} es tu código de Arena Legends", html, texto)
+    except ErrorCorreo:
+        kv_del(clave)
+        raise
+    kv_set(f"arena:espera:{cid}:{proposito}", "1", ex=45)
+
+
+def comprobar_codigo(correo, proposito, introducido):
+    """True si el código es el que se mandó. Máximo 5 intentos; se usa una sola vez."""
+    cid = id_cuenta(correo)
+    clave = f"arena:cod:{cid}:{proposito}"
+    crudo = kv_get(clave)
+    if not crudo:
+        return False
+    try:
+        reg = json.loads(crudo)
+    except ValueError:
+        kv_del(clave)
+        return False
+    if reg.get("intentos", 0) >= CODIGO_MAX_INTENTOS:
+        kv_del(clave)
+        return False
+    introducido = re.sub(r"\D", "", str(introducido or ""))
+    if len(introducido) == 6 and hmac.compare_digest(_h(reg["sal"] + introducido), reg["h"]):
+        kv_del(clave)
+        return True
+    reg["intentos"] = reg.get("intentos", 0) + 1
+    if reg["intentos"] >= CODIGO_MAX_INTENTOS:
+        kv_del(clave)
+    else:
+        kv_set(clave, json.dumps(reg), ex=CODIGO_VENCE_SEGUNDOS)
+    return False
+
+
+def crear_sesion(correo):
+    token = secrets.token_urlsafe(32)
+    kv_set("arena:ses:" + _h(token)[:40], json.dumps({"cuenta": id_cuenta(correo), "correo": correo}),
+           ex=SESION_SEGUNDOS)
+    return token
+
+
+def codigo_de_sesion(token):
+    """De la sesión al nombre interno con el que se guarda el progreso de esa cuenta."""
+    if not isinstance(token, str) or not 20 <= len(token) <= 100:
+        raise SesionInvalida()
+    crudo = kv_get("arena:ses:" + _h(token)[:40])
+    try:
+        cuenta = json.loads(crudo)["cuenta"] if crudo else None
+    except (ValueError, KeyError, TypeError):
+        cuenta = None
+    if not cuenta:
+        raise SesionInvalida()
+    return "u" + cuenta[:30]
+
+
 def abrir(req):
     """Lee el progreso del código que mandó el navegador (o crea uno nuevo).
     Si el navegador dice en qué liga está, esa pasa a ser la liga activa: así el celular
     y el PC pueden estar en ligas distintas sin pisarse."""
-    codigo = limpiar_codigo(req.get("codigo"))
-    if not codigo:
-        raise CodigoInvalido()
+    codigo = codigo_de_sesion(req.get("sesion"))
+    if "candado" not in g:
+        _tomar_candado(clave_de(codigo))
 
     guardado = leer_estado(codigo)
     data = None
@@ -527,8 +852,7 @@ def eliminatorias(data, liga):
                                None)
             if partido:
                 estado = "jugado"
-                gana_local = partido["home_score"] > partido["away_score"]
-                nombre = partido["home"] if gana_local else partido["away"]
+                nombre = partido["home"] if ganador_de(partido) == "local" else partido["away"]
                 ganador = a if a["name"] == nombre else b
             lista.append({
                 "fase": fase, "titulo": TITULOS_FASE[fase], "estado": estado,
@@ -538,6 +862,7 @@ def eliminatorias(data, liga):
                 "away_flag": b["flag"] if b else "",
                 "home_score": partido["home_score"] if partido else None,
                 "away_score": partido["away_score"] if partido else None,
+                "penales": partido.get("penales") if partido else None,
             })
             siguientes.append(ganador)
         if len(entradas) == 2:
@@ -559,24 +884,54 @@ def cuotas_para(deporte):
     return {r: round(MARGEN_CUOTAS / p, 2) for r, p in probabilidades(deporte).items() if p > 0}
 
 
-def probs_partido(deporte, liga, home, away, fase="grupos"):
-    """Probabilidades de ESTE partido. Salen de una "semilla" hecha con la liga y los dos
-    equipos: cada partido tiene las suyas (unos los gana más el local, otros el visitante),
-    pero para el mismo partido siempre son las mismas, no cambian al recargar la página."""
+def componentes_partido(deporte, liga, home, away, fase="grupos"):
+    """Probabilidades de ESTE partido en tiempo normal (local / empate / visita).
+    Dependen del nivel de los dos equipos (ver NIVELES), de una pequeña ventaja de local y
+    de la "forma del día", que se sortea con una semilla hecha con la liga y los equipos:
+    así cada partido tiene las suyas, pero para el mismo partido siempre son las mismas."""
     a, b = sorted((home, away))
     semilla = f"{liga}|{a}|{b}" if fase == "grupos" else f"{liga}|{fase}|{a}|{b}"
     h = hashlib.sha256(semilla.encode("utf-8")).hexdigest()
     r1 = int(h[:8], 16) / 0xFFFFFFFF
     r2 = int(h[8:16], 16) / 0xFFFFFFFF
-    fuerza_a = 0.20 + 0.60 * r1            # parte del reparto que se lleva el equipo "a"
-    if deporte in DEPORTES_SIN_EMPATE or fase != "grupos":
-        empate = 0.0                       # en las fases finales siempre hay un ganador
-    else:
-        empate = 0.15 + 0.15 * r2          # entre 15 % y 30 %
-    pa = (1 - empate) * fuerza_a
+    forma_a = (r1 - 0.5) * 1.6                       # el equipo "a" tiene su día: ±0.8 niveles
+    dif_a = nivel(a) - nivel(b) + forma_a
+    dif_a += (VENTAJA_LOCAL.get(deporte, 0.3) if home == a else -VENTAJA_LOCAL.get(deporte, 0.3))
+    parte_a = min(0.88, max(0.12, 1 / (1 + math.exp(-0.28 * dif_a))))
+    if deporte in DEPORTES_SIN_EMPATE:
+        empate = 0.0
+    else:                                            # más parejo el partido, más empate
+        empate = min(0.32, max(0.12, 0.30 - 0.14 * abs(2 * parte_a - 1) + (r2 - 0.5) * 0.04))
+    pa = (1 - empate) * parte_a
     pb = (1 - empate) - pa
     local, visita = (pa, pb) if home == a else (pb, pa)
     return {"local": local, "empate": empate, "visita": visita}
+
+
+def probs_partido(deporte, liga, home, away, fase="grupos"):
+    """Probabilidades que se usan para las cuotas. En las fases finales no hay empate: si
+    el partido termina igual se define por penales (50 / 50), y la apuesta es por quién pasa."""
+    p = componentes_partido(deporte, liga, home, away, fase)
+    if fase == "grupos" or p["empate"] == 0:
+        return p
+    return {"local": p["local"] + p["empate"] / 2, "empate": 0.0,
+            "visita": p["visita"] + p["empate"] / 2}
+
+
+def ganador_de(m):
+    """'local' o 'visita' de un partido jugado (en un empate decide la tanda de penales)."""
+    if m["home_score"] != m["away_score"]:
+        return "local" if m["home_score"] > m["away_score"] else "visita"
+    pen = m.get("penales")
+    if pen and pen[0] != pen[1]:
+        return "local" if pen[0] > pen[1] else "visita"
+    return "empate"
+
+
+def tanda_de_penales():
+    """Resultado de una tanda: (goles del que gana, goles del que pierde)."""
+    k = random.choice([3, 4, 4, 5, 5, 5, 6])
+    return k, (k - 1 if random.random() < 0.7 or k < 4 else k - 2)
 
 
 def cuotas_partido(deporte, liga, home, away, fase="grupos"):
@@ -622,6 +977,22 @@ def ok(data, **extra):
 def error(mensaje, titulo="Ups, algo salió mal", tipo="error", codigo=400):
     """tipo: 'error' o 'aviso'. El navegador lo usa para elegir el color del mensaje."""
     return jsonify({"status": "error", "tipo": tipo, "titulo": titulo, "message": mensaje}), codigo
+
+
+@app.errorhandler(SesionInvalida)
+def _sesion_invalida(_):
+    return error("Tu sesión venció. Inicia sesión de nuevo.", "Sesión vencida", "aviso", 401)
+
+
+@app.errorhandler(ErrorLimite)
+def _error_limite(e):
+    return error(str(e), "Un momento", "aviso", 429)
+
+
+@app.errorhandler(ErrorCorreo)
+def _error_correo(_):
+    return error("No pudimos enviar el correo con el código. Intenta de nuevo en unos minutos.",
+                 "Correo no enviado", "error", 503)
 
 
 @app.errorhandler(CodigoInvalido)
@@ -848,9 +1219,43 @@ def _eventos_genericos(deporte, local, visitante, puntos_local, puntos_visitante
     return eventos
 
 
-def construir_transmision(deporte, local, visitante, puntos_local, puntos_visitante):
+def _eventos_penales(local, visitante, penales):
+    """Tanda de penales: se patea de a uno, alternando; gana quien tenga más goles."""
+    eventos, pen = [], [0, 0]
+    _evento(eventos, [0, 0], 90, "Pen.", "info",
+            "Empate al final del tiempo reglamentario. ¡Se define por penales!", None)
+    resultados = {"home": [True] * penales[0] + [False] * (5 - penales[0] if penales[0] < 5 else 0),
+                  "away": [True] * penales[1] + [False] * (5 - penales[1] if penales[1] < 5 else 0)}
+    for lado in resultados:
+        random.shuffle(resultados[lado])
+    nombres = {"home": local["name"], "away": visitante["name"]}
+    for i in range(max(len(resultados["home"]), len(resultados["away"]))):
+        for lado, idx in (("home", 0), ("away", 1)):
+            if i >= len(resultados[lado]):
+                continue
+            tirador = random.choice(NOMBRES) + " " + random.choice(APELLIDOS)
+            if resultados[lado][i]:
+                pen[idx] += 1
+                texto = f"Penal de {tirador} ({nombres[lado]}): ¡GOL! [{pen[0]}-{pen[1]}]"
+                _evento(eventos, [0, 0], 90, "Pen.", "gol", texto, lado)
+            else:
+                texto = f"Penal de {tirador} ({nombres[lado]}): ¡lo falla! [{pen[0]}-{pen[1]}]"
+                _evento(eventos, [0, 0], 90, "Pen.", "jugada", texto, lado)
+            eventos[-1]["pen"] = list(pen)
+    ganador = nombres["home"] if penales[0] > penales[1] else nombres["away"]
+    _evento(eventos, [0, 0], 90, "Pen.", "info",
+            f"¡{ganador} gana por penales {penales[0]}-{penales[1]} y avanza!", None)
+    eventos[-1]["pen"] = list(penales)
+    return eventos
+
+
+def construir_transmision(deporte, local, visitante, puntos_local, puntos_visitante, penales=None):
     if deporte == "Fútbol":
         eventos = _eventos_futbol(local, visitante, puntos_local, puntos_visitante)
+        if penales:
+            for e in _eventos_penales(local, visitante, penales):
+                e["marcador"] = [puntos_local, puntos_visitante]
+                eventos.append(e)
     else:
         eventos = _eventos_genericos(deporte, local, visitante, puntos_local, puntos_visitante)
     resumen = lambda t: {"name": t["name"], "escudo": t["escudo"], "flag": t["flag"]}
@@ -882,6 +1287,10 @@ def resolver_predicciones(data, partido):
             resultado = "local"
         elif goles_home < goles_away:
             resultado = "visita"
+        elif partido.get("penales"):   # fase final empatada: pasa quien gana los penales
+            pen = partido["penales"] if p["home"] == partido["home"] else partido["penales"][::-1]
+            resultado = "local" if pen[0] > pen[1] else "visita"
+            p["penales"] = list(pen)
         else:
             resultado = "empate"
 
@@ -912,7 +1321,8 @@ def health():
     except ErrorAlmacenamiento:
         funciona = False
     return jsonify({"almacenamiento": "upstash" if usa_upstash() else "archivo local",
-                    "funciona": funciona})
+                    "funciona": funciona,
+                    "correo_configurado": bool(BREVO_API_KEY and EMAIL_REMITENTE)})
 
 
 @app.route("/api/load", methods=["POST"])
@@ -1114,7 +1524,12 @@ def simulate_match():
         local = next(t for t in equipos if t["name"] == siguiente["home"])
         visitante = next(t for t in equipos if t["name"] == siguiente["away"])
     goles_local, goles_visitante = generar_marcador_para(
-        deporte, probs_partido(deporte, liga, local["name"], visitante["name"], fase))
+        deporte, componentes_partido(deporte, liga, local["name"], visitante["name"], fase))
+    penales = None
+    if fase != "grupos" and goles_local == goles_visitante:
+        # Empate en una fase final: se define por penales (50 / 50).
+        gana, pierde = tanda_de_penales()
+        penales = [gana, pierde] if random.random() < 0.5 else [pierde, gana]
 
     nuevo_id = max((m["id"] for m in data["matches"]), default=100) + 1
     data["matches"].insert(0, {
@@ -1131,11 +1546,127 @@ def simulate_match():
         "away_flag": visitante["flag"],
         "home_score": goles_local,
         "away_score": goles_visitante,
+        "penales": penales,
         "played": True,
     })
     resolver_predicciones(data, data["matches"][0])
-    transmision = construir_transmision(deporte, local, visitante, goles_local, goles_visitante)
+    transmision = construir_transmision(deporte, local, visitante, goles_local, goles_visitante, penales)
     return responder(codigo, data, live=transmision)
+
+
+# ---------------------------------------------------------------------------
+# Rutas de cuentas
+# ---------------------------------------------------------------------------
+HASH_FALSO = generate_password_hash("contraseña-falsa-para-igualar-tiempos")
+
+
+def _datos_cuenta(req):
+    correo = correo_valido(req.get("correo"))
+    return correo, str(req.get("clave") or "")
+
+
+@app.route("/api/auth/registro", methods=["POST"])
+def auth_registro():
+    req = request.get_json(silent=True) or {}
+    correo, clave = _datos_cuenta(req)
+    if not correo:
+        return error("Escribe un correo válido.", "Correo no válido", "aviso")
+    if not 8 <= len(clave) <= 100:
+        return error("La contraseña debe tener entre 8 y 100 caracteres.", "Contraseña corta", "aviso")
+    cuenta = _cuenta(correo)
+    if cuenta and cuenta.get("verificada"):
+        return error("Ya existe una cuenta con ese correo. Inicia sesión.", "Cuenta existente", "aviso", 409)
+    _guardar_cuenta(correo, {"correo": correo, "clave": generate_password_hash(clave),
+                             "verificada": False, "creada": date.today().isoformat()})
+    enviar_codigo(correo, "registro")
+    return jsonify({"status": "success", "correo": correo_oculto(correo)})
+
+
+@app.route("/api/auth/verificar_registro", methods=["POST"])
+def auth_verificar_registro():
+    req = request.get_json(silent=True) or {}
+    correo = correo_valido(req.get("correo"))
+    cuenta = _cuenta(correo) if correo else None
+    if not cuenta or cuenta.get("verificada"):
+        return error("Empieza de nuevo: crea la cuenta otra vez.", "No se pudo verificar", "aviso")
+    if not comprobar_codigo(correo, "registro", req.get("codigo")):
+        return error("Ese código no es correcto o ya venció. Revisa tu correo o pide uno nuevo.",
+                     "Código incorrecto", "aviso")
+    cuenta["verificada"] = True
+    _guardar_cuenta(correo, cuenta)
+    return jsonify({"status": "success", "sesion": crear_sesion(correo), "correo": correo, "nueva": True})
+
+
+@app.route("/api/auth/login", methods=["POST"])
+def auth_login():
+    req = request.get_json(silent=True) or {}
+    correo, clave = _datos_cuenta(req)
+    if not correo:
+        return error("Escribe un correo válido.", "Correo no válido", "aviso")
+    limite(f"arena:rl:clave:{id_cuenta(correo)}", 10, 900,
+           "Demasiados intentos con esa cuenta. Espera 15 minutos e intenta de nuevo.")
+    cuenta = _cuenta(correo)
+    correcta = check_password_hash(cuenta["clave"] if cuenta else HASH_FALSO, clave)
+    if not (cuenta and cuenta.get("verificada") and correcta):
+        return error("Correo o contraseña incorrectos.", "No pudimos entrar", "aviso", 403)
+    enviar_codigo(correo, "login")
+    return jsonify({"status": "success", "correo": correo_oculto(correo)})
+
+
+@app.route("/api/auth/verificar_login", methods=["POST"])
+def auth_verificar_login():
+    req = request.get_json(silent=True) or {}
+    correo = correo_valido(req.get("correo"))
+    if not correo or not comprobar_codigo(correo, "login", req.get("codigo")):
+        return error("Ese código no es correcto o ya venció. Revisa tu correo o pide uno nuevo.",
+                     "Código incorrecto", "aviso")
+    return jsonify({"status": "success", "sesion": crear_sesion(correo), "correo": correo, "nueva": False})
+
+
+@app.route("/api/auth/reenviar", methods=["POST"])
+def auth_reenviar():
+    """Solo reenvía si hay un paso pendiente (registro empezado o contraseña ya aceptada)."""
+    req = request.get_json(silent=True) or {}
+    correo = correo_valido(req.get("correo"))
+    proposito = req.get("proposito")
+    if not correo or proposito not in ("registro", "login"):
+        return error("Empieza de nuevo.", "No se pudo reenviar", "aviso")
+    if not kv_get(f"arena:cod:{id_cuenta(correo)}:{proposito}"):
+        return error("Ese paso ya venció. Empieza de nuevo.", "No se pudo reenviar", "aviso")
+    enviar_codigo(correo, proposito)
+    return jsonify({"status": "success"})
+
+
+@app.route("/api/auth/logout", methods=["POST"])
+def auth_logout():
+    req = request.get_json(silent=True) or {}
+    token = req.get("sesion")
+    if isinstance(token, str) and 20 <= len(token) <= 100:
+        kv_del("arena:ses:" + _h(token)[:40])
+    return jsonify({"status": "success"})
+
+
+@app.route("/api/auth/importar", methods=["POST"])
+def auth_importar():
+    """Trae a la cuenta nueva el progreso de un código de jugador anterior."""
+    req = request.get_json(silent=True) or {}
+    destino = codigo_de_sesion(req.get("sesion"))
+    limite(f"arena:rl:importar:{destino}", 5, 3600, "Demasiados intentos. Intenta más tarde.")
+    limite(f"arena:rl:importarip:{_h(_ip())[:20]}", 15, 3600, "Demasiados intentos desde tu red.")
+    viejo = limpiar_codigo(req.get("codigo"))
+    guardado = leer_estado(viejo) if viejo else None
+    if not isinstance(guardado, dict):
+        return error("No encontramos progreso con ese código. Revisa que esté bien escrito.",
+                     "Código no encontrado", "aviso")
+    actual = leer_estado(destino)
+    if isinstance(actual, dict) and (actual.get("matches") or actual.get("predictions")):
+        return error("Tu cuenta ya tiene partidos jugados; no se puede reemplazar.", "Cuenta con progreso", "aviso")
+    try:
+        data = normalizar(guardado)
+    except (KeyError, TypeError, ValueError, AttributeError):
+        return error("Ese progreso no se pudo leer.", "No se pudo importar", "error")
+    guardar_estado(destino, data)
+    return jsonify({"status": "success"})
 
 
 if __name__ == "__main__":
