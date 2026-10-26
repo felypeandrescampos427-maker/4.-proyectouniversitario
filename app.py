@@ -509,8 +509,10 @@ def eliminatorias(data, liga):
     jugados = [m for m in data["matches"] if m["liga"] == liga and not _es_grupos(m)]
     lista = []
     while True:
-        fase = "previa" if _BYE in entradas else \
-            {2: "final", 4: "semis", 8: "cuartos", 16: "octavos"}.get(len(entradas), "previa")
+        if _BYE in entradas and len(entradas) != 4:
+            fase = "previa"          # algunos equipos pasan directo y juegan una ronda antes
+        else:                        # con 3 equipos, la primera ronda ya es la semifinal
+            fase = {2: "final", 4: "semis", 8: "cuartos", 16: "octavos"}[len(entradas)]
         siguientes = []
         for i in range(0, len(entradas), 2):
             a, b = entradas[i], entradas[i + 1]
@@ -923,13 +925,19 @@ def load_state():
 
 @app.route("/api/reset", methods=["POST"])
 def reset_state():
-    """Reinicia grupos y partidos. Conserva el saldo y devuelve lo apostado en
-    predicciones que aún no se habían jugado."""
+    """Reinicia SOLO la liga que está abierta: borra sus grupos, partidos y predicciones.
+    Conserva el saldo y devuelve lo apostado en predicciones que aún no se habían jugado.
+    Las demás ligas no se tocan."""
     req = request.get_json(silent=True) or {}
-    codigo, actual = abrir(req)
-    reembolso = sum(p["monto"] for p in actual["predictions"] if p["estado"] == "pendiente")
-    data = estado_inicial()
-    data["balance_cop"] = round(actual["balance_cop"] + reembolso, 2)
+    codigo, data = abrir(req)
+    liga = data["liga_activa"]
+    reembolso = sum(p["monto"] for p in data["predictions"]
+                    if p["estado"] == "pendiente" and p["liga"] == liga)
+    data["balance_cop"] = round(data["balance_cop"] + reembolso, 2)
+    for t in data["equipos_por_liga"].get(liga, []):
+        t["group"] = None
+    data["matches"] = [m for m in data["matches"] if m["liga"] != liga]
+    data["predictions"] = [p for p in data["predictions"] if p["liga"] != liga]
     return responder(codigo, data)
 
 

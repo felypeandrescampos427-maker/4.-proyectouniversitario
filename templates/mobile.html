@@ -252,7 +252,7 @@
                 <div><h4 class="text-xs font-bold text-[#89b4fa]">⚽ Simular partido</h4><p class="text-[11px] text-gray-300 leading-relaxed mt-0.5">Juega el siguiente partido del calendario y lo ves en vivo: goles, tarjetas y cambios. Con «Saltar» ves el final al instante y con «Continuar torneo» guardas el resultado.</p></div>
                 <div><h4 class="text-xs font-bold text-[#89b4fa]">📊 Posiciones</h4><p class="text-[11px] text-gray-300 leading-relaxed mt-0.5">PJ: jugados · PG: ganados · PE: empatados · PP: perdidos · GF/GC: goles a favor y en contra · DG: diferencia · PTS: puntos (victoria 3, empate 1). Se ordena por puntos y luego por diferencia de goles.</p></div>
                 <div><h4 class="text-xs font-bold text-[#89b4fa]">🎯 Predicciones</h4><p class="text-[11px] text-gray-300 leading-relaxed mt-0.5">Elige un partido pendiente, di quién gana (o empate) y cuánto apuestas (mínimo $ 1.000). Si aciertas recibes lo apostado multiplicado por la cuota; si fallas, lo pierdes. El resultado se resuelve al simular ese partido.</p></div>
-                <div><h4 class="text-xs font-bold text-[#89b4fa]">🔄 Reiniciar</h4><p class="text-[11px] text-gray-300 leading-relaxed mt-0.5">Borra grupos y partidos para empezar de cero. Tu saldo se conserva y lo apostado en predicciones pendientes se te devuelve.</p></div>
+                <div><h4 class="text-xs font-bold text-[#89b4fa]">🔄 Reiniciar</h4><p class="text-[11px] text-gray-300 leading-relaxed mt-0.5">Borra los grupos, partidos y predicciones de la liga que tienes abierta (las otras ligas no se tocan). Tu saldo se conserva y lo apostado en predicciones pendientes se te devuelve.</p></div>
             </div>
             <button onclick="cerrarAyuda()" class="w-full bg-[#89b4fa] hover:bg-[#b4befe] text-[#11111b] font-bold py-2.5 rounded-xl text-xs">Entendido</button>
         </div>
@@ -1023,7 +1023,7 @@
 
         async function reiniciarTorneo() {
             const confirmado = await mostrarMensaje('confirmar', '¿Reiniciar el torneo?',
-                'Se borrarán los grupos, los partidos y tus predicciones. Tu saldo se conserva (y se te devuelve lo apostado en predicciones pendientes).',
+                'Se borrarán los grupos, los partidos y las predicciones de ESTA liga. Las otras ligas no se tocan. Tu saldo se conserva (y se te devuelve lo apostado en predicciones pendientes).',
                 { confirmar: true, textoOk: 'Sí, reiniciar' });
             if (!confirmado) return;
 
