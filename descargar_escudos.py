@@ -103,6 +103,30 @@ TITULO_WIKI = {
     "Los Angeles Dodgers": "Los Angeles Dodgers",
     "T1": "T1 (esports)",
     "Gen.G": "Gen.G",
+    # Liga BetPlay
+    "Inter de Bogotá": "Inter de Bogotá",
+    # League of Legends (Worlds)
+    "Hanwha Life Esports": "Hanwha Life Esports",
+    "Dplus KIA": "Dplus KIA",
+    "KT Rolster": "KT Rolster",
+    "JD Gaming": "JD Gaming",
+    "Bilibili Gaming": "Bilibili Gaming",
+    "Top Esports": "Top Esports",
+    "Weibo Gaming": "Weibo Gaming",
+    "LNG Esports": "LNG Esports",
+    "G2 Esports": "G2 Esports",
+    "Fnatic": "Fnatic",
+    "Team Vitality": "Team Vitality",
+    "MAD Lions KOI": "Movistar KOI",
+    "Cloud9": "Cloud9",
+    "Team Liquid": "Team Liquid",
+    "FlyQuest": "FlyQuest",
+    "100 Thieves": "100 Thieves",
+    "PSG Talon": "PSG Talon",
+    "CTBC Flying Oyster": "CTBC Flying Oyster",
+    # NBA / MLB: casi todos coinciden con su artículo; estos dos difieren
+    "Athletics": "Oakland Athletics",
+    "Philadelphia 76ers": "Philadelphia 76ers",
 }
 
 

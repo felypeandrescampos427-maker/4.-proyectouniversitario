@@ -28,6 +28,7 @@
                     </select>
                 </div>
                 <button id="btn-usuario" onclick="cambiarUsuario()" title="Cambiar de código" class="mt-1 text-[9px] text-gray-400 underline max-w-[8rem] truncate">👤 —</button>
+                <button onclick="abrirAyuda()" class="mt-1 ml-2 text-[9px] text-gray-400 underline">❓ Ayuda</button>
             </div>
             <div class="flex items-center gap-2">
                 <div class="bg-[#11111b] border border-[#313244] px-2.5 py-1 rounded-xl text-right">
@@ -231,8 +232,29 @@
                    onkeydown="if (event.key === 'Enter') entrar()"
                    class="w-full bg-[#11111b] border border-[#313244] text-white text-sm px-3 py-3 rounded-xl outline-none text-center">
             <p id="loginError" class="text-xs text-[#f38ba8] min-h-[1rem]"></p>
+            <button onclick="abrirAyuda()" class="text-[11px] text-[#89b4fa] underline">❓ ¿Cómo funciona?</button>
             <button id="btnEntrar" onclick="entrar()" class="w-full bg-[#a6e3a1] hover:bg-[#95d890] text-[#11111b] font-bold py-3 rounded-xl transition text-sm shadow-md disabled:opacity-50">Entrar</button>
             <p class="text-[10px] text-gray-500">Es como tu contraseña: elige uno que otras personas no adivinen.</p>
+        </div>
+    </div>
+
+    <!-- AYUDA: explicación de cada parte -->
+    <div id="ayudaModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm hidden items-center justify-center z-[70] p-4" onclick="if (event.target === this) cerrarAyuda()">
+        <div class="pop bg-[#1e1e2e] border border-[#313244] w-full max-w-md max-h-full overflow-y-auto p-5 rounded-2xl shadow-2xl space-y-3 relative">
+            <button onclick="cerrarAyuda()" aria-label="Cerrar" class="absolute top-3 right-3 text-gray-400 hover:text-white font-bold">✕</button>
+            <h3 class="text-base font-bold text-white text-center">❓ ¿Cómo funciona Arena Legends?</h3>
+            <div class="space-y-3">
+                <div><h4 class="text-xs font-bold text-[#89b4fa]">👤 Tu código de jugador</h4><p class="text-[11px] text-gray-300 leading-relaxed mt-0.5">Es como tu contraseña. Con el mismo código ves el mismo saldo y progreso en el celular y en el computador. Si es nuevo, se crea solo. Toca tu código arriba para cambiar de jugador. Elige uno que otras personas no adivinen.</p></div>
+                <div><h4 class="text-xs font-bold text-[#89b4fa]">💳 Recargar saldo</h4><p class="text-[11px] text-gray-300 leading-relaxed mt-0.5">Es una pasarela simulada: no se cobra dinero real. Escribe un monto (mínimo $ 50.000 COP) y confirma; se suma a tu saldo. Los datos de la tarjeta son de mentira y no se guardan.</p></div>
+                <div><h4 class="text-xs font-bold text-[#89b4fa]">💱 Moneda</h4><p class="text-[11px] text-gray-300 leading-relaxed mt-0.5">Solo cambia cómo se muestran los valores: 1 USD = $ 4.000 COP y 1 EUR = $ 4.300 COP. Tu saldo real siempre se guarda en pesos.</p></div>
+                <div><h4 class="text-xs font-bold text-[#89b4fa]">🛡️ Grupos</h4><p class="text-[11px] text-gray-300 leading-relaxed mt-0.5">Toca un equipo de la lista y elige su grupo (A–E, máximo 4 por grupo). Para jugar necesitas al menos 2 equipos en el mismo grupo. Una vez se juega el primer partido ya no se pueden cambiar los grupos.</p></div>
+                <div><h4 class="text-xs font-bold text-[#89b4fa]">📅 Calendario</h4><p class="text-[11px] text-gray-300 leading-relaxed mt-0.5">Muestra los cruces de cada grupo con su fecha. Los partidos se juegan en ese mismo orden, de arriba hacia abajo.</p></div>
+                <div><h4 class="text-xs font-bold text-[#89b4fa]">⚽ Simular partido</h4><p class="text-[11px] text-gray-300 leading-relaxed mt-0.5">Juega el siguiente partido del calendario y lo ves en vivo: goles, tarjetas y cambios. Con «Saltar» ves el final al instante y con «Continuar torneo» guardas el resultado.</p></div>
+                <div><h4 class="text-xs font-bold text-[#89b4fa]">📊 Posiciones</h4><p class="text-[11px] text-gray-300 leading-relaxed mt-0.5">PJ: jugados · PG: ganados · PE: empatados · PP: perdidos · GF/GC: goles a favor y en contra · DG: diferencia · PTS: puntos (victoria 3, empate 1). Se ordena por puntos y luego por diferencia de goles.</p></div>
+                <div><h4 class="text-xs font-bold text-[#89b4fa]">🎯 Predicciones</h4><p class="text-[11px] text-gray-300 leading-relaxed mt-0.5">Elige un partido pendiente, di quién gana (o empate) y cuánto apuestas (mínimo $ 1.000). Si aciertas recibes lo apostado multiplicado por la cuota; si fallas, lo pierdes. El resultado se resuelve al simular ese partido.</p></div>
+                <div><h4 class="text-xs font-bold text-[#89b4fa]">🔄 Reiniciar</h4><p class="text-[11px] text-gray-300 leading-relaxed mt-0.5">Borra grupos y partidos para empezar de cero. Tu saldo se conserva y lo apostado en predicciones pendientes se te devuelve.</p></div>
+            </div>
+            <button onclick="cerrarAyuda()" class="w-full bg-[#89b4fa] hover:bg-[#b4befe] text-[#11111b] font-bold py-2.5 rounded-xl text-xs">Entendido</button>
         </div>
     </div>
 
@@ -253,6 +275,9 @@
         // celular y en el computador. En este navegador solo se recuerda el código.
         const CLAVE_CODIGO = 'arena_legends_codigo';
         let codigo = '';
+
+        function abrirAyuda() { $('ayudaModal').classList.remove('hidden'); $('ayudaModal').classList.add('flex'); }
+        function cerrarAyuda() { $('ayudaModal').classList.add('hidden'); $('ayudaModal').classList.remove('flex'); }
 
         const tasasCambio = {
             "COP": { simbolo: "$", divisor: 1, formatoDecimal: 0 },

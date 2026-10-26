@@ -82,7 +82,6 @@ EXT_IMG = (".png", ".jpg", ".jpeg", ".webp", ".svg")
 ALIAS_ESCUDO = {
     "deportivocali": "cali",
     "bucaramanga": "bucaros",
-    "laequidad": "equidad",
     "chico": "boyaca",
     "aguilas": "aguilas_doradas",
 }
@@ -127,7 +126,7 @@ EQUIPOS_POR_LIGA = {
         ("Atlético Bucaramanga", "bucaramanga.png"),
         ("Envigado FC", "envigado.png"),
         ("Deportivo Pereira", "pereira.png"),
-        ("La Equidad", "laequidad.png"),
+        ("Inter de Bogotá", "interbogota.png"),
         ("Águilas Doradas", "aguilas.png"),
         ("Boyacá Chicó", "chico.png"),
         ("Alianza FC", "alianza.png"),
@@ -185,14 +184,86 @@ EQUIPOS_POR_LIGA = {
         ("Golden State Warriors", "warriors.png"),
         ("Boston Celtics", "celtics.png"),
         ("Chicago Bulls", "bulls.png"),
+        ("Atlanta Hawks", "atlanta_hawks.png"),
+        ("Brooklyn Nets", "brooklyn_nets.png"),
+        ("Charlotte Hornets", "charlotte_hornets.png"),
+        ("Cleveland Cavaliers", "cleveland_cavaliers.png"),
+        ("Detroit Pistons", "detroit_pistons.png"),
+        ("Indiana Pacers", "indiana_pacers.png"),
+        ("Miami Heat", "miami_heat.png"),
+        ("Milwaukee Bucks", "milwaukee_bucks.png"),
+        ("New York Knicks", "new_york_knicks.png"),
+        ("Orlando Magic", "orlando_magic.png"),
+        ("Philadelphia 76ers", "philadelphia_76ers.png"),
+        ("Toronto Raptors", "toronto_raptors.png"),
+        ("Washington Wizards", "washington_wizards.png"),
+        ("Dallas Mavericks", "dallas_mavericks.png"),
+        ("Denver Nuggets", "denver_nuggets.png"),
+        ("Houston Rockets", "houston_rockets.png"),
+        ("Los Angeles Clippers", "los_angeles_clippers.png"),
+        ("Memphis Grizzlies", "memphis_grizzlies.png"),
+        ("Minnesota Timberwolves", "minnesota_timberwolves.png"),
+        ("New Orleans Pelicans", "new_orleans_pelicans.png"),
+        ("Oklahoma City Thunder", "oklahoma_city_thunder.png"),
+        ("Phoenix Suns", "phoenix_suns.png"),
+        ("Portland Trail Blazers", "portland_trail_blazers.png"),
+        ("Sacramento Kings", "sacramento_kings.png"),
+        ("San Antonio Spurs", "san_antonio_spurs.png"),
+        ("Utah Jazz", "utah_jazz.png"),
     ]),
     "MLB": _equipos("⚾", 401, [
         ("New York Yankees", "yankees.png"),
         ("Los Angeles Dodgers", "dodgers.png"),
+        ("Baltimore Orioles", "baltimore_orioles.png"),
+        ("Boston Red Sox", "boston_red_sox.png"),
+        ("Tampa Bay Rays", "tampa_bay_rays.png"),
+        ("Toronto Blue Jays", "toronto_blue_jays.png"),
+        ("Chicago White Sox", "chicago_white_sox.png"),
+        ("Cleveland Guardians", "cleveland_guardians.png"),
+        ("Detroit Tigers", "detroit_tigers.png"),
+        ("Kansas City Royals", "kansas_city_royals.png"),
+        ("Minnesota Twins", "minnesota_twins.png"),
+        ("Houston Astros", "houston_astros.png"),
+        ("Los Angeles Angels", "los_angeles_angels.png"),
+        ("Athletics", "mlb_athletics.png"),
+        ("Seattle Mariners", "seattle_mariners.png"),
+        ("Texas Rangers", "texas_rangers.png"),
+        ("Atlanta Braves", "atlanta_braves.png"),
+        ("Miami Marlins", "miami_marlins.png"),
+        ("New York Mets", "new_york_mets.png"),
+        ("Philadelphia Phillies", "philadelphia_phillies.png"),
+        ("Washington Nationals", "washington_nationals.png"),
+        ("Chicago Cubs", "chicago_cubs.png"),
+        ("Cincinnati Reds", "cincinnati_reds.png"),
+        ("Milwaukee Brewers", "milwaukee_brewers.png"),
+        ("Pittsburgh Pirates", "pittsburgh_pirates.png"),
+        ("St. Louis Cardinals", "st_louis_cardinals.png"),
+        ("Arizona Diamondbacks", "arizona_diamondbacks.png"),
+        ("Colorado Rockies", "colorado_rockies.png"),
+        ("San Diego Padres", "san_diego_padres.png"),
+        ("San Francisco Giants", "san_francisco_giants.png"),
     ]),
     "lol": _equipos("🎮", 501, [
         ("T1", "t1.png"),
         ("Gen.G", "geng.png"),
+        ("Hanwha Life Esports", "hanwha_life_esports.png"),
+        ("Dplus KIA", "dplus_kia.png"),
+        ("KT Rolster", "kt_rolster.png"),
+        ("JD Gaming", "jd_gaming.png"),
+        ("Bilibili Gaming", "bilibili_gaming.png"),
+        ("Top Esports", "top_esports.png"),
+        ("Weibo Gaming", "weibo_gaming.png"),
+        ("LNG Esports", "lng_esports.png"),
+        ("G2 Esports", "g2_esports.png"),
+        ("Fnatic", "fnatic.png"),
+        ("Team Vitality", "team_vitality.png"),
+        ("MAD Lions KOI", "mad_lions_koi.png"),
+        ("Cloud9", "cloud9.png"),
+        ("Team Liquid", "team_liquid.png"),
+        ("FlyQuest", "flyquest.png"),
+        ("100 Thieves", "100_thieves.png"),
+        ("PSG Talon", "psg_talon.png"),
+        ("CTBC Flying Oyster", "ctbc_flying_oyster.png"),
     ]),
 }
 
@@ -209,6 +280,9 @@ DEFAULT_STATE = {
     "monto_min_prediccion": MONTO_MIN_PREDICCION,
     "predictions": [],
 }
+
+# Equipos que cambiaron de nombre: se actualiza lo que ya estaba guardado.
+RENOMBRES = {"La Equidad": "Inter de Bogotá"}
 
 CAMPOS_PREDICCION = ("id", "liga", "home", "away", "eleccion", "cuota", "monto", "estado")
 
@@ -263,6 +337,10 @@ def normalizar(data):
         if isinstance(partidos, list) else []
     # Los partidos guardados pueden traer nombres de escudo antiguos: se actualizan.
     for m in data["matches"]:
+        for lado in ("home", "away"):
+            if m.get(lado) in RENOMBRES:
+                m[lado] = RENOMBRES[m[lado]]
+                m[lado + "_escudo"] = "interbogota.png"
         m["home_escudo"] = resolver_escudo(m.get("home_escudo", ""))
         m["away_escudo"] = resolver_escudo(m.get("away_escudo", ""))
 
@@ -271,6 +349,9 @@ def normalizar(data):
         p for p in predicciones
         if isinstance(p, dict) and all(c in p for c in CAMPOS_PREDICCION)
     ] if isinstance(predicciones, list) else []
+    for p in data["predictions"]:
+        for lado in ("home", "away"):
+            p[lado] = RENOMBRES.get(p[lado], p[lado])
     return data
 
 
