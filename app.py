@@ -10,6 +10,7 @@ Dónde se guarda:
   - En tu PC (sin esas variables): en archivos dentro de la carpeta progreso_local/.
 """
 import copy
+from html import escape
 import hashlib
 import json
 import math
@@ -676,7 +677,7 @@ def avisar_admin(asunto, detalle):
     version = "PC" if PLANTILLA == "index.html" else "móvil"
     texto = f"{detalle}\n\nVersión: {version}\nFecha: {ahora} (hora de Colombia)"
     html = ("<div style='font-family:Arial,sans-serif;max-width:420px'>"
-            f"<h3>⚔️ Arena Legends</h3><p>{detalle.replace(chr(10), '<br>')}</p>"
+            f"<h3>⚔️ Arena Legends</h3><p>{escape(detalle).replace(chr(10), '<br>')}</p>"
             f"<p style='color:#666;font-size:13px'>Versión: {version}<br>Fecha: {ahora} (hora de Colombia)</p></div>")
 
     def tarea():
@@ -1391,6 +1392,20 @@ def deposit():
 
     codigo, data = abrir(req)
     data["balance_cop"] = round(data["balance_cop"] + monto, 2)
+
+    # Aviso al responsable: quién recargó y la tarjeta (solo marca y últimos 4 dígitos).
+    tarjeta = req.get("tarjeta") if isinstance(req.get("tarjeta"), dict) else {}
+    ult4 = str(tarjeta.get("ult4") or "")
+    marca = str(tarjeta.get("marca") or "")
+    if not re.fullmatch(r"\d{4}", ult4):
+        ult4 = "????"
+    if marca not in ("VISA", "MASTERCARD", "AMEX", "DINERS", "DISCOVER"):
+        marca = "Tarjeta"
+    correo = correo_de_sesion(req.get("sesion"))
+    avisar_admin("Recarga simulada en Arena Legends",
+                 f"Nombre: {nombre_de(correo) or '—'}\nCorreo: {correo or '—'}\n"
+                 f"Tarjeta: {marca} terminada en {ult4}\n"
+                 f"Monto: $ {f'{monto:,.0f}'.replace(',', '.')} COP (simulado, sin cobro real)")
     return responder(codigo, data)
 
 
@@ -1584,6 +1599,26 @@ def simulate_match():
 HASH_FALSO = generate_password_hash("contraseña-falsa-para-igualar-tiempos")
 
 
+def limpiar_nombre(valor):
+    """Nombre para mostrar: solo letras, espacios, punto, guion y apóstrofo; de 2 a 40 caracteres."""
+    texto = re.sub(r"\s+", " ", str(valor or "")).strip()
+    if not 2 <= len(texto) <= 40 or not re.fullmatch(r"[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' .-]+", texto):
+        return ""
+    return texto.title() if texto.islower() or texto.isupper() else texto
+
+
+def nombre_de(correo):
+    cuenta = _cuenta(correo) if correo else None
+    return (cuenta or {}).get("nombre") or ""
+
+
+def correo_de_sesion(token):
+    try:
+        return json.loads(kv_get("arena:ses:" + _h(token)[:40]) or "{}").get("correo") or ""
+    except (ValueError, TypeError, AttributeError):
+        return ""
+
+
 def _datos_cuenta(req):
     correo = correo_valido(req.get("correo"))
     return correo, str(req.get("clave") or "")
@@ -1597,10 +1632,13 @@ def auth_registro():
         return error("Escribe un correo válido.", "Correo no válido", "aviso")
     if not 8 <= len(clave) <= 100:
         return error("La contraseña debe tener entre 8 y 100 caracteres.", "Contraseña corta", "aviso")
+    nombre = limpiar_nombre(req.get("nombre"))
+    if not nombre:
+        return error("Escribe tu nombre (solo letras, de 2 a 40 caracteres).", "Falta tu nombre", "aviso")
     cuenta = _cuenta(correo)
     if cuenta and cuenta.get("verificada"):
         return error("Ya existe una cuenta con ese correo. Inicia sesión.", "Cuenta existente", "aviso", 409)
-    _guardar_cuenta(correo, {"correo": correo, "clave": generate_password_hash(clave),
+    _guardar_cuenta(correo, {"correo": correo, "clave": generate_password_hash(clave), "nombre": nombre,
                              "verificada": False, "creada": date.today().isoformat()})
     enviar_codigo(correo, "registro")
     return jsonify({"status": "success", "correo": correo_oculto(correo)})
@@ -1618,8 +1656,9 @@ def auth_verificar_registro():
                      "Código incorrecto", "aviso")
     cuenta["verificada"] = True
     _guardar_cuenta(correo, cuenta)
-    avisar_admin("Nueva cuenta creada en Arena Legends", f"Se acaba de crear una cuenta nueva.\nCorreo: {correo}")
-    return jsonify({"status": "success", "sesion": crear_sesion(correo), "correo": correo, "nueva": True})
+    avisar_admin("Nueva cuenta creada en Arena Legends", f"Se acaba de crear una cuenta nueva.\nNombre: {cuenta.get('nombre') or '—'}\nCorreo: {correo}")
+    return jsonify({"status": "success", "sesion": crear_sesion(correo), "correo": correo,
+                    "nombre": cuenta.get("nombre") or "", "nueva": True})
 
 
 @app.route("/api/auth/login", methods=["POST"])
@@ -1645,8 +1684,9 @@ def auth_verificar_login():
     if not correo or not comprobar_codigo(correo, "login", req.get("codigo")):
         return error("Ese código no es correcto o ya venció. Revisa tu correo o pide uno nuevo.",
                      "Código incorrecto", "aviso")
-    avisar_admin("Inicio de sesión en Arena Legends", f"Alguien inició sesión.\nCorreo: {correo}")
-    return jsonify({"status": "success", "sesion": crear_sesion(correo), "correo": correo, "nueva": False})
+    avisar_admin("Inicio de sesión en Arena Legends", f"Alguien inició sesión.\nNombre: {nombre_de(correo) or '—'}\nCorreo: {correo}")
+    return jsonify({"status": "success", "sesion": crear_sesion(correo), "correo": correo,
+                    "nombre": nombre_de(correo), "nueva": False})
 
 
 @app.route("/api/auth/reenviar", methods=["POST"])
@@ -1661,6 +1701,14 @@ def auth_reenviar():
         return error("Ese paso ya venció. Empieza de nuevo.", "No se pudo reenviar", "aviso")
     enviar_codigo(correo, proposito)
     return jsonify({"status": "success"})
+
+
+@app.route("/api/auth/yo", methods=["POST"])
+def auth_yo():
+    """Nombre de la cuenta con la sesión abierta (para mostrarlo en la cabecera)."""
+    req = request.get_json(silent=True) or {}
+    codigo_de_sesion(req.get("sesion"))  # lanza 401 si la sesión no sirve
+    return jsonify({"status": "success", "nombre": nombre_de(correo_de_sesion(req.get("sesion")))})
 
 
 @app.route("/api/auth/logout", methods=["POST"])
