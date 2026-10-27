@@ -1,4 +1,4 @@
-"""Arena Legends - servidor Flask (versión PC).
+"""Arena Legends - servidor Flask (versión móvil).
 
 El progreso (saldo, grupos, partidos y predicciones) se guarda en el SERVIDOR, ligado a un
 "código de jugador". Con el mismo código ves lo mismo en el celular y en el computador.
@@ -21,6 +21,7 @@ import re
 import secrets
 import threading
 import time
+import unicodedata
 from datetime import date, datetime, timedelta, timezone
 
 import requests
@@ -29,8 +30,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 
-PLANTILLA = "index.html"
-PUERTO = 5000
+PLANTILLA = "mobile.html"
+PUERTO = 5001
 UPSTASH_URL = os.environ.get("UPSTASH_REDIS_REST_URL", "").strip().rstrip("/")
 UPSTASH_TOKEN = os.environ.get("UPSTASH_REDIS_REST_TOKEN", "").strip()
 # Correo (Brevo): con estas dos variables en Render se mandan los códigos de verificación.
@@ -1609,7 +1610,59 @@ def limpiar_nombre(valor):
 
 def nombre_de(correo):
     cuenta = _cuenta(correo) if correo else None
-    return (cuenta or {}).get("nombre") or ""
+    cuenta = cuenta or {}
+    return f"{cuenta.get('nombre') or ''} {cuenta.get('apellido') or ''}".strip()
+
+
+def edad_de(iso):
+    """Edad en años (hora de Colombia) a partir de AAAA-MM-DD; None si la fecha no sirve."""
+    try:
+        nac = date.fromisoformat(str(iso or ""))
+    except ValueError:
+        return None
+    hoy = datetime.now(timezone(timedelta(hours=-5))).date()
+    if nac.year < 1900 or nac > hoy:
+        return None
+    return hoy.year - nac.year - ((hoy.month, hoy.day) < (nac.month, nac.day))
+
+
+def _norm_nombre(texto):
+    sin = unicodedata.normalize("NFKD", str(texto or "")).encode("ascii", "ignore").decode()
+    return re.sub(r"\s+", " ", sin).strip().lower()
+
+
+def clave_nombre(texto):
+    return "arena:nom:" + _h("nombre|" + _norm_nombre(texto))[:40]
+
+
+def indexar_nombre(correo, nombre_completo):
+    """Para poder entrar con el nombre. Si dos personas se llaman igual, ese nombre ya no sirve
+    para entrar (se marca con *) y tienen que usar su correo."""
+    clave = clave_nombre(nombre_completo)
+    previo = kv_get(clave)
+    if not previo:
+        kv_set(clave, correo)
+    elif previo != correo:
+        kv_set(clave, "*")
+
+
+def resolver_identificador(texto):
+    """De lo que escribió la persona (correo o nombre) al correo de su cuenta.
+    Devuelve (correo o None, ambiguo)."""
+    texto = str(texto or "").strip()
+    if "@" in texto:
+        return correo_valido(texto), False
+    if not 3 <= len(texto) <= 80:
+        return None, False
+    valor = kv_get(clave_nombre(texto))
+    if valor == "*":
+        return None, True
+    return (valor or None), False
+
+
+def correo_de_req(req):
+    correo, _ = resolver_identificador(req.get("identificador") or req.get("correo"))
+    return correo
 
 
 def correo_de_sesion(token):
@@ -1630,16 +1683,24 @@ def auth_registro():
     correo, clave = _datos_cuenta(req)
     if not correo:
         return error("Escribe un correo válido.", "Correo no válido", "aviso")
-    if not 8 <= len(clave) <= 100:
-        return error("La contraseña debe tener entre 8 y 100 caracteres.", "Contraseña corta", "aviso")
+    if not (8 <= len(clave) <= 100 and re.search(r"[A-Z]", clave) and re.search(r"[a-z]", clave) and re.search(r"\d", clave)):
+        return error("La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula y un número.",
+                     "Contraseña débil", "aviso")
     nombre = limpiar_nombre(req.get("nombre"))
-    if not nombre:
-        return error("Escribe tu nombre (solo letras, de 2 a 40 caracteres).", "Falta tu nombre", "aviso")
+    apellido = limpiar_nombre(req.get("apellido"))
+    if not nombre or not apellido:
+        return error("Escribe tu nombre y tu apellido (solo letras, de 2 a 40 caracteres).", "Faltan datos", "aviso")
+    nacimiento = str(req.get("nacimiento") or "")
+    edad = edad_de(nacimiento)
+    if edad is None:
+        return error("Escribe una fecha de nacimiento válida.", "Fecha no válida", "aviso")
+    if edad < 18:
+        return error("Para crear una cuenta debes ser mayor de 18 años.", "Solo mayores de 18", "aviso", 403)
     cuenta = _cuenta(correo)
     if cuenta and cuenta.get("verificada"):
         return error("Ya existe una cuenta con ese correo. Inicia sesión.", "Cuenta existente", "aviso", 409)
     _guardar_cuenta(correo, {"correo": correo, "clave": generate_password_hash(clave), "nombre": nombre,
-                             "verificada": False, "creada": date.today().isoformat()})
+                             "apellido": apellido, "nacimiento": nacimiento, "verificada": False, "creada": date.today().isoformat()})
     enviar_codigo(correo, "registro")
     return jsonify({"status": "success", "correo": correo_oculto(correo)})
 
@@ -1647,7 +1708,7 @@ def auth_registro():
 @app.route("/api/auth/verificar_registro", methods=["POST"])
 def auth_verificar_registro():
     req = request.get_json(silent=True) or {}
-    correo = correo_valido(req.get("correo"))
+    correo = correo_de_req(req)
     cuenta = _cuenta(correo) if correo else None
     if not cuenta or cuenta.get("verificada"):
         return error("Empieza de nuevo: crea la cuenta otra vez.", "No se pudo verificar", "aviso")
@@ -1656,23 +1717,29 @@ def auth_verificar_registro():
                      "Código incorrecto", "aviso")
     cuenta["verificada"] = True
     _guardar_cuenta(correo, cuenta)
-    avisar_admin("Nueva cuenta creada en Arena Legends", f"Se acaba de crear una cuenta nueva.\nNombre: {cuenta.get('nombre') or '—'}\nCorreo: {correo}")
+    indexar_nombre(correo, f"{cuenta.get('nombre', '')} {cuenta.get('apellido', '')}")
+    avisar_admin("Nueva cuenta creada en Arena Legends", f"Se acaba de crear una cuenta nueva.\nNombre: {nombre_de(correo) or '—'}\nCorreo: {correo}")
     return jsonify({"status": "success", "sesion": crear_sesion(correo), "correo": correo,
-                    "nombre": cuenta.get("nombre") or "", "nueva": True})
+                    "nombre": nombre_de(correo), "nueva": True})
 
 
 @app.route("/api/auth/login", methods=["POST"])
 def auth_login():
     req = request.get_json(silent=True) or {}
-    correo, clave = _datos_cuenta(req)
-    if not correo:
-        return error("Escribe un correo válido.", "Correo no válido", "aviso")
-    limite(f"arena:rl:clave:{id_cuenta(correo)}", 10, 900,
+    ident = str(req.get("identificador") or req.get("correo") or "").strip()
+    clave = str(req.get("clave") or "")
+    if len(ident) < 3 or len(ident) > 254:
+        return error("Escribe tu nombre completo o tu correo.", "Faltan datos", "aviso")
+    limite(f"arena:rl:clave:{_h(_norm_nombre(ident))[:30]}", 10, 900,
            "Demasiados intentos con esa cuenta. Espera 15 minutos e intenta de nuevo.")
-    cuenta = _cuenta(correo)
+    limite(f"arena:rl:loginip:{_h(_ip())[:20]}", 40, 900, "Demasiados intentos desde tu red. Intenta más tarde.")
+    correo, ambiguo = resolver_identificador(ident)
+    if ambiguo:
+        return error("Hay más de una cuenta con ese nombre. Entra con tu correo.", "Usa tu correo", "aviso")
+    cuenta = _cuenta(correo) if correo else None
     correcta = check_password_hash(cuenta["clave"] if cuenta else HASH_FALSO, clave)
     if not (cuenta and cuenta.get("verificada") and correcta):
-        return error("Correo o contraseña incorrectos.", "No pudimos entrar", "aviso", 403)
+        return error("Nombre, correo o contraseña incorrectos.", "No pudimos entrar", "aviso", 403)
     enviar_codigo(correo, "login")
     return jsonify({"status": "success", "correo": correo_oculto(correo)})
 
@@ -1680,7 +1747,7 @@ def auth_login():
 @app.route("/api/auth/verificar_login", methods=["POST"])
 def auth_verificar_login():
     req = request.get_json(silent=True) or {}
-    correo = correo_valido(req.get("correo"))
+    correo = correo_de_req(req)
     if not correo or not comprobar_codigo(correo, "login", req.get("codigo")):
         return error("Ese código no es correcto o ya venció. Revisa tu correo o pide uno nuevo.",
                      "Código incorrecto", "aviso")
@@ -1693,7 +1760,7 @@ def auth_verificar_login():
 def auth_reenviar():
     """Solo reenvía si hay un paso pendiente (registro empezado o contraseña ya aceptada)."""
     req = request.get_json(silent=True) or {}
-    correo = correo_valido(req.get("correo"))
+    correo = correo_de_req(req)
     proposito = req.get("proposito")
     if not correo or proposito not in ("registro", "login"):
         return error("Empieza de nuevo.", "No se pudo reenviar", "aviso")
