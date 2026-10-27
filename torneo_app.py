@@ -20,7 +20,7 @@ import re
 import secrets
 import threading
 import time
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 
 import requests
 from flask import Flask, g, jsonify, render_template, request
@@ -35,6 +35,8 @@ UPSTASH_TOKEN = os.environ.get("UPSTASH_REDIS_REST_TOKEN", "").strip()
 # Correo (Brevo): con estas dos variables en Render se mandan los códigos de verificación.
 BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "").strip()
 EMAIL_REMITENTE = os.environ.get("EMAIL_REMITENTE", "").strip()
+# Opcional: a este correo te llega un aviso cuando alguien crea una cuenta o inicia sesión.
+EMAIL_AVISOS = os.environ.get("EMAIL_AVISOS", "").strip()
 SESION_SEGUNDOS = 7 * 24 * 3600      # la sesión dura 7 días en cada dispositivo
 CODIGO_VENCE_SEGUNDOS = 600          # el código de verificación vale 10 minutos
 CODIGO_MAX_INTENTOS = 5
@@ -663,6 +665,27 @@ def enviar_correo(destino, asunto, html, texto):
     if r.status_code >= 300:
         print(f"[correo] Brevo respondió {r.status_code}: {r.text[:200]}")
         raise ErrorCorreo("rechazado")
+
+
+def avisar_admin(asunto, detalle):
+    """Le manda un aviso al responsable del proyecto (variable EMAIL_AVISOS en Render).
+    Si no está configurada no hace nada. Va en segundo plano y nunca estorba al usuario."""
+    if not EMAIL_AVISOS:
+        return
+    ahora = datetime.now(timezone(timedelta(hours=-5))).strftime("%d/%m/%Y %H:%M")  # hora de Colombia
+    version = "PC" if PLANTILLA == "index.html" else "móvil"
+    texto = f"{detalle}\n\nVersión: {version}\nFecha: {ahora} (hora de Colombia)"
+    html = ("<div style='font-family:Arial,sans-serif;max-width:420px'>"
+            f"<h3>⚔️ Arena Legends</h3><p>{detalle.replace(chr(10), '<br>')}</p>"
+            f"<p style='color:#666;font-size:13px'>Versión: {version}<br>Fecha: {ahora} (hora de Colombia)</p></div>")
+
+    def tarea():
+        try:
+            enviar_correo(EMAIL_AVISOS, asunto, html, texto)
+        except Exception as e:  # noqa: BLE001 - un aviso fallido no debe afectar a nadie
+            print("[aviso] No se pudo enviar el aviso:", type(e).__name__)
+
+    threading.Thread(target=tarea, daemon=True).start()
 
 
 def enviar_codigo(correo, proposito):
@@ -1322,7 +1345,8 @@ def health():
         funciona = False
     return jsonify({"almacenamiento": "upstash" if usa_upstash() else "archivo local",
                     "funciona": funciona,
-                    "correo_configurado": bool(BREVO_API_KEY and EMAIL_REMITENTE)})
+                    "correo_configurado": bool(BREVO_API_KEY and EMAIL_REMITENTE),
+                    "avisos_configurados": bool(EMAIL_AVISOS)})
 
 
 @app.route("/api/load", methods=["POST"])
@@ -1594,6 +1618,7 @@ def auth_verificar_registro():
                      "Código incorrecto", "aviso")
     cuenta["verificada"] = True
     _guardar_cuenta(correo, cuenta)
+    avisar_admin("Nueva cuenta creada en Arena Legends", f"Se acaba de crear una cuenta nueva.\nCorreo: {correo}")
     return jsonify({"status": "success", "sesion": crear_sesion(correo), "correo": correo, "nueva": True})
 
 
@@ -1620,6 +1645,7 @@ def auth_verificar_login():
     if not correo or not comprobar_codigo(correo, "login", req.get("codigo")):
         return error("Ese código no es correcto o ya venció. Revisa tu correo o pide uno nuevo.",
                      "Código incorrecto", "aviso")
+    avisar_admin("Inicio de sesión en Arena Legends", f"Alguien inició sesión.\nCorreo: {correo}")
     return jsonify({"status": "success", "sesion": crear_sesion(correo), "correo": correo, "nueva": False})
 
 
