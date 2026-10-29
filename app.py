@@ -1,4 +1,4 @@
-"""Arena Legends - servidor Flask (versión PC).
+"""Arena Legends - servidor Flask (versión móvil).
 
 El progreso (saldo, grupos, partidos y predicciones) se guarda en el SERVIDOR, ligado a un
 "código de jugador". Con el mismo código ves lo mismo en el celular y en el computador.
@@ -30,8 +30,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 
-PLANTILLA = "index.html"
-PUERTO = 5000
+PLANTILLA = "mobile.html"
+PUERTO = 5001
 UPSTASH_URL = os.environ.get("UPSTASH_REDIS_REST_URL", "").strip().rstrip("/")
 UPSTASH_TOKEN = os.environ.get("UPSTASH_REDIS_REST_TOKEN", "").strip()
 # Correo (Brevo): con estas dos variables en Render se mandan los códigos de verificación.
@@ -323,6 +323,7 @@ DEFAULT_STATE = {
     "matches": [],
     "monto_min_prediccion": MONTO_MIN_PREDICCION,
     "predictions": [],
+    "estadisticas": {},
 }
 
 # Equipos que cambiaron de nombre: se actualiza lo que ya estaba guardado.
@@ -392,6 +393,11 @@ def normalizar(data):
         m["home_escudo"] = resolver_escudo(m.get("home_escudo", ""))
         m["away_escudo"] = resolver_escudo(m.get("away_escudo", ""))
 
+    est = data.get("estadisticas")
+    data["estadisticas"] = {k: v for k, v in est.items() if k in EQUIPOS_POR_LIGA and isinstance(v, dict)} \
+        if isinstance(est, dict) else {}
+
+    data.pop("premios", None)
     predicciones = data.get("predictions")
     data["predictions"] = [
         p for p in predicciones
@@ -995,7 +1001,9 @@ def ok(data, **extra):
     cruces, campeon = eliminatorias(data, data["liga_activa"])
     estado = {**data, "cuotas": cuotas_para(data["deporte_activo"]),
               "partidos_cuotas": resumen_partidos(data),
-              "eliminatorias": cruces, "campeon": campeon["name"] if campeon else None}
+              "eliminatorias": cruces, "campeon": campeon["name"] if campeon else None,
+              "premios": calcular_premios(data, data["liga_activa"], campeon["name"] if campeon else None)}
+    estado.pop("estadisticas", None)   # las estadísticas crudas no viajan: solo el resumen en "premios"
     return jsonify({"status": "success", "state": estado, **extra})
 
 
@@ -1100,6 +1108,96 @@ CONFIG_GENERICA = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Plantillas reales (archivo plantillas.json) y jugadores de cada equipo
+# ---------------------------------------------------------------------------
+PLANTILLAS_ARCHIVO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "plantillas.json")
+MINIMOS_PLANTEL = {"Fútbol": 14, "Baloncesto": 8, "Béisbol": 12, "eSports": 5}
+
+
+def cargar_plantillas():
+    """Lee plantillas.json: {"equipos": {"Equipo": [["Nombre", "POS"], ...]}}. Si falta o está dañado,
+    el juego sigue funcionando con jugadores inventados (el torneo no se rompe)."""
+    try:
+        with open(PLANTILLAS_ARCHIVO, "r", encoding="utf-8") as f:
+            crudo = json.load(f)["equipos"]
+    except (OSError, ValueError, KeyError, TypeError):
+        return {}
+    plantillas = {}
+    for equipo, lista in crudo.items():
+        if isinstance(lista, list):
+            validos = [(str(j[0]), str(j[1])) for j in lista
+                       if isinstance(j, (list, tuple)) and len(j) == 2 and j[0]]
+            if validos:
+                plantillas[equipo] = validos
+    return plantillas
+
+
+PLANTILLAS = cargar_plantillas()
+
+_POS_GENERADAS = {
+    "Fútbol": ["POR", "DEF", "DEF", "DEF", "DEF", "MED", "MED", "MED", "DEL", "DEL", "DEL", "POR", "DEF",
+               "DEF", "MED", "MED", "DEL", "DEL", "MED", "DEF", "DEL", "POR"],
+    "Baloncesto": ["B", "E", "A", "AP", "P", "B", "E", "A", "AP", "P", "A", "AP"],
+    "Béisbol": ["REC", "IF", "IF", "IF", "IF", "OF", "OF", "OF", "DH", "LAN", "LAN", "LAN", "LAN", "LAN",
+                "LAN", "LAN", "LAN", "LAN", "LAN", "LAN", "REC", "IF"],
+    "eSports": ["TOP", "JNG", "MID", "ADC", "SUP", "MID", "SUP"],
+}
+
+
+def _plantel_generado(nombre, deporte):
+    """Plantilla inventada pero siempre igual para el mismo equipo (así las estadísticas se acumulan)."""
+    rng = random.Random(f"plantel|{nombre}")
+    posiciones = _POS_GENERADAS[deporte]
+    usados, plantel = set(), []
+    for pos in posiciones:
+        while True:
+            n = f"{rng.choice(NOMBRES)} {rng.choice(APELLIDOS)}"
+            if n not in usados:
+                usados.add(n)
+                break
+        plantel.append((n, pos))
+    return plantel
+
+
+def _plantel_valido(plantel, deporte):
+    if len(plantel) < MINIMOS_PLANTEL[deporte]:
+        return False
+    pos = [p for _, p in plantel]
+    if deporte == "Fútbol":
+        return "POR" in pos and sum(p != "POR" for p in pos) >= 10
+    if deporte == "Béisbol":
+        return sum(p != "LAN" for p in pos) >= 8 and pos.count("LAN") >= 3
+    return True
+
+
+def plantel_de(nombre, deporte):
+    """(lista de (jugador, posición), es_real). La lista viene ordenada por importancia."""
+    real = PLANTILLAS.get(nombre)
+    if real and _plantel_valido(real, deporte):
+        return list(real), True
+    return _plantel_generado(nombre, deporte), False
+
+
+def dividir_plantel(plantel, deporte):
+    """(titulares, suplentes). Fútbol: 1 portero, 4 defensas, 3 medios y 3 delanteros (el portero va primero)."""
+    if deporte == "Fútbol":
+        por = [j for j in plantel if j[1] == "POR"]
+        grupo = lambda pos: [j for j in plantel if j[1] == pos]
+        titulares = por[:1] + grupo("DEF")[:4] + grupo("MED")[:3] + grupo("DEL")[:3]
+        if len(titulares) < 11:
+            resto = [j for j in plantel if j not in titulares and j[1] != "POR"]
+            titulares += resto[:11 - len(titulares)]
+    elif deporte == "Béisbol":
+        bateadores = [j for j in plantel if j[1] != "LAN"]
+        lanzadores = [j for j in plantel if j[1] == "LAN"]
+        titulares = bateadores[:9] + lanzadores[:1]
+    else:
+        titulares = plantel[:5]
+    suplentes = [j for j in plantel if j not in titulares]
+    return titulares, suplentes
+
+
 def _plantilla(cantidad=16):
     nombres = set()
     while len(nombres) < cantidad:
@@ -1107,27 +1205,47 @@ def _plantilla(cantidad=16):
     return list(nombres)
 
 
-def _evento(eventos, marcador, t, corto, tipo, texto, lado=None, reloj=None):
+def _evento(eventos, marcador, t, corto, tipo, texto, lado=None, reloj=None, **extra):
     eventos.append({"t": t, "corto": corto, "reloj": reloj or corto, "tipo": tipo,
-                    "texto": texto, "lado": lado, "marcador": list(marcador)})
+                    "texto": texto, "lado": lado, "marcador": list(marcador), **extra})
+
+
+_PESO_GOL = {"DEL": 6, "MED": 3, "DEF": 1, "POR": 0}
+_PESO_ASIST = {"MED": 4, "DEL": 3, "DEF": 2, "POR": 0.1}
+
+
+def _elegir(jugadores, pos, rango, pesos):
+    """Sortea un jugador: los delanteros marcan más, los medios asisten más y los 8 más importantes pesan un poco más."""
+    w = [pesos.get(pos[j], 1) * (1.6 if rango[j] < 8 else 1.0) for j in jugadores]
+    if sum(w) <= 0:
+        return random.choice(jugadores)
+    return random.choices(jugadores, w)[0]
 
 
 def _eventos_futbol(local, visitante, goles_local, goles_visitante):
     nombres = {"home": local["name"], "away": visitante["name"]}
     rival = {"home": visitante["name"], "away": local["name"]}
-    plantillas = {lado: _plantilla() for lado in nombres}
-    titulares = {lado: plantillas[lado][:11] for lado in nombres}
-    suplentes = {lado: plantillas[lado][11:] for lado in nombres}  # el índice 0 es el arquero
+    planteles = {lado: plantel_de(nombres[lado], "Fútbol")[0] for lado in nombres}
+    pos = {lado: dict(planteles[lado]) for lado in nombres}
+    rango = {lado: {n: i for i, (n, _) in enumerate(planteles[lado])} for lado in nombres}
+    titulares, suplentes = {}, {}
+    for lado in nombres:
+        t, s = dividir_plantel(planteles[lado], "Fútbol")
+        titulares[lado] = [n for n, _ in t]     # el índice 0 es el portero
+        suplentes[lado] = [n for n, _ in s]
 
     cambios = []  # (minuto, lado, sale, entra)
     for lado in nombres:
-        cantidad = random.randint(1, 3)
+        entran_posibles = [n for n in suplentes[lado] if pos[lado][n] != "POR"]
+        cantidad = min(random.randint(1, 3), len(entran_posibles))
+        if cantidad == 0:
+            continue
         salen = random.sample(titulares[lado][1:], cantidad)
-        entran = random.sample(suplentes[lado], cantidad)
+        entran = random.sample(entran_posibles, cantidad)
         minutos = sorted(random.sample(range(46, 86), cantidad))
         cambios += list(zip(minutos, [lado] * cantidad, salen, entran))
 
-    expulsados = {}  # jugador -> minuto
+    expulsados = {}  # jugador -> (minuto, lado)
     if random.random() < 0.12:
         lado = random.choice(list(nombres))
         ya_cambiados = {c[2] for c in cambios}
@@ -1163,6 +1281,7 @@ def _eventos_futbol(local, visitante, goles_local, goles_visitante):
     for minuto, _, tipo, lado, dato in sorted(crudos, key=lambda c: (c[0], c[1])):
         eq = nombres.get(lado)
         corto = f"{minuto}'"
+        extra = {}
         if tipo == "inicio":
             texto = "¡Inicia el partido! Los 22 jugadores pisan el césped."
         elif tipo == "descanso":
@@ -1173,21 +1292,35 @@ def _eventos_futbol(local, visitante, goles_local, goles_visitante):
             texto = "¡Silbatazo final! Partido concluido."
         elif tipo == "gol":
             marcador[0 if lado == "home" else 1] += 1
-            autor = random.choice(en_cancha(lado, minuto)[1:])
-            texto = f"¡GOL! Anotación de {autor} ({eq}) [{marcador[0]}-{marcador[1]}]"
+            activos = en_cancha(lado, minuto)
+            autor = _elegir(activos[1:], pos[lado], rango[lado], _PESO_GOL)
+            asist = None
+            otros = [j for j in activos if j != autor]
+            if otros and random.random() < 0.72:
+                asist = _elegir(otros, pos[lado], rango[lado], _PESO_ASIST)
+            texto = (f"¡GOL! Anotación de {autor} ({eq})" + (f", asistencia de {asist}" if asist else "")
+                     + f" [{marcador[0]}-{marcador[1]}]")
+            extra = {"jugador": autor, "asist": asist}
         elif tipo == "amarilla":
             jugador = random.choice([j for j in en_cancha(lado, minuto)[1:] if j not in amonestados])
             amonestados.add(jugador)
             texto = f"Tarjeta amarilla para {jugador} ({eq}) por falta fuerte en el medio campo."
+            extra = {"jugador": jugador}
         elif tipo == "roja":
             texto = f"¡Tarjeta roja directa para {dato} ({eq})! Se queda con diez."
+            extra = {"jugador": dato}
         elif tipo == "cambio":
             texto = f"Cambio en {eq}: Sale {dato[0]}, entra {dato[1]}."
+            extra = {"sale": dato[0], "entra": dato[1]}
         else:  # jugada
             jugador = random.choice(en_cancha(lado, minuto)[1:])
             texto = random.choice(JUGADAS_FUTBOL).format(j=jugador, eq=eq, rival=rival[lado])
-        _evento(eventos, marcador, minuto, corto, tipo, texto, lado)
-    return eventos
+        _evento(eventos, marcador, minuto, corto, tipo, texto, lado, **extra)
+
+    jugaron = {lado: [(n, pos[lado][n]) for n in titulares[lado] + [e for _, l, _, e in cambios if l == lado]]
+               for lado in nombres}
+    porteros = {lado: titulares[lado][0] for lado in nombres}
+    return eventos, jugaron, porteros
 
 
 def _descomponer(total, opciones, pesos):
@@ -1201,10 +1334,33 @@ def _descomponer(total, opciones, pesos):
     return jugadas
 
 
+def _grupos_generico(deporte, plantel):
+    """Quién anota, quién hace las jugadas defensivas (tapones, robos, ponches) y quién juega."""
+    nombres = [n for n, _ in plantel]
+    if deporte == "Baloncesto":
+        rotacion = nombres[:9]
+        pesos = [6, 5, 5, 4, 4, 3, 2, 2, 1][:len(rotacion)]
+        return {"anota": (rotacion, pesos), "defensa": (rotacion, pesos), "jugaron": rotacion}
+    if deporte == "Béisbol":
+        bateadores = [n for n, p in plantel if p != "LAN"][:9]
+        lanzadores = [n for n, p in plantel if p == "LAN"]
+        abridor = random.choice(lanzadores[:5])
+        pitchers = [abridor] * 3 + lanzadores[5:8]       # el abridor lanza casi todo el partido
+        return {"anota": (bateadores, [1] * len(bateadores)), "defensa": (pitchers, [1] * len(pitchers)),
+                "jugaron": list(dict.fromkeys(bateadores + pitchers))}
+    cinco = nombres[:5]                                   # eSports: los 5 titulares
+    return {"anota": (cinco, [1] * 5), "defensa": (cinco, [1] * 5), "jugaron": cinco}
+
+
 def _eventos_genericos(deporte, local, visitante, puntos_local, puntos_visitante):
     cfg = CONFIG_GENERICA[deporte]
     nombres = {"home": local["name"], "away": visitante["name"]}
-    jugadores = {lado: _plantilla(8) for lado in nombres}
+    planteles = {lado: plantel_de(nombres[lado], deporte)[0] for lado in nombres}
+    grupos = {lado: _grupos_generico(deporte, planteles[lado]) for lado in nombres}
+
+    def elegir(lado, clave):
+        quienes, pesos = grupos[lado][clave]
+        return random.choices(quienes, pesos)[0]
 
     anotaciones = []  # [periodo, lado, valor, texto]
     for lado, total in (("home", puntos_local), ("away", puntos_visitante)):
@@ -1230,18 +1386,25 @@ def _eventos_genericos(deporte, local, visitante, puntos_local, puntos_visitante
         corto = f"{etiqueta} {p}"
         if cfg["jugadas"] and random.random() < 0.6:
             lado = random.choice(list(nombres))
-            texto = random.choice(cfg["jugadas"]).format(j=random.choice(jugadores[lado]), eq=nombres[lado])
-            _evento(eventos, marcador, t, corto, "jugada", texto, lado)
+            modelo = random.choice(cfg["jugadas"])
+            defensiva = modelo.startswith(("¡Tapón", "Robo", "Ponche"))
+            j = elegir(lado, "defensa" if defensiva else "anota")
+            texto = modelo.format(j=j, eq=nombres[lado])
+            extra = {"jugador": j, "stat": "def"} if defensiva else {}
+            _evento(eventos, marcador, t, corto, "jugada", texto, lado, **extra)
         for _, lado, valor, plantilla_texto in [a for a in anotaciones if a[0] == p]:
             marcador[0 if lado == "home" else 1] += valor
-            texto = plantilla_texto.format(j=random.choice(jugadores[lado]), eq=nombres[lado])
-            _evento(eventos, marcador, t, corto, "gol", f"{texto} [{marcador[0]}-{marcador[1]}]", lado)
+            j = elegir(lado, "anota")
+            texto = plantilla_texto.format(j=j, eq=nombres[lado])
+            _evento(eventos, marcador, t, corto, "gol", f"{texto} [{marcador[0]}-{marcador[1]}]", lado,
+                    jugador=j, valor=valor)
         if cfg["cierre"] and p < periodos:
             _evento(eventos, marcador, t, corto, "descanso", f"Fin del {etiqueta.lower()} {p}.")
 
     ganador = nombres["home"] if marcador[0] > marcador[1] else nombres["away"]
     _evento(eventos, marcador, 90, "Final", "fin", f"¡Final del partido! {ganador} se lleva la victoria.")
-    return eventos
+    jugaron = {lado: [(n, dict(planteles[lado])[n]) for n in grupos[lado]["jugaron"]] for lado in nombres}
+    return eventos, jugaron
 
 
 def _eventos_penales(local, visitante, penales):
@@ -1254,11 +1417,12 @@ def _eventos_penales(local, visitante, penales):
     for lado in resultados:
         random.shuffle(resultados[lado])
     nombres = {"home": local["name"], "away": visitante["name"]}
+    tiradores = {lado: [n for n, p in plantel_de(nombres[lado], "Fútbol")[0] if p != "POR"][:11] for lado in nombres}
     for i in range(max(len(resultados["home"]), len(resultados["away"]))):
         for lado, idx in (("home", 0), ("away", 1)):
             if i >= len(resultados[lado]):
                 continue
-            tirador = random.choice(NOMBRES) + " " + random.choice(APELLIDOS)
+            tirador = random.choice(tiradores[lado])
             if resultados[lado][i]:
                 pen[idx] += 1
                 texto = f"Penal de {tirador} ({nombres[lado]}): ¡GOL! [{pen[0]}-{pen[1]}]"
@@ -1275,21 +1439,168 @@ def _eventos_penales(local, visitante, penales):
 
 
 def construir_transmision(deporte, local, visitante, puntos_local, puntos_visitante, penales=None):
+    porteros = None
     if deporte == "Fútbol":
-        eventos = _eventos_futbol(local, visitante, puntos_local, puntos_visitante)
+        eventos, jugaron, porteros = _eventos_futbol(local, visitante, puntos_local, puntos_visitante)
         if penales:
             for e in _eventos_penales(local, visitante, penales):
                 e["marcador"] = [puntos_local, puntos_visitante]
                 eventos.append(e)
     else:
-        eventos = _eventos_genericos(deporte, local, visitante, puntos_local, puntos_visitante)
+        eventos, jugaron = _eventos_genericos(deporte, local, visitante, puntos_local, puntos_visitante)
     resumen = lambda t: {"name": t["name"], "escudo": t["escudo"], "flag": t["flag"]}
-    return {"deporte": deporte, "home": resumen(local), "away": resumen(visitante), "eventos": eventos}
+    return {"deporte": deporte, "home": resumen(local), "away": resumen(visitante), "eventos": eventos,
+            "jugaron": {lado: [list(x) for x in lista] for lado, lista in jugaron.items()}, "porteros": porteros}
 
 
 # ---------------------------------------------------------------------------
 # Predicciones
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Estadísticas de jugadores y premios
+# ---------------------------------------------------------------------------
+PREMIOS_CFG = {
+    "Fútbol": {"balon": ("🏆", "Balón de Oro", "Mejor jugador del torneo"),
+               "guante": ("🧤", "Guante de Oro", "Mejor arquero del torneo"),
+               "bota": ("👟", "Bota de Oro", "Máximo goleador del torneo")},
+    "Baloncesto": {"balon": ("🏆", "MVP del torneo", "Mejor jugador del torneo"),
+                   "guante": ("🛡️", "Mejor defensor", "Más tapones y robos"),
+                   "bota": ("🎯", "Máximo anotador", "Más puntos del torneo")},
+    "Béisbol": {"balon": ("🏆", "MVP del torneo", "Mejor jugador del torneo"),
+                "guante": ("🧤", "Mejor lanzador", "Más ponches del torneo"),
+                "bota": ("🎯", "Líder de carreras", "Más carreras anotadas")},
+    "eSports": {"balon": ("🏆", "MVP del torneo", "Mejor jugador del torneo"),
+                "bota": ("🎯", "Jugador decisivo", "Más mapas ganados para su equipo")},
+}
+
+
+def _sumar(est, equipo, nombre, pos, campo, n=1):
+    if not n:
+        return
+    clave = f"{equipo}|{nombre}"
+    r = est.get(clave)
+    if r is None:
+        r = est[clave] = {"e": equipo, "n": nombre, "p": pos}
+    r[campo] = r.get(campo, 0) + n
+
+
+def actualizar_estadisticas(data, partido, live):
+    """Suma al acumulado del torneo lo que hizo cada jugador en este partido."""
+    liga, deporte = partido["liga"], partido["deporte"]
+    est = data.setdefault("estadisticas", {}).setdefault(liga, {})
+    equipos = {"home": partido["home"], "away": partido["away"]}
+    gl, gv = partido["home_score"], partido["away_score"]
+    ganador_lado = {"local": "home", "visita": "away"}.get(ganador_de(partido))
+    pos = {lado: {n: p for n, p in live["jugaron"][lado]} for lado in equipos}
+    for lado in equipos:
+        contra = gv if lado == "home" else gl
+        for nombre, p in live["jugaron"][lado]:
+            _sumar(est, equipos[lado], nombre, p, "pj")
+            if ganador_lado == lado:
+                _sumar(est, equipos[lado], nombre, p, "w")
+            if deporte == "Fútbol" and contra == 0 and p in ("POR", "DEF"):
+                _sumar(est, equipos[lado], nombre, p, "vi")
+        if deporte == "Fútbol" and live.get("porteros"):
+            _sumar(est, equipos[lado], live["porteros"][lado], "POR", "gc", contra)
+    for e in live["eventos"]:
+        j, lado = e.get("jugador"), e.get("lado")
+        if not j or lado not in equipos:
+            continue
+        equipo, p = equipos[lado], pos[lado].get(j, "")
+        if e["tipo"] == "gol":
+            if deporte == "Fútbol":
+                _sumar(est, equipo, j, p, "g")
+                if e.get("asist"):
+                    _sumar(est, equipo, e["asist"], pos[lado].get(e["asist"], ""), "a")
+            else:
+                _sumar(est, equipo, j, p, "pts", e.get("valor", 1))
+        elif e["tipo"] == "amarilla":
+            _sumar(est, equipo, j, p, "am")
+        elif e["tipo"] == "roja":
+            _sumar(est, equipo, j, p, "ro")
+        elif e.get("stat") == "def":
+            _sumar(est, equipo, j, p, "d")
+
+
+def _puntaje(deporte, r, campeon):
+    """Puntos para elegir al mejor jugador (la fórmula se explica en la guía del proyecto)."""
+    g, a, w = r.get("g", 0), r.get("a", 0), r.get("w", 0)
+    if deporte == "Fútbol":
+        vi = r.get("vi", 0)
+        p = 5 * g + 3 * a + 2 * w - 2 * r.get("ro", 0) - 0.5 * r.get("am", 0)
+        p += 6 * vi if r["p"] == "POR" else (3 * vi if r["p"] == "DEF" else 0)
+    else:
+        peso = {"Béisbol": 2, "eSports": 3}.get(deporte, 1)
+        p = peso * r.get("pts", 0) + 3 * r.get("d", 0) + 4 * w
+    if campeon and r["e"] == campeon and r.get("pj"):
+        p += 6   # bonus por ser del equipo campeón
+    return round(p, 1)
+
+
+def calcular_premios(data, liga, campeon=None):
+    deporte = DEPORTE_DE_LIGA[liga]
+    est = list(((data.get("estadisticas") or {}).get(liga) or {}).values())
+    cfg = PREMIOS_CFG[deporte]
+    punt = lambda r: _puntaje(deporte, r, campeon)
+    g = lambda r, k: r.get(k, 0)
+    fila = lambda r, vals: {"n": r["n"], "e": r["e"], "p": r.get("p", ""), "v": vals}
+
+    if deporte == "Fútbol":
+        clave_bota = lambda r: (-g(r, "g"), -g(r, "a"), g(r, "pj"), r["n"])
+        porteros = [r for r in est if r.get("p") == "POR" and g(r, "pj")]
+        clave_guante = lambda r: (-g(r, "vi"), g(r, "gc") / max(1, g(r, "pj")), -g(r, "pj"), r["n"])
+        lider = {"bota": min([r for r in est if g(r, "g")], key=clave_bota, default=None),
+                 "guante": min(porteros, key=clave_guante, default=None)}
+        texto = {"bota": lambda r: f"{g(r, 'g')} goles en {g(r, 'pj')} partidos",
+                 "guante": lambda r: f"{g(r, 'vi')} {'valla invicta' if g(r, 'vi') == 1 else 'vallas invictas'} · {g(r, 'gc')} goles en contra",
+                 "balon": lambda r: f"{punt(r)} pts · {g(r, 'g')} goles, {g(r, 'a')} asistencias"}
+        tablas = [
+            ("bota", "Goleadores", ["PJ", "G", "A"],
+             [fila(r, [g(r, "pj"), g(r, "g"), g(r, "a")]) for r in sorted([r for r in est if g(r, "g")], key=clave_bota)[:10]]),
+            ("asist", "Asistencias", ["PJ", "A", "G"],
+             [fila(r, [g(r, "pj"), g(r, "a"), g(r, "g")]) for r in
+              sorted([r for r in est if g(r, "a")], key=lambda r: (-g(r, "a"), -g(r, "g"), g(r, "pj"), r["n"]))[:10]]),
+            ("guante", "Porteros", ["PJ", "VI", "GC"],
+             [fila(r, [g(r, "pj"), g(r, "vi"), g(r, "gc")]) for r in sorted(porteros, key=clave_guante)[:10]]),
+            ("balon", "Mejores jugadores", ["PJ", "G", "A", "Pts"],
+             [fila(r, [g(r, "pj"), g(r, "g"), g(r, "a"), punt(r)]) for r in
+              sorted(est, key=lambda r: (-punt(r), r["n"]))[:10]]),
+        ]
+    else:
+        unidad = {"Baloncesto": "PTS", "Béisbol": "CAR", "eSports": "MAP"}[deporte]
+        defensa = {"Baloncesto": "DEF", "Béisbol": "PON"}.get(deporte)
+        clave_bota = lambda r: (-g(r, "pts"), -g(r, "d"), g(r, "pj"), r["n"])
+        clave_guante = lambda r: (-g(r, "d"), -g(r, "pts"), g(r, "pj"), r["n"])
+        lider = {"bota": min([r for r in est if g(r, "pts")], key=clave_bota, default=None),
+                 "guante": min([r for r in est if g(r, "d")], key=clave_guante, default=None)}
+        texto = {"bota": lambda r: f"{g(r, 'pts')} {unidad.lower()} en {g(r, 'pj')} partidos",
+                 "guante": lambda r: f"{g(r, 'd')} " + ("ponche" if g(r, 'd') == 1 else "ponches") if deporte == "Béisbol"
+                 else f"{g(r, 'd')} " + ("tapón o robo" if g(r, 'd') == 1 else "tapones y robos"),
+                 "balon": lambda r: f"{punt(r)} pts · {g(r, 'pts')} {unidad.lower()}, {g(r, 'w')} victorias"}
+        tablas = [("bota", {"Baloncesto": "Anotadores", "Béisbol": "Carreras", "eSports": "Mapas ganados"}[deporte],
+                   ["PJ", unidad], [fila(r, [g(r, "pj"), g(r, "pts")]) for r in
+                                    sorted([r for r in est if g(r, "pts")], key=clave_bota)[:10]])]
+        if defensa:
+            tablas.append(("guante", {"Baloncesto": "Defensores", "Béisbol": "Lanzadores"}[deporte], ["PJ", defensa],
+                           [fila(r, [g(r, "pj"), g(r, "d")]) for r in
+                            sorted([r for r in est if g(r, "d")], key=clave_guante)[:10]]))
+        tablas.append(("balon", "Mejores jugadores", ["PJ", unidad, "V", "Pts"],
+                       [fila(r, [g(r, "pj"), g(r, "pts"), g(r, "w"), punt(r)]) for r in
+                        sorted(est, key=lambda r: (-punt(r), r["n"]))[:10]]))
+
+    lider["balon"] = min(est, key=lambda r: (-punt(r), r["n"]), default=None)
+    premios = []
+    for clave in ("balon", "guante", "bota"):
+        if clave not in cfg:
+            continue
+        icono, titulo, detalle = cfg[clave]
+        r = lider.get(clave)
+        premios.append({"clave": clave, "icono": icono, "titulo": titulo, "detalle": detalle,
+                        "ganador": {"n": r["n"], "e": r["e"], "p": r.get("p", ""), "texto": texto[clave](r)} if r else None})
+    return {"deporte": deporte, "final": bool(campeon), "campeon": campeon, "premios": premios,
+            "tablas": [{"clave": c, "titulo": t, "cols": cols, "filas": filas} for c, t, cols, filas in tablas if filas]}
+
+
 def resolver_predicciones(data, partido):
     """Cierra las predicciones pendientes de este partido, guarda el resultado
     y paga las acertadas."""
@@ -1374,6 +1685,7 @@ def reset_state():
         t["group"] = None
     data["matches"] = [m for m in data["matches"] if m["liga"] != liga]
     data["predictions"] = [p for p in data["predictions"] if p["liga"] != liga]
+    data.get("estadisticas", {}).pop(liga, None)
     return responder(codigo, data)
 
 
@@ -1410,6 +1722,27 @@ def deposit():
     return responder(codigo, data)
 
 
+@app.route("/api/plantillas", methods=["POST"])
+def plantillas_liga():
+    """Titulares y suplentes de cada equipo de la liga abierta (datos fijos del archivo plantillas.json)."""
+    req = request.get_json(silent=True) or {}
+    codigo_de_sesion(req.get("sesion"))
+    liga = req.get("liga")
+    if liga not in DEPORTE_DE_LIGA:
+        return error("Esa liga no existe.", "Liga no válida", "aviso")
+    deporte = DEPORTE_DE_LIGA[liga]
+    salida = {}
+    for t in EQUIPOS_POR_LIGA[liga]:
+        plantel, real = plantel_de(t["name"], deporte)
+        if not real:
+            salida[t["name"]] = {"real": False, "titulares": [], "suplentes": []}
+            continue
+        titulares, suplentes = dividir_plantel(plantel, deporte)
+        salida[t["name"]] = {"real": True, "titulares": [list(j) for j in titulares],
+                             "suplentes": [list(j) for j in suplentes]}
+    return jsonify({"status": "success", "deporte": deporte, "equipos": salida})
+
+
 @app.route("/api/set_active_league", methods=["POST"])
 def set_active_league():
     req = request.get_json(silent=True) or {}
@@ -1436,7 +1769,7 @@ def assign_group():
     liga = data["liga_activa"]
     equipos = data["equipos_por_liga"].get(liga, [])
 
-    if grupo not in data["groups"]:
+    if grupo is not None and grupo not in data["groups"]:   # None = quitar al equipo de su grupo
         return error("Elige un grupo entre A y E.", "Grupo no válido")
 
     equipo = next((t for t in equipos if t["id"] == team_id), None)
@@ -1447,8 +1780,8 @@ def assign_group():
         return error("Ya hay partidos jugados en esta liga. Reinicia el torneo si quieres "
                      "armar los grupos de nuevo.", "El torneo ya comenzó", "aviso")
 
-    ocupados = sum(1 for t in equipos if t["group"] == grupo and t["id"] != team_id)
-    if ocupados >= data["max_group_capacity"]:
+    ocupados = sum(1 for t in equipos if t["group"] == grupo and t["id"] != team_id) if grupo else 0
+    if grupo and ocupados >= data["max_group_capacity"]:
         return error(f"El Grupo {grupo} ya tiene {data['max_group_capacity']} equipos. "
                      "Elige otro grupo.", "Grupo lleno", "aviso")
 
@@ -1591,6 +1924,7 @@ def simulate_match():
     })
     resolver_predicciones(data, data["matches"][0])
     transmision = construir_transmision(deporte, local, visitante, goles_local, goles_visitante, penales)
+    actualizar_estadisticas(data, data["matches"][0], transmision)
     return responder(codigo, data, live=transmision)
 
 
@@ -1784,29 +2118,6 @@ def auth_logout():
     token = req.get("sesion")
     if isinstance(token, str) and 20 <= len(token) <= 100:
         kv_del("arena:ses:" + _h(token)[:40])
-    return jsonify({"status": "success"})
-
-
-@app.route("/api/auth/importar", methods=["POST"])
-def auth_importar():
-    """Trae a la cuenta nueva el progreso de un código de jugador anterior."""
-    req = request.get_json(silent=True) or {}
-    destino = codigo_de_sesion(req.get("sesion"))
-    limite(f"arena:rl:importar:{destino}", 5, 3600, "Demasiados intentos. Intenta más tarde.")
-    limite(f"arena:rl:importarip:{_h(_ip())[:20]}", 15, 3600, "Demasiados intentos desde tu red.")
-    viejo = limpiar_codigo(req.get("codigo"))
-    guardado = leer_estado(viejo) if viejo else None
-    if not isinstance(guardado, dict):
-        return error("No encontramos progreso con ese código. Revisa que esté bien escrito.",
-                     "Código no encontrado", "aviso")
-    actual = leer_estado(destino)
-    if isinstance(actual, dict) and (actual.get("matches") or actual.get("predictions")):
-        return error("Tu cuenta ya tiene partidos jugados; no se puede reemplazar.", "Cuenta con progreso", "aviso")
-    try:
-        data = normalizar(guardado)
-    except (KeyError, TypeError, ValueError, AttributeError):
-        return error("Ese progreso no se pudo leer.", "No se pudo importar", "error")
-    guardar_estado(destino, data)
     return jsonify({"status": "success"})
 
 
