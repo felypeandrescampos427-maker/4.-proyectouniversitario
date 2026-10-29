@@ -1857,10 +1857,13 @@ def predict():
     return responder(codigo, data)
 
 
-@app.route("/api/simulate_match", methods=["POST"])
-def simulate_match():
-    req = request.get_json(silent=True) or {}
-    codigo, data = abrir(req)
+def _aviso(mensaje, titulo="Ups, algo salió mal", tipo="error"):
+    return (mensaje, titulo, tipo)
+
+
+def jugar_siguiente(data):
+    """Juega el siguiente partido del calendario (grupos, luego fases finales).
+    Devuelve (partido, transmisión, None) o (None, None, (mensaje, título, tipo)) si no se puede jugar."""
     liga = data["liga_activa"]
     deporte = data["deporte_activo"]
     equipos = data["equipos_por_liga"].get(liga, [])
@@ -1868,7 +1871,7 @@ def simulate_match():
     por_grupo = {g: [t for t in equipos if t["group"] == g] for g in data["groups"]}
     grupos_validos = [g for g, miembros in por_grupo.items() if len(miembros) >= 2]
     if not grupos_validos:
-        return error(f"Para simular partidos en {NOMBRE_LIGA.get(liga, 'esta liga')} necesitas "
+        return None, None, _aviso(f"Para simular partidos en {NOMBRE_LIGA.get(liga, 'esta liga')} necesitas "
                      "al menos 2 equipos en el mismo grupo. Toca un equipo de la lista y "
                      "asígnale un grupo.", "No se puede iniciar el torneo", "aviso")
 
@@ -1889,9 +1892,9 @@ def simulate_match():
         siguiente = next((x for x in cruces if x["estado"] == "pendiente"), None)
         if siguiente is None:
             if campeon:
-                return error(f"El torneo terminó. ¡{campeon['name']} es el campeón!",
+                return None, None, _aviso(f"El torneo terminó. ¡{campeon['name']} es el campeón!",
                              "Torneo terminado", "aviso")
-            return error("Ya se jugaron todos los partidos de la fase de grupos.",
+            return None, None, _aviso("Ya se jugaron todos los partidos de la fase de grupos.",
                          "Fase de grupos completa", "aviso")
         fase, grupo = siguiente["fase"], None
         local = next(t for t in equipos if t["name"] == siguiente["home"])
@@ -1925,7 +1928,33 @@ def simulate_match():
     resolver_predicciones(data, data["matches"][0])
     transmision = construir_transmision(deporte, local, visitante, goles_local, goles_visitante, penales)
     actualizar_estadisticas(data, data["matches"][0], transmision)
+    return data["matches"][0], transmision, None
+
+
+@app.route("/api/simulate_match", methods=["POST"])
+def simulate_match():
+    req = request.get_json(silent=True) or {}
+    codigo, data = abrir(req)
+    partido, transmision, problema = jugar_siguiente(data)
+    if problema:
+        return error(*problema)
     return responder(codigo, data, live=transmision)
+
+
+@app.route("/api/simulate_all", methods=["POST"])
+def simulate_all():
+    """Simula de una vez todos los partidos que faltan (grupos y fases finales) y guarda el resultado."""
+    req = request.get_json(silent=True) or {}
+    codigo, data = abrir(req)
+    jugados = 0
+    while jugados < 500:   # tope de seguridad: ninguna liga tiene tantos partidos
+        partido, transmision, problema = jugar_siguiente(data)
+        if problema:
+            if not jugados:
+                return error(*problema)
+            break
+        jugados += 1
+    return responder(codigo, data, jugados=jugados)
 
 
 # ---------------------------------------------------------------------------
