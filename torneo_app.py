@@ -1143,15 +1143,43 @@ PLANTILLAS_ARCHIVO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "p
 MINIMOS_PLANTEL = {"Fútbol": 14, "Baloncesto": 8, "Béisbol": 12, "eSports": 5}
 
 
+_POS_ARCHIVO = {"LD": "DEF", "DFC": "DEF", "LI": "DEF", "MCD": "MED", "MC": "MED", "MCO": "MED",
+                "ED": "DEL", "EI": "DEL", "DC": "DEL", "SP": "LAN", "RP": "LAN"}
+_ALIAS_EQUIPOS = {"Deportivo Tolima": "Deportes Tolima"}
+
+
 def cargar_plantillas():
-    """Lee plantillas.json: {"equipos": {"Equipo": [["Nombre", "POS"], ...]}}. Si falta o está dañado,
-    el juego sigue funcionando con jugadores inventados (el torneo no se rompe)."""
+    """Lee plantillas.json. Acepta el formato por liga {"Equipo": {"titulares": [{"nombre","posicion"}],
+    "suplentes": [...]}} (aunque el archivo traiga varios bloques JSON seguidos) y el formato corto
+    {"equipos": {"Equipo": [["Nombre", "POS"], ...]}}. Si falta o está dañado, el juego sigue funcionando
+    con jugadores inventados (el torneo no se rompe)."""
     try:
         with open(PLANTILLAS_ARCHIVO, "r", encoding="utf-8") as f:
-            crudo = json.load(f)["equipos"]
-    except (OSError, ValueError, KeyError, TypeError):
+            texto = f.read()
+    except OSError:
         return {}
     plantillas = {}
+    decodificador = json.JSONDecoder()
+    # Formato por liga: cada equipo es un objeto con "titulares" y "suplentes".
+    for m in re.finditer(r'"([^"\n]+)"\s*:\s*(?=\{[^{}\[\]]*?"titulares")', texto):
+        try:
+            datos, _ = decodificador.raw_decode(texto, m.end())
+        except ValueError:
+            continue
+        lista = []
+        for j in list(datos.get("titulares", [])) + list(datos.get("suplentes", [])):
+            if isinstance(j, dict) and j.get("nombre"):
+                pos = str(j.get("posicion", ""))
+                lista.append((str(j["nombre"]), _POS_ARCHIVO.get(pos, pos)))
+        if lista:
+            plantillas[_ALIAS_EQUIPOS.get(m.group(1), m.group(1))] = lista
+    if plantillas:
+        return plantillas
+    # Formato corto antiguo.
+    try:
+        crudo = json.loads(texto)["equipos"]
+    except (ValueError, KeyError, TypeError):
+        return {}
     for equipo, lista in crudo.items():
         if isinstance(lista, list):
             validos = [(str(j[0]), str(j[1])) for j in lista
@@ -1195,7 +1223,7 @@ def _plantel_valido(plantel, deporte):
     if deporte == "Fútbol":
         return "POR" in pos and sum(p != "POR" for p in pos) >= 10
     if deporte == "Béisbol":
-        return sum(p != "LAN" for p in pos) >= 8 and pos.count("LAN") >= 3
+        return sum(p != "LAN" for p in pos) >= 8 and pos.count("LAN") >= 1
     return True
 
 

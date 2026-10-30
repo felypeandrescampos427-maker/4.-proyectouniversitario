@@ -1,125 +1,2385 @@
 {
   "version": "2026-10",
   "equipos": {
-    "Atlético Nacional": [["Luis Marquínez","POR"],["Andrés Román","DEF"],["William Tesillo","DEF"],["Felipe Aguirre","DEF"],["Samuel Velásquez","DEF"],["Jorman Campuzano","MED"],["Edwin Cardona","MED"],["Juan Manuel Zapata","MED"],["Marino Hinestroza","DEL"],["Alfredo Morelos","DEL"],["Kevin Viveros","DEL"],["Suplente Nacional 1","DEF"],["Suplente Nacional 2","MED"],["Suplente Nacional 3","DEL"]],
-    "Millonarios FC": [["Álvaro Montero","POR"],["Delvin Alfonzo","DEF"],["Juan Pablo Vargas","DEF"],["Andrés Llinás","DEF"],["Danovis Banguero","DEF"],["Daniel Giraldo","MED"],["David Mackalister Silva","MED"],["Daniel Cataño","MED"],["Radamel Falcao","DEL"],["Leonardo Castro","DEL"],["Jhon Emerson Córdoba","DEL"],["Suplente Millonarios 1","DEF"],["Suplente Millonarios 2","MED"],["Suplente Millonarios 3","DEL"]],
-    "América de Cali": [["Joel Graterol","POR"],["Yerson Candelo","DEF"],["Daniel Bocanegra","DEF"],["Éder Álvarez Balanta","DEF"],["Marcos Mina","DEF"],["Harol Rivera","MED"],["Franco Leys","MED"],["Alexis Zapata","MED"],["Duván Vergara","DEL"],["Rodrigo Holgado","DEL"],["Cristian Barrios","DEL"],["Suplente América 1","DEF"],["Suplente América 2","MED"],["Suplente América 3","DEL"]],
-    "Junior de Barranquilla": [["Santiago Mele","POR"],["Emanuel Olivera","DEF"],["Jermein Peña","DEF"],["Yeferson Moreno","DEF"],["Edwin Herrera","DEF"],["Víctor Cantillo","MED"],["Héctor Martínez","MED"],["Yimmi Chará","MED"],["Carlos Bacca","DEL"],["José Enamorado","DEL"],["Steven Rodríguez","DEL"],["Suplente Junior 1","DEF"],["Suplente Junior 2","MED"],["Suplente Junior 3","DEL"]],
-    "Independiente Santa Fe": [["Andrés Mosquera Marmolejo","POR"],["Elvis Perlaza","DEF"],["David Ramírez Pisciotti","DEF"],["Marcelo Ortiz","DEF"],["Facundo Agüero","DEF"],["Daniel Torres","MED"],["Yilmar Velásquez","MED"],["Jhojan Torres","MED"],["Hugo Rodallega","DEL"],["Agustín Rodríguez","DEL"],["Edwar López","DEL"],["Suplente Santa Fe 1","DEF"],["Suplente Santa Fe 2","MED"],["Suplente Santa Fe 3","DEL"]],
-    "Deportivo Cali": [["Alejandro Rodríguez","POR"],["Fabián Viáfara","DEF"],["José Caldera","DEF"],["Francisco Meza","DEF"],["Onel Acosta","DEF"],["Alexander Mejía","MED"],["Kelvin Osorio","MED"],["Gian Cabezas","MED"],["Fredy Montero","DEL"],["Jarlan Barrera","DEL"],["Andrey Estupiñán","DEL"],["Suplente Cali 1","DEF"],["Suplente Cali 2","MED"],["Suplente Cali 3","DEL"]],
-    "Independiente Medellín": [["Eder Chaux","POR"],["Fainer Torijano","DEF"],["José Ortiz","DEF"],["Leyser Chaverra","DEF"],["Jimer Fory","DEF"],["Jaime Alvarado","MED"],["Pablo Lima","MED"],["Baldomero Perlaza","MED"],["Brayan León","DEL"],["Luis Sandoval","DEL"],["Jhon Vásquez","DEL"],["Suplente Medellín 1","DEF"],["Suplente Medellín 2","MED"],["Suplente Medellín 3","DEL"]],
-    "Once Caldas": [["James Aguirre","POR"],["Juan Cuesta","DEF"],["Stiven Palacios","DEF"],["Jeison Quiñónes","DEF"],["Yonatan Murillo","DEF"],["Mateo García","MED"],["Iván Rojas","MED"],["Alejandro García","MED"],["Dayro Moreno","DEL"],["Michael Barrios","DEL"],["Esteban Beltrán","DEL"],["Suplente Once Caldas 1","DEF"],["Suplente Once Caldas 2","MED"],["Suplente Once Caldas 3","DEL"]],
-    "Deportes Tolima": [["William Cuesta","POR"],["Yhorm Hurtado","DEF"],["Marlon Torres","DEF"],["César Haydar","DEF"],["Junior Hernández","DEF"],["Fabián Mosquera","MED"],["Brayan Rovira","MED"],["Yeison Guzmán","MED"],["Luis Miranda","DEL"],["Brayan Gil","DEL"],["Facundo Boné","DEL"],["Suplente Tolima 1","DEF"],["Suplente Tolima 2","MED"],["Suplente Tolima 3","DEL"]],
-    "Atlético Bucaramanga": [["Aldair Quintana","POR"],["Aldair Gutiérrez","DEF"],["Jefferson Mena","DEF"],["Carlos Henao","DEF"],["Freddy Hinestroza","DEF"],["Fabry Castro","MED"],["Aldair Zárate","MED"],["Jean Colorado","MED"],["Andrés Ponce","DEL"],["Joider Micolta","DEL"],["Frank Castañeda","DEL"],["Suplente Bucaramanga 1","DEF"],["Suplente Bucaramanga 2","MED"],["Suplente Bucaramanga 3","DEL"]],
-    "Envigado FC": [["Joan Parra","POR"],["Gendry Cuervo","DEF"],["Julián Palacios","DEF"],["Santiago Noreña","DEF"],["Yeferson Rodallega","DEF"],["Felipe Jaramillo","MED"],["Edison López","MED"],["Daniel Arcila","MED"],["Yeison Moreno","DEL"],["Bayron Garcés","DEL"],["William Hurtado","DEL"],["Suplente Envigado 1","DEF"],["Suplente Envigado 2","MED"],["Suplente Envigado 3","DEL"]],
-    "Deportivo Pereira": [["Salvador Córdoba","POR"],["Carlos Ramírez","DEF"],["Santiago Aguilar","DEF"],["Jorge Bermúdez","DEF"],["Nicolás Giraldo","DEF"],["Yesus Cabrera","MED"],["Juan Pablo Zuluaga","MED"],["Sebastián Viera","MED"],["Wilfrido De La Rosa","DEL"],["Darwin Quintero","DEL"],["Jorge Luis Ramos","DEL"],["Suplente Pereira 1","DEF"],["Suplente Pereira 2","MED"],["Suplente Pereira 3","DEL"]],
-    "Inter de Bogotá": [["Washington Ortega","POR"],["Fabián Viáfara","DEF"],["Daniel Polanco","DEF"],["Bleiner Agrón","DEF"],["Andrés Correa","DEF"],["Elan Ricardo","MED"],["Felipe Acosta","MED"],["Johan Rojas","MED"],["Amaury Torralvo","DEL"],["José Lloreda","DEL"],["Beckham Castro","DEL"],["Suplente Inter 1","DEF"],["Suplente Inter 2","MED"],["Suplente Inter 3","DEL"]],
-    "Águilas Doradas": [["José Contreras","POR"],["Mateo Puerta","DEF"],["Jeison Quiñónes","DEF"],["Victor Moreno","DEF"],["Javier Mena","DEF"],["Guillermo Celis","MED"],["Jaen Pineda","MED"],["Jesús Rivas","MED"],["Fredy Salazar","DEL"],["Jorge Ramos","DEL"],["Jhonier Blanco","DEL"],["Suplente Águilas 1","DEF"],["Suplente Águilas 2","MED"],["Suplente Águilas 3","DEL"]],
-    "Boyacá Chicó": [["Juan David Valencia","POR"],["Mateo Rodas","DEF"],["José García","DEF"],["Juan Díaz","DEF"],["Carlos de las Salas","DEF"],["Carlos Molina","MED"],["Dewar Victoria","MED"],["Albin Domínguez","MED"],["Cristian Martínez Borja","DEL"],["João Rodríguez","DEL"],["Flabián Londoño","DEL"],["Suplente Chicó 1","DEF"],["Suplente Chicó 2","MED"],["Suplente Chicó 3","DEL"]],
-    "Alianza FC": [["Carlos Bejarano","POR"],["Kevin Londoño","DEF"],["Jhon García","DEF"],["Luciano Ospina","DEF"],["Edisson Palacios","DEF"],["Rubén Manjarrés","MED"],["Juan Camilo Portilla","MED"],["Ever Meza","MED"],["Mayer Vidal","DEL"],["Pablo Bueno","DEL"],["Sebastián Acosta","DEL"],["Suplente Alianza 1","DEF"],["Suplente Alianza 2","MED"],["Suplente Alianza 3","DEL"]],
-    "Fortaleza CEIF": [["Jordan García","POR"],["Jhon Pájaro","DEF"],["Nicolás Sepúlveda","DEF"],["Sergio Rojas","DEF"],["Nicolás Castellanos","DEF"],["Daniel Rivera","MED"],["Jhon Jairo Peña","MED"],["Andrés Rentería","MED"],["Brayan Moreno","DEL"],["Adrián Parra","DEL"],["Sebastián Navarro","DEL"],["Suplente Fortaleza 1","DEF"],["Suplente Fortaleza 2","MED"],["Suplente Fortaleza 3","DEL"]],
-    "Jaguares de Córdoba": [["Geovanni Banguera","POR"],["Carlos Pájaro","DEF"],["Duilio Vallecilla","DEF"],["Darwin Andrade","DEF"],["Jader Maza","DEF"],["Enrique Serje","MED"],["Didier Pino","MED"],["Juan Camilo Roa","MED"],["Wilson Morelo","DEL"],["Pablo Rojas","DEL"],["Kahiser Lenis","DEL"],["Suplente Jaguares 1","DEF"],["Suplente Jaguares 2","MED"],["Suplente Jaguares 3","DEL"]],
-    "Patriotas Boyacá": [["Juan David Valencia","POR"],["Mateo Rodas","DEF"],["José García","DEF"],["Juan Díaz","DEF"],["Carlos de las Salas","DEF"],["Carlos Molina","MED"],["Dewar Victoria","MED"],["Albin Domínguez","MED"],["Cristian Martínez Borja","DEL"],["João Rodríguez","DEL"],["Flabián Londoño","DEL"],["Suplente Patriotas 1","DEF"],["Suplente Patriotas 2","MED"],["Suplente Patriotas 3","DEL"]],
-    "Deportivo Pasto": [["Diego Martínez","POR"],["Israel Alba","DEF"],["Brayan Carabalí","DEF"],["Nicolas Gil","DEF"],["Christian Mafla","DEF"],["Cristian Tréllez","MED"],["Victor Mejía","MED"],["Gustavo Charrupí","MED"],["Daniel Moreno","DEL"],["Ray Vanegas","DEL"],["Kevin Londoño","DEL"],["Suplente Pasto 1","DEF"],["Suplente Pasto 2","MED"],["Suplente Pasto 3","DEL"]],
-    "Real Madrid": [["Thibaut Courtois","POR"],["Dani Carvajal","DEF"],["Antonio Rüdiger","DEF"],["Éder Militão","DEF"],["Ferland Mendy","DEF"],["Federico Valverde","MED"],["Jude Bellingham","MED"],["Aurélien Tchouaméni","MED"],["Vinícius Jr","DEL"],["Kylian Mbappé","DEL"],["Rodrygo Goes","DEL"],["Suplente Real Madrid 1","DEF"],["Suplente Real Madrid 2","MED"],["Suplente Real Madrid 3","DEL"]],
-    "FC Barcelona": [["Marc-André ter Stegen","POR"],["Jules Koundé","DEF"],["Pau Cubarsí","DEF"],["Ronald Araújo","DEF"],["Alejandro Balde","DEF"],["Pedri González","MED"],["Frenkie de Jong","MED"],["Gavi","MED"],["Lamine Yamal","DEL"],["Robert Lewandowski","DEL"],["Raphinha","DEL"],["Suplente Barcelona 1","DEF"],["Suplente Barcelona 2","MED"],["Suplente Barcelona 3","DEL"]],
-    "Atlético de Madrid": [["Jan Oblak","POR"],["Nahuel Molina","DEF"],["José María Giménez","DEF"],["Robin Le Normand","DEF"],["Reinildo Mandava","DEF"],["Koke Resurrección","MED"],["Rodrigo De Paul","MED"],["Conor Gallagher","MED"],["Antoine Griezmann","DEL"],["Julián Álvarez","DEL"],["Alexander Sørloth","DEL"],["Suplente Atlético 1","DEF"],["Suplente Atlético 2","MED"],["Suplente Atlético 3","DEL"]],
-    "Sevilla FC": [["Ørjan Nyland","POR"],["José Ángel Carmona","DEF"],["Loïc Badé","DEF"],["Marcao","DEF"],["Adrià Pedrosa","DEF"],["Nemanja Gudelj","MED"],["Saúl Ñíguez","MED"],["Albert Sambi Lokonga","MED"],["Dodi Lukebakio","DEL"],["Kelechi Iheanacho","DEL"],["Chidera Ejuke","DEL"],["Suplente Sevilla 1","DEF"],["Suplente Sevilla 2","MED"],["Suplente Sevilla 3","DEL"]],
-    "Real Sociedad": [["Álex Remiro","POR"],["Hamari Traoré","DEF"],["Igor Zubeldia","DEF"],["Nayef Aguerd","DEF"],["Javi Galán","DEF"],["Martin Zubimendi","MED"],["Brais Méndez","MED"],["Luka Sučić","MED"],["Takefusa Kubo","DEL"],["Mikel Oyarzabal","DEL"],["Orri Óskarsson","DEL"],["Suplente Sociedad 1","DEF"],["Suplente Sociedad 2","MED"],["Suplente Sociedad 3","DEL"]],
-    "Villarreal CF": [["Luiz Júnior","POR"],["Kiko Femenía","DEF"],["Raúl Albiol","DEF"],["Logan Costa","DEF"],["Sergi Cardona","DEF"],["Dani Parejo","MED"],["Santi Comesaña","MED"],["Álex Baena","MED"],["Gerard Moreno","DEL"],["Ayoze Pérez","DEL"],["Nicolas Pépé","DEL"],["Suplente Villarreal 1","DEF"],["Suplente Villarreal 2","MED"],["Suplente Villarreal 3","DEL"]],
-    "Athletic Club": [["Julen Agirrezabala","POR"],["Oscar de Marcos","DEF"],["Yeray Álvarez","DEF"],["Dani Vivian","DEF"],["Yuri Berchiche","DEF"],["Íñigo Ruiz de Galarreta","MED"],["Mikel Jauregizar","MED"],["Oihan Sancet","MED"],["Nico Williams","DEL"],["Iñaki Williams","DEL"],["Gorka Guruzeta","DEL"],["Suplente Athletic 1","DEF"],["Suplente Athletic 2","MED"],["Suplente Athletic 3","DEL"]],
-    "Real Betis": [["Rui Silva","POR"],["Hector Bellerín","DEF"],["Diego Llorente","DEF"],["Marc Bartra","DEF"],["Romain Perraud","DEF"],["Johnny Cardoso","MED"],["William Carvalho","MED"],["Isco Alarcón","MED"],["Antony","DEL"],["Vitor Roque","DEL"],["Abde Ezzalzouli","DEL"],["Suplente Betis 1","DEF"],["Suplente Betis 2","MED"],["Suplente Betis 3","DEL"]],
-    "Valencia CF": [["Giorgi Mamardashvili","POR"],["Thierry Correia","DEF"],["Cristhian Mosquera","DEF"],["Yarek Gasiorowski","DEF"],["José Luis Gayà","DEF"],["Pepelu","MED"],["Javi Guerra","MED"],["André Almeida","MED"],["Diego López","DEL"],["Hugo Duro","DEL"],["Luis Rioja","DEL"],["Suplente Valencia 1","DEF"],["Suplente Valencia 2","MED"],["Suplente Valencia 3","DEL"]],
-    "Celta de Vigo": [["Vicente Guaita","POR"],["Javier Manquillo","DEF"],["Carl Starfelt","DEF"],["Marcos Alonso","DEF"],["Hugo Álvarez","DEF"],["Fran Beltrán","MED"],["Ilaix Moriba","MED"],["Hugo Sotelo","MED"],["Iago Aspas","DEL"],["Borja Iglesias","DEL"],["Williot Swedberg","DEL"],["Suplente Celta 1","DEF"],["Suplente Celta 2","MED"],["Suplente Celta 3","DEL"]],
-    "Osasuna": [["Sergio Herrera","POR"],["Jesús Areso","DEF"],["Alejandro Catena","DEF"],["Flavien Boyomo","DEF"],["Abel Bretones","DEF"],["Lucas Torró","MED"],["Jon Moncayola","MED"],["Aimar Oroz","MED"],["Rubén Peña","DEL"],["Ante Budimir","DEL"],["Bryan Zaragoza","DEL"],["Suplente Osasuna 1","DEF"],["Suplente Osasuna 2","MED"],["Suplente Osasuna 3","DEL"]],
-    "Getafe CF": [["David Soria","POR"],["Juan Iglesias","DEF"],["Djené Dakonam","DEF"],["Omar Alderete","DEF"],["Diego Rico","DEF"],["Mauro Arambarri","MED"],["Luis Milla","MED"],["Christantus Uche","MED"],["Carles Pérez","DEL"],["Borja Mayoral","DEL"],["Bertuğ Yıldırım","DEL"],["Suplente Getafe 1","DEF"],["Suplente Getafe 2","MED"],["Suplente Getafe 3","DEL"]],
-    "Rayo Vallecano": [["Augusto Batalla","POR"],["Andrei Rațiu","DEF"],["Abdul Mumin","DEF"],["Florian Lejeune","DEF"],["Alfonso Espino","DEF"],["Unai López","MED"],["Pedro Díaz","MED"],["Isi Palazón","MED"],["Adri Embarba","DEL"],["Sergio Camello","DEL"],["Jorge de Frutos","DEL"],["Suplente Rayo 1","DEF"],["Suplente Rayo 2","MED"],["Suplente Rayo 3","DEL"]],
-    "Deportivo Alavés": [["Antonio Sivera","POR"],["Nahuel Tenaglia","DEF"],["Abdel Abqar","DEF"],["Santiago Mouriño","DEF"],["Manu Sánchez","DEF"],["Antonio Blanco","MED"],["Jon Guridi","MED"],["Carlos Vicente","MED"],["Luis Rioja","DEL"],["Kike García","DEL"],["Toni Martínez","DEL"],["Suplente Alavés 1","DEF"],["Suplente Alavés 2","MED"],["Suplente Alavés 3","DEL"]],
-    "Elche CF": [["Iñaki Peña","POR"],["Héctor Fort","DEF"],["Pedro Bigas","DEF"],["David Affengruber","DEF"],["John Chetauya","DEF"],["Aleix Febas","MED"],["Marc Aguado","MED"],["Nicolás Fernández","MED"],["Rafa Mir","DEL"],["André Silva","DEL"],["Germán Valera","DEL"],["Suplente Elche 1","DEF"],["Suplente Elche 2","MED"],["Suplente Elche 3","DEL"]],
-    "RCD Espanyol": [["Joan García","POR"],["Omar El Hilali","DEF"],["Leandro Cabrera","DEF"],["Sergi Gómez","DEF"],["Carlos Romero","DEF"],["Pol Lozano","MED"],["Edu Expósito","MED"],["Alex Král","MED"],["Javi Puado","DEL"],["Roberto Fernández","DEL"],["Walid Cheddira","DEL"],["Suplente Espanyol 1","DEF"],["Suplente Espanyol 2","MED"],["Suplente Espanyol 3","DEL"]],
-    "Levante UD": [["Andrés Fernández","POR"],["Ander Capa","DEF"],["Elgezabal","DEF"],["Adrián de la Fuente","DEF"],["Manu Sánchez","DEF"],["Oriol Rey","MED"],["Sergio Lozano","MED"],["Pablo Martínez","MED"],["Iván Romero","DEL"],["Carlos Álvarez","DEL"],["José Luis Morales","DEL"],["Suplente Levante 1","DEF"],["Suplente Levante 2","MED"],["Suplente Levante 3","DEL"]],
-    "Deportivo La Coruña": [["Germán Parreño","POR"],["Ximo Navarro","DEF"],["Pablo Vázquez","DEF"],["Dani Barcia","DEF"],["Yeremay Hernández","DEF"],["Diego Villares","MED"],["José Gragera","MED"],["Mario Soriano","MED"],["Zakaria Eddahchouri","DEL"],["Iván Barbero","DEL"],["Yeremay Hernández","DEL"],["Suplente La Coruña 1","DEF"],["Suplente La Coruña 2","MED"],["Suplente La Coruña 3","DEL"]],
-    "Málaga CF": [["Alfonso Herrero","POR"],["Jokin Gabilondo","DEF"],["Nelson Monte","DEF"],["Einar Galilea","DEF"],["Rafael Obrador","DEF"],["Luismi Sánchez","MED"],["Manu Molina","MED"],["Luca Sangalli","MED"],["Antoñito Cordero","DEL"],["Julen Lobete","DEL"],["Chupete","DEL"],["Suplente Málaga 1","DEF"],["Suplente Málaga 2","MED"],["Suplente Málaga 3","DEL"]],
-    "Racing de Santander": [["Jokin Ezkieta","POR"],["Álvaro Mantilla","DEF"],["Manu Hernando","DEF"],["Pablo Rodríguez","DEF"],["Mario García","DEF"],["Íñigo Vicente","MED"],["Aldasoro","MED"],["Vencedor","MED"],["Andrés Martín","DEL"],["Arana","DEL"],["Ekain Zenitagoia","DEL"],["Suplente Racing 1","DEF"],["Suplente Racing 2","MED"],["Suplente Racing 3","DEL"]],
-    "Manchester City": [["Ederson Moraes","POR"],["Kyle Walker","DEF"],["Rúben Dias","DEF"],["Manuel Akanji","DEF"],["Josko Gvardiol","DEF"],["Rodri Hernández","MED"],["Kevin De Bruyne","MED"],["Ilkay Gündogan","MED"],["Phil Foden","DEL"],["Erling Haaland","DEL"],["Savinho","DEL"],["Suplente Man City 1","DEF"],["Suplente Man City 2","MED"],["Suplente Man City 3","DEL"]],
-    "Arsenal FC": [["David Raya","POR"],["Ben White","DEF"],["William Saliba","DEF"],["Gabriel Magalhães","DEF"],["Riccardo Calafiori","DEF"],["Declan Rice","MED"],["Martin Ødegaard","MED"],["Thomas Partey","MED"],["Bukayo Saka","DEL"],["Kai Havertz","DEL"],["Gabriel Martinelli","DEL"],["Suplente Arsenal 1","DEF"],["Suplente Arsenal 2","MED"],["Suplente Arsenal 3","DEL"]],
-    "Liverpool FC": [["Alisson Becker","POR"],["Trent Alexander-Arnold","DEF"],["Ibrahima Konaté","DEF"],["Virgil van Dijk","DEF"],["Andy Robertson","DEF"],["Alexis Mac Allister","MED"],["Dominik Szoboszlai","MED"],["Ryan Gravenberch","MED"],["Mohamed Salah","DEL"],["Darwin Núñez","DEL"],["Luis Díaz","DEL"],["Suplente Liverpool 1","DEF"],["Suplente Liverpool 2","MED"],["Suplente Liverpool 3","DEL"]],
-    "Manchester United": [["André Onana","POR"],["Noussair Mazraoui","DEF"],["Matthijs de Ligt","DEF"],["Lisandro Martínez","DEF"],["Diogo Dalot","DEF"],["Casemiro","MED"],["Kobbie Mainoo","MED"],["Bruno Fernandes","MED"],["Alejandro Garnacho","DEL"],["Joshua Zirkzee","DEL"],["Marcus Rashford","DEL"],["Suplente Man United 1","DEF"],["Suplente Man United 2","MED"],["Suplente Man United 3","DEL"]],
-    "Chelsea FC": [["Robert Sánchez","POR"],["Reece James","DEF"],["Wesley Fofana","DEF"],["Levi Colwill","DEF"],["Marc Cucurella","DEF"],["Moisés Caicedo","MED"],["Enzo Fernández","MED"],["Cole Palmer","MED"],["Noni Madueke","DEL"],["Nicolas Jackson","DEL"],["Jadon Sancho","DEL"],["Suplente Chelsea 1","DEF"],["Suplente Chelsea 2","MED"],["Suplente Chelsea 3","DEL"]],
-    "Tottenham Hotspur": [["Guglielmo Vicario","POR"],["Pedro Porro","DEF"],["Cristian Romero","DEF"],["Micky van de Ven","DEF"],["Destiny Udogie","DEF"],["Yves Bissouma","MED"],["James Maddison","MED"],["Pape Matar Sarr","MED"],["Dejan Kulusevski","DEL"],["Dominic Solanke","DEL"],["Heung-min Son","DEL"],["Suplente Tottenham 1","DEF"],["Suplente Tottenham 2","MED"],["Suplente Tottenham 3","DEL"]],
-    "Aston Villa": [["Emiliano Martínez","POR"],["Matty Cash","DEF"],["Ezri Konsa","DEF"],["Pau Torres","DEF"],["Lucas Digne","DEF"],["Youri Tielemans","MED"],["Amadou Onana","MED"],["John McGinn","MED"],["Leon Bailey","DEL"],["Ollie Watkins","DEL"],["Morgan Rogers","DEL"],["Suplente Aston Villa 1","DEF"],["Suplente Aston Villa 2","MED"],["Suplente Aston Villa 3","DEL"]],
-    "Newcastle United": [["Nick Pope","POR"],["Tino Livramento","DEF"],["Fabian Schär","DEF"],["Dan Burn","DEF"],["Lewis Hall","DEF"],["Bruno Guimarães","MED"],["Sandro Tonali","MED"],["Joelinton","MED"],["Anthony Gordon","DEL"],["Alexander Isak","DEL"],["Harvey Barnes","DEL"],["Suplente Newcastle 1","DEF"],["Suplente Newcastle 2","MED"],["Suplente Newcastle 3","DEL"]],
-    "Brighton & Hove Albion": [["Bart Verbruggen","POR"],["Joel Veltman","DEF"],["Jan Paul van Hecke","DEF"],["Lewis Dunk","DEF"],["Pervis Estupiñán","DEF"],["Carlos Baleba","MED"],["Mats Wieffer","MED"],["Georginio Rutter","MED"],["Kaoru Mitoma","DEL"],["João Pedro","DEL"],["Danny Welbeck","DEL"],["Suplente Brighton 1","DEF"],["Suplente Brighton 2","MED"],["Suplente Brighton 3","DEL"]],
-    "Crystal Palace": [["Dean Henderson","POR"],["Daniel Muñoz","DEF"],["Marc Guéhi","DEF"],["Maxence Lacroix","DEF"],["Tyrick Mitchell","DEF"],["Adam Wharton","MED"],["Cheick Doucouré","MED"],["Daichi Kamada","MED"],["Ismaïla Sarr","DEL"],["Jean-Philippe Mateta","DEL"],["Eberechi Eze","DEL"],["Suplente Crystal Palace 1","DEF"],["Suplente Crystal Palace 2","MED"],["Suplente Crystal Palace 3","DEL"]],
-    "Everton FC": [["Jordan Pickford","POR"],["Seamus Coleman","DEF"],["James Tarkowski","DEF"],["Jarrad Branthwaite","DEF"],["Vitaliy Mykolenko","DEF"],["Idrissa Gueye","MED"],["Abdoulaye Doucouré","MED"],["Orel Mangala","MED"],["Jack Harrison","DEL"],["Dominic Calvert-Lewin","DEL"],["Iliman Ndiaye","DEL"],["Suplente Everton 1","DEF"],["Suplente Everton 2","MED"],["Suplente Everton 3","DEL"]],
-    "Fulham FC": [["Bernd Leno","POR"],["Kenny Tete","DEF"],["Joachim Andersen","DEF"],["Calvin Bassey","DEF"],["Antonee Robinson","DEF"],["Sander Berge","MED"],["Saša Lukić","MED"],["Emile Smith Rowe","MED"],["Adama Traoré","DEL"],["Raúl Jiménez","DEL"],["Alex Iwobi","DEL"],["Suplente Fulham 1","DEF"],["Suplente Fulham 2","MED"],["Suplente Fulham 3","DEL"]],
-    "Brentford FC": [["Mark Flekken","POR"],["Madis Roerslev","DEF"],["Nathan Collins","DEF"],["Ethan Pinnock","DEF"],["Sepp van den Berg","DEF"],["Christian Nørgaard","MED"],["Vitaly Janelt","MED"],["Mathias Jensen","MED"],["Bryan Mbeumo","DEL"],["Yoane Wissa","DEL"],["Kevin Schade","DEL"],["Suplente Brentford 1","DEF"],["Suplente Brentford 2","MED"],["Suplente Brentford 3","DEL"]],
-    "AFC Bournemouth": [["Kepa Arrizabalaga","POR"],["Julian Araujo","DEF"],["Ilya Zabarnyi","DEF"],["Marcos Senesi","DEF"],["Milos Kerkez","DEF"],["Lewis Cook","MED"],["Tyler Adams","MED"],["Marcus Tavernier","MED"],["Antoine Semenyo","DEL"],["Evanilson","DEL"],["Justin Kluivert","DEL"],["Suplente Bournemouth 1","DEF"],["Suplente Bournemouth 2","MED"],["Suplente Bournemouth 3","DEL"]],
-    "Nottingham Forest": [["Matz Sels","POR"],["Ola Aina","DEF"],["Nikola Milenković","DEF"],["Murillo","DEF"],["Álex Moreno","DEF"],["Ryan Yates","MED"],["Elliot Anderson","MED"],["Morgan Gibbs-White","MED"],["Callum Hudson-Odoi","DEL"],["Chris Wood","DEL"],["Anthony Elanga","DEL"],["Suplente Nottingham 1","DEF"],["Suplente Nottingham 2","MED"],["Suplente Nottingham 3","DEL"]],
-    "Leeds United": [["Illan Meslier","POR"],["Jayden Bogle","DEF"],["Joe Rodon","DEF"],["Pascal Struijk","DEF"],["Junior Firpo","DEF"],["Ethan Ampadu","MED"],["Ao Tanaka","MED"],["Brenden Aaronson","MED"],["Daniel James","DEL"],["Joël Piroe","DEL"],["Manor Solomon","DEL"],["Suplente Leeds 1","DEF"],["Suplente Leeds 2","MED"],["Suplente Leeds 3","DEL"]],
-    "Sunderland AFC": [["Anthony Patterson","POR"],["Trai Hume","DEF"],["Luke O'Nien","DEF"],["Daniel Ballard","DEF"],["Dennis Cirkin","DEF"],["Dan Neil","MED"],["Jobe Bellingham","MED"],["Chris Rigg","MED"],["Patrick Roberts","DEL"],["Wilson Isidor","DEL"],["Romaine Mundle","DEL"],["Suplente Sunderland 1","DEF"],["Suplente Sunderland 2","MED"],["Suplente Sunderland 3","DEL"]],
-    "Coventry City": [["Oliver Dovin","POR"],["Milan van Ewijk","DEF"],["Bobby Thomas","DEF"],["Liam Kitching","DEF"],["Jay Dasilva","DEF"],["Ben Sheaf","MED"],["Josh Eccles","MED"],["Jack Rudoni","MED"],["Ephron Mason-Clark","DEL"],["Ellis Simms","DEL"],["Haji Wright","DEL"],["Suplente Coventry 1","DEF"],["Suplente Coventry 2","MED"],["Suplente Coventry 3","DEL"]],
-    "Ipswich Town": [["Arijanet Muric","POR"],["Axel Tuanzebe","DEF"],["Dara O'Shea","DEF"],["Jacob Greaves","DEF"],["Leif Davis","DEF"],["Sam Morsy","MED"],["Kalvin Phillips","MED"],["Jens Cajuste","MED"],["Omari Hutchinson","DEL"],["Liam Delap","DEL"],["Sammie Szmodics","DEL"],["Suplente Ipswich 1","DEF"],["Suplente Ipswich 2","MED"],["Suplente Ipswich 3","DEL"]],
-    "Hull City": [["Ivor Pandur","POR"],["Lewie Coyle","DEF"],["Alfie Jones","DEF"],["Sean McLoughlin","DEF"],["Ryan Giles","DEF"],["Regan Slater","MED"],["Jean Michaël Seri","MED"],["Kasey Palmer","MED"],["Abdülkadir Ömür","DEL"],["Mohamed Belloumi","DEL"],["Chris Bedia","DEL"],["Suplente Hull 1","DEF"],["Suplente Hull 2","MED"],["Suplente Hull 3","DEL"]],
-    "Los Angeles Lakers": [["Luka Dončić","B"],["Austin Reaves","E"],["Quentin Grimes","E"],["Jake LaRavia","A"],["Walker Kessler","P"],["Collin Sexton","B"],["Matisse Thybulle","A"],["Sandro Mamukelashvili","AP"],["Jarred Vanderbilt","AP"],["Kevon Looney","P"],["Jaden Hardy","E"],["Ziaire Williams","A"],["Dalton Knecht","A"],["Cameron Carr","E"],["Bronny James","B"],["Adou Thiero","A"]],
-    "Golden State Warriors": [["Stephen Curry","B"],["Brandin Podziemski","E"],["Jimmy Butler","A"],["Draymond Green","AP"],["Kristaps Porziņģis","P"],["Moses Moody","E"],["Yaxel Lendeborg","A"],["De'Anthony Melton","B"],["Gary Payton II","E"],["Al Horford","P"],["Gui Santos","AP"],["Georges Niang","AP"],["Will Richard","E"],["Brandon Williams","B"],["LJ Cryer","B"],["Graham Ike","AP"],["Charles Bassey","P"]],
-    "Boston Celtics": [["Derrick White","E"],["Payton Pritchard","B"],["Jayson Tatum","A"],["Paul George","A"],["Mitchell Robinson","P"],["Neemias Queta","P"],["Mike Conley","B"],["Sam Hauser","A"],["Ron Harper Jr.","AP"],["Hugo González","A"],["Luka Garza","P"],["Baylor Scheierman","A"],["Jordan Walsh","A"],["Chris Cenac Jr.","AP"],["Dalano Banton","B"],["Amari Williams","P"]],
-    "Chicago Bulls": [["Josh Giddey","B"],["Norman Powell","E"],["Matas Buzelis","A"],["Caleb Wilson","AP"],["Nic Claxton","P"],["Tre Jones","B"],["Isaac Okoro","A"],["Patrick Williams","AP"],["Jordan Hawkins","E"],["Zach Collins","P"],["Jalen Smith","P"],["Dailyn Swain","A"],["Noa Essengue","AP"],["Leonard Miller","A"],["Tobe Awaka","AP"],["Jaylin Sellers","B"]],
-    "Atlanta Hawks": [["Jalen Johnson","A"],["Dyson Daniels","E"],["CJ McCollum","B"],["Nickeil Alexander-Walker","E"],["Onyeka Okongwu","P"],["Luguentz Dort","A"],["Dorian Finney-Smith","AP"],["Corey Kispert","A"],["Aaron Wiggins","E"],["Kingston Flemings","B"],["Asa Newell","AP"],["Zuby Ejiofor","P"],["Jock Landale","P"],["Mouhamed Gueye","AP"],["Henri Veesaar","P"]],
-    "Brooklyn Nets": [["Mikel Brown Jr.","B"],["Keon Ellis","E"],["Michael Porter Jr.","A"],["Julius Randle","AP"],["Day'Ron Sharpe","P"],["Egor Demin","B"],["Noah Clowney","AP"],["Moritz Wagner","P"],["Danny Wolf","AP"],["Nolan Traore","B"],["Ben Saraf","E"],["Joshua Jefferson","AP"],["Drake Powell","A"],["Josh Minott","A"],["Chaney Johnson","A"]],
-    "Charlotte Hornets": [["Coby White","B"],["Kon Knueppel","E"],["Brandon Miller","A"],["Naz Reid","AP"],["Moussa Diabaté","P"],["Dennis Schröder","B"],["Grayson Allen","E"],["Sion James","E"],["Royce O'Neale","A"],["Ryan Kalkbrenner","P"],["Hannes Steinbach","P"],["Grant Williams","AP"],["Tidjane Salaün","A"],["Christian Anderson","B"],["Liam McNeeley","A"],["Buddy Hield","E"],["Ryan Nembhard","B"]],
-    "Cleveland Cavaliers": [["James Harden","B"],["Donovan Mitchell","E"],["Peyton Watson","A"],["Evan Mobley","AP"],["Jarrett Allen","P"],["Sam Merrill","E"],["Jaylon Tyson","A"],["Craig Porter Jr.","B"],["Tyrese Proctor","B"],["Mario Hezonja","A"],["Meleek Thomas","E"],["Thomas Bryant","P"],["Nae'Qwan Tomlin","AP"],["Khalifa Diop","P"]],
-    "Detroit Pistons": [["Cade Cunningham","B"],["Duncan Robinson","E"],["Ausar Thompson","A"],["John Collins","AP"],["Jalen Duren","P"],["Ron Holland II","A"],["Isaiah Joe","E"],["Kevin Huerter","E"],["Paul Reed","P"],["Daniss Jenkins","B"],["Taurean Prince","A"],["Gary Harris","E"],["Javonte Green","E"],["Ebuka Okorie","B"],["Chaz Lanier","E"]],
-    "Indiana Pacers": [["Tyrese Haliburton","B"],["Andrew Nembhard","E"],["Aaron Nesmith","A"],["Pascal Siakam","AP"],["Ivica Zubac","P"],["Kelly Oubre Jr.","A"],["Obi Toppin","AP"],["Jay Huff","P"],["Larry Nance Jr.","AP"],["Jarace Walker","AP"],["Ben Sheppard","E"],["Braden Smith","B"],["Quenton Jackson","E"],["Kobe Brown","A"],["Jalen Slawson","A"]],
-    "Miami Heat": [["Davion Mitchell","B"],["Tim Hardaway Jr.","E"],["Andrew Wiggins","A"],["Giannis Antetokounmpo","AP"],["Bam Adebayo","P"],["Bobby Portis","AP"],["Nikola Jović","AP"],["Dru Smith","B"],["Pelle Larsson","E"],["Simone Fontecchio","A"],["Ryan Conwell","E"],["Klay Thompson","E"],["Nick Richards","P"],["Myron Gardner","A"]],
-    "Milwaukee Bucks": [["Ryan Rollins","B"],["Tyler Herro","E"],["Jaime Jaquez Jr.","A"],["Kyle Kuzma","AP"],["Myles Turner","P"],["Kel'el Ware","P"],["Kasparas Jakučionis","B"],["Brayden Burries","E"],["A.J. Green","E"],["Ousmane Dieng","A"],["Nate Ament","A"],["Jericho Sims","P"],["Caris LeVert","E"],["Gary Trent Jr.","E"],["Bogoljub Markovic","AP"]],
-    "New York Knicks": [["Jalen Brunson","B"],["Josh Hart","E"],["Mikal Bridges","A"],["OG Anunoby","AP"],["Karl-Anthony Towns","P"],["Miles McBride","B"],["Landry Shamet","E"],["Andre Drummond","P"],["Jordan Clarkson","E"],["Jose Alvarado","B"],["James Wiseman","P"],["Tyler Kolek","B"],["Jaden Akins","E"],["Pacôme Dadiet","A"],["Mohamed Diawara","A"]],
-    "Orlando Magic": [["Jalen Suggs","B"],["Desmond Bane","E"],["Franz Wagner","A"],["Paolo Banchero","AP"],["Wendell Carter Jr.","P"],["Nikola Vučević","P"],["Tristan da Silva","A"],["Jase Richardson","E"],["Anthony Black","B"],["Jevon Carter","B"],["Goga Bitadze","P"],["Jamal Cain","A"],["Jonathan Isaac","AP"],["Noah Penda","A"]],
-    "Philadelphia 76ers": [["Tyrese Maxey","B"],["VJ Edgecombe","E"],["Jaylen Brown","A"],["LeBron James","AP"],["Joel Embiid","P"],["Anfernee Simons","E"],["Kentavious Caldwell-Pope","E"],["Adem Bona","P"],["Dean Wade","AP"],["Jabari Walker","A"],["Labaron Philon Jr.","B"],["Justin Edwards","A"],["Ariel Hukporti","P"],["Dominick Barlow","A"],["Caleb Love","E"]],
-    "Toronto Raptors": [["Immanuel Quickley","B"],["RJ Barrett","E"],["Kawhi Leonard","A"],["Scottie Barnes","AP"],["Jakob Poeltl","P"],["Ja'Kobe Walter","E"],["Collin Murray-Boyles","AP"],["Trayce Jackson-Davis","P"],["Jamal Shead","B"],["Jaden Bradley","B"],["Alijah Martin","E"],["Allen Graves","AP"],["Jamison Battle","A"],["Kyle Anderson","A"]],
-    "Washington Wizards": [["Trae Young","B"],["Kyshawn George","E"],["AJ Dybantsa","A"],["Anthony Davis","AP"],["Alex Sarr","P"],["Tre Johnson","E"],["Bilal Coulibaly","A"],["Justin Champagnie","A"],["Bub Carrington","B"],["Deandre Ayton","P"],["Khris Middleton","A"],["Will Riley","A"],["Anthony Gill","AP"],["Tre Mann","B"],["Tristan Vukcevic","P"]],
-    "Dallas Mavericks": [["Kyrie Irving","B"],["Max Christie","E"],["Cooper Flagg","A"],["Morez Johnson Jr.","AP"],["Santi Aldama","P"],["P.J. Washington","AP"],["Naji Marshall","A"],["Daniel Gafford","P"],["Dereck Lively II","P"],["Caleb Martin","A"],["Zaccharie Risacher","A"],["Marcus Sasser","B"],["Sergio de Larrea","B"],["Tarik Biberović","A"],["Moussa Cissé","P"]],
-    "Denver Nuggets": [["Jamal Murray","B"],["Christian Braun","E"],["Cameron Johnson","A"],["Aaron Gordon","AP"],["Nikola Jokić","P"],["DeMar DeRozan","A"],["Tyus Jones","B"],["Marvin Bagley III","P"],["DaRon Holmes II","AP"],["Trevon Brazile","AP"],["Zeke Nnaji","P"],["Alpha Diallo","A"],["Spencer Jones","A"],["Julian Strawther","E"]],
-    "Houston Rockets": [["Fred VanVleet","B"],["Amen Thompson","E"],["Kevin Durant","A"],["Jabari Smith Jr.","AP"],["Alperen Şengün","P"],["Reed Sheppard","E"],["Marcus Smart","B"],["Bogdan Bogdanović","E"],["Tari Eason","AP"],["Jae'Sean Tate","A"],["Isaiah Crawford","AP"],["Bruce Thornton","B"],["Steven Adams","P"],["Clint Capela","P"]],
-    "T1": [["Zeus","TOP"],["Oner","JNG"],["Faker","MID"],["Gumayusi","ADC"],["Keria","SUP"],["Doran","TOP"],["Smash","ADC"],["Rekkles","SUP"],["Poby","MID"]],
-    "Gen.G": [["Kiin","TOP"],["Canyon","JNG"],["Chovy","MID"],["Peyz","ADC"],["Lehends","SUP"],["Mata","SUP"],["YoungJae","JNG"],["Burdol","TOP"]],
-    "Hanwha Life Esports": [["Doran","TOP"],["Peanut","JNG"],["Zeka","MID"],["Viper","ADC"],["Delight","SUP"],["Rooster","MID"],["Loki","ADC"]],
-    "Dplus KIA": [["Kinggen","TOP"],["Lucid","JNG"],["ShowMaker","MID"],["Aiming","ADC"],["Kellin","SUP"],["Thanatos","TOP"],["Lolbae","ADC"]],
-    "KT Rolster": [["PerfecT","TOP"],["Cuzz","JNG"],["Bdd","MID"],["Deft","ADC"],["BeryL","SUP"],["Way","SUP"],["Youngjae","JNG"]],
-    "JD Gaming": [["Sheer","TOP"],["Kanavi","JNG"],["Yagao","MID"],["Ruler","ADC"],["Missing","SUP"],["Flandre","TOP"],["Maggie","ADC"]],
-    "Bilibili Gaming": [["Bin","TOP"],["Xun","JNG"],["Knight","MID"],["Elk","ADC"],["ON","SUP"],["Wei","JNG"],["LvMao","SUP"]],
-    "Top Esports": [["369","TOP"],["Tian","JNG"],["Creme","MID"],["JackeyLove","ADC"],["Meiko","SUP"],["Xiye","MID"],["Niket","SUP"]],
-    "Weibo Gaming": [["Breathe","TOP"],["Tarzan","JNG"],["Xiaohu","MID"],["Light","ADC"],["Crisp","SUP"],["Youdang","JNG"],["Hery","TOP"]],
-    "LNG Esports": [["Zika","TOP"],["Weiwei","JNG"],["Scout","MID"],["Gala","ADC"],["Hang","SUP"],["Shanks","MID"],["OvO","SUP"]],
-    "G2 Esports": [["BrokenBlade","TOP"],["Yike","JNG"],["Caps","MID"],["Hans Sama","ADC"],["Mikyx","SUP"],["SkewMond","JNG"],["Labrov","SUP"]],
-    "Fnatic": [["Oscarinin","TOP"],["Razork","JNG"],["Humanoid","MID"],["Noah","ADC"],["Jun","SUP"],["Gaax","JNG"],["Mikyx","SUP"]],
-    "Team Vitality": [["Photon","TOP"],["Daglas","JNG"],["Perkz","MID"],["Carzzy","ADC"],["Hylissang","SUP"],["Lurox","MID"],["Jactroll","SUP"]],
-    "MAD Lions KOI": [["Myrwn","TOP"],["Elyoya","JNG"],["Fresskowy","MID"],["Supa","ADC"],["Alvaro","SUP"],["Zicari","MID"],["Jojopyun","MID"]],
-    "Cloud9": [["Thanatos","TOP"],["Blaber","JNG"],["Jojopyun","MID"],["Berserker","ADC"],["Vulcan","SUP"],["Loki","ADC"],["Fudge","TOP"]],
-    "Team Liquid": [["Impact","TOP"],["UmTi","JNG"],["APA","MID"],["Yeon","ADC"],["CoreJJ","SUP"],["Insanity","MID"],["Mint","ADC"]],
-    "FlyQuest": [["Bwipo","TOP"],["Inspired","JNG"],["Quad","MID"],["Massu","ADC"],["Busio","SUP"],["Josedeodo","JNG"],["Palafox","MID"]],
-    "100 Thieves": [["Sniper","TOP"],["River","JNG"],["Quid","MID"],["FBI","ADC"],["Eyla","SUP"],["Tenacity","TOP"],["Meech","MID"]],
-    "PSG Talon": [["Azhi","TOP"],["JunJia","JNG"],["Maple","MID"],["Betty","ADC"],["Woody","SUP"],["Karsa","JNG"],["HongSuo","SUP"]],
-    "CTBC Flying Oyster": [["Rest","TOP"],["Karsa","JNG"],["Gori","MID"],["Doggo","ADC"],["SwordArt","SUP"],["Driver","JNG"],["Gemini","MID"]],
-    "New York Yankees": [["Gerrit Cole","LAN"],["Aaron Judge","OF"],["Juan Soto","OF"],["Giancarlo Stanton","DH"],["Anthony Volpe","IF"],["Jazz Chisholm Jr.","IF"],["Austin Wells","REC"],["Anthony Rizzo","IF"],["Alex Verdugo","OF"],["Carlos Rodón","LAN"],["Luke Weaver","LAN"],["Clay Holmes","LAN"]],
-    "Los Angeles Dodgers": [["Shohei Ohtani","DH"],["Mookie Betts","IF"],["Freddie Freeman","IF"],["Will Smith","REC"],["Teoscar Hernández","OF"],["Max Muncy","IF"],["Tommy Edman","IF"],["Yoshinobu Yamamoto","LAN"],["Tyler Glasnow","LAN"],["Jack Flaherty","LAN"],["Michael Kopech","LAN"],["Blake Treinen","LAN"]],
-    "Baltimore Orioles": [["Adley Rutschman","REC"],["Gunnar Henderson","IF"],["Jordan Westburg","IF"],["Ryan Mountcastle","IF"],["Anthony Santander","OF"],["Cedric Mullins","OF"],["Colton Cowser","OF"],["Corbin Burnes","LAN"],["Grayson Rodriguez","LAN"],["Craig Kimbrel","LAN"],["Félix Bautista","LAN"],["Dean Kremer","LAN"]],
-    "Boston Red Sox": [["Rafael Devers","IF"],["Jarren Duran","OF"],["Triston Casas","IF"],["Trevor Story","IF"],["Wilyer Abreu","OF"],["Connor Wong","REC"],["Masataka Yoshida","DH"],["Brayan Bello","LAN"],["Tanner Houck","LAN"],["Kutter Crawford","LAN"],["Kenley Jansen","LAN"],["Nick Pivetta","LAN"]],
-    "Tampa Bay Rays": [["Yandy Díaz","IF"],["Randy Arozarena","OF"],["Brandon Lowe","IF"],["Isaac Paredes","IF"],["Jose Siri","OF"],["René Pinto","REC"],["Josh Lowe","OF"],["Zach Eflin","LAN"],["Taj Bradley","LAN"],["Pete Fairbanks","LAN"],["Aaron Civale","LAN"],["Colin Poche","LAN"]],
-    "Toronto Blue Jays": [["Vladimir Guerrero Jr.","IF"],["Bo Bichette","IF"],["George Springer","OF"],["Daulton Varsho","OF"],["Alejandro Kirk","REC"],["Justin Turner","DH"],["Ernie Clement","IF"],["Kevin Gausman","LAN"],["José Berríos","LAN"],["Chris Bassitt","LAN"],["Jordan Romano","LAN"],["Yimi García","LAN"]],
-    "Chicago White Sox": [["Luis Robert Jr.","OF"],["Andrew Vaughn","IF"],["Eloy Jiménez","DH"],["Andrew Benintendi","OF"],["Paul DeJong","IF"],["Korey Lee","REC"],["Gavin Sheets","OF"],["Garrett Crochet","LAN"],["Erick Fedde","LAN"],["Michael Kopech","LAN"],["Chris Flexen","LAN"],["John Brebbia","LAN"]],
-    "Cleveland Guardians": [["José Ramírez","IF"],["Steven Kwan","OF"],["Josh Naylor","IF"],["Andrés Giménez","IF"],["Lane Thomas","OF"],["Bo Naylor","REC"],["David Fry","DH"],["Tanner Bibee","LAN"],["Ben Lively","LAN"],["Emmanuel Clase","LAN"],["Hunter Gaddis","LAN"],["Cade Smith","LAN"]],
-    "Detroit Tigers": [["Riley Greene","OF"],["Kerry Carpenter","OF"],["Spencer Torkelson","IF"],["Colt Keith","IF"],["Jake Rogers","REC"],["Matt Vierling","OF"],["Zach McKinstry","IF"],["Tarik Skubal","LAN"],["Jack Flaherty","LAN"],["Jason Foley","LAN"],["Beau Brieske","LAN"],["Reese Olson","LAN"]],
-    "Kansas City Royals": [["Bobby Witt Jr.","IF"],["Salvador Perez","REC"],["Vinnie Pasquantino","IF"],["MJ Melendez","OF"],["Hunter Renfroe","OF"],["Maikel Garcia","IF"],["Kyle Isbel","OF"],["Cole Ragans","LAN"],["Seth Lugo","LAN"],["Michael Wacha","LAN"],["James McArthur","LAN"],["Brady Singer","LAN"]],
-    "Minnesota Twins": [["Carlos Correa","IF"],["Royce Lewis","IF"],["Byron Buxton","OF"],["Max Kepler","OF"],["Ryan Jeffers","REC"],["Jose Miranda","IF"],["Trevor Larnach","OF"],["Pablo López","LAN"],["Joe Ryan","LAN"],["Jhoan Durán","LAN"],["Bailey Ober","LAN"],["Griffin Jax","LAN"]],
-    "Houston Astros": [["Jose Altuve","IF"],["Yordan Alvarez","DH"],["Kyle Tucker","OF"],["Alex Bregman","IF"],["Framber Valdez","LAN"],["Yainer Diaz","REC"],["Jeremy Peña","IF"],["Josh Hader","LAN"],["Hunter Brown","LAN"],["Ronel Blanco","LAN"],["Ryan Pressly","LAN"],["Chas McCormick","OF"]],
-    "Los Angeles Angels": [["Mike Trout","OF"],["Shohei Ohtani","DH"],["Taylor Ward","OF"],["Anthony Rendon","IF"],["Zach Neto","IF"],["Logan O'Hoppe","REC"],["Nolan Schanuel","IF"],["Tyler Anderson","LAN"],["Reid Detmers","LAN"],["Carlos Estévez","LAN"],["Griffin Canning","LAN"],["José Soriano","LAN"]],
-    "Athletics": [["Brent Rooker","OF"],["JJ Bleday","OF"],["Shea Langeliers","REC"],["Zack Gelof","IF"],["Lawrence Butler","OF"],["Seth Brown","OF"],["Abraham Toro","IF"],["JP Sears","LAN"],["Paul Blackburn","LAN"],["Mason Miller","LAN"],["Mitch Spence","LAN"],["Hogan Harris","LAN"]],
-    "Seattle Mariners": [["Julio Rodríguez","OF"],["Cal Raleigh","REC"],["J.P. Crawford","IF"],["Randy Arozarena","OF"],["Luis Castillo","LAN"],["Logan Gilbert","LAN"],["George Kirby","LAN"],["Bryce Miller","LAN"],["Andrés Muñoz","LAN"],["Mitch Haniger","OF"],["Victor Robles","OF"],["Dylan Moore","IF"]],
-    "Texas Rangers": [["Corey Seager","IF"],["Marcus Semien","IF"],["Adolis García","OF"],["Nathaniel Lowe","IF"],["Jonah Heim","REC"],["Josh Jung","IF"],["Wyatt Langford","OF"],["Jacob deGrom","LAN"],["Nathan Eovaldi","LAN"],["Max Scherzer","LAN"],["Kirby Yates","LAN"],["Jon Gray","LAN"]],
-    "Atlanta Braves": [["Ronald Acuña Jr.","OF"],["Matt Olson","IF"],["Austin Riley","IF"],["Ozzie Albies","IF"],["Sean Murphy","REC"],["Marcell Ozuna","DH"],["Michael Harris II","OF"],["Spencer Strider","LAN"],["Max Fried","LAN"],["Chris Sale","LAN"],["Raisel Iglesias","LAN"],["Charlie Morton","LAN"]],
-    "Miami Marlins": [["Jazz Chisholm Jr.","IF"],["Luis Arraez","IF"],["Bryan De La Cruz","OF"],["Jesús Sánchez","OF"],["Jake Burger","IF"],["Nick Fortes","REC"],["Xavier Edwards","IF"],["Sandy Alcantara","LAN"],["Jesús Luzardo","LAN"],["Tanner Scott","LAN"],["Ryan Weathers","LAN"],["Edward Cabrera","LAN"]],
-    "New York Mets": [["Francisco Lindor","IF"],["Pete Alonso","IF"],["Brandon Nimmo","OF"],["Starling Marte","OF"],["Kodai Senga","LAN"],["Francisco Álvarez","REC"],["Jeff McNeil","IF"],["Edwin Díaz","LAN"],["Sean Manaea","LAN"],["Luis Severino","LAN"],["José Quintana","LAN"],["Harrison Bader","OF"]],
-    "Philadelphia Phillies": [["Bryce Harper","IF"],["Trea Turner","IF"],["Kyle Schwarber","DH"],["J.T. Realmuto","REC"],["Nick Castellanos","OF"],["Alec Bohm","IF"],["Bryson Stott","IF"],["Zack Wheeler","LAN"],["Aaron Nola","LAN"],["Cristopher Sánchez","LAN"],["José Alvarado","LAN"],["Jeff Hoffman","LAN"]]
+  "Liga BetPlay": {
+    "Atlético Nacional": {
+      "titulares": [
+        {"nombre": "Harlen Castillo", "posicion": "POR"},
+        {"nombre": "Andrés Román", "posicion": "LD"},
+        {"nombre": "Felipe Aguirre", "posicion": "DFC"},
+        {"nombre": "William Tesillo", "posicion": "DFC"},
+        {"nombre": "Samuel Velásquez", "posicion": "LI"},
+        {"nombre": "Jorman Campuzano", "posicion": "MCD"},
+        {"nombre": "Juan Manuel Zapata", "posicion": "MC"},
+        {"nombre": "Edwin Cardona", "posicion": "MCO"},
+        {"nombre": "Marino Hinestroza", "posicion": "ED"},
+        {"nombre": "Kevin Viveros", "posicion": "EI"},
+        {"nombre": "Alfredo Morelos", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Luis Marquinez", "posicion": "POR"},
+        {"nombre": "Joan Castro", "posicion": "LD"},
+        {"nombre": "César Haydar", "posicion": "DFC"},
+        {"nombre": "Kilian Toscano", "posicion": "MC"},
+        {"nombre": "Pablo Ceppelini", "posicion": "MCO"},
+        {"nombre": "Andrés Sarmiento", "posicion": "EI"},
+        {"nombre": "Dairon Asprilla", "posicion": "DC"}
+      ]
+    },
+    "Millonarios FC": {
+      "titulares": [
+        {"nombre": "Álvaro Montero", "posicion": "POR"},
+        {"nombre": "Delvin Alfonzo", "posicion": "LD"},
+        {"nombre": "Andrés Llinás", "posicion": "DFC"},
+        {"nombre": "Sergio Mosquera", "posicion": "DFC"},
+        {"nombre": "Danovis Banguero", "posicion": "LI"},
+        {"nombre": "Stiven Vega", "posicion": "MCD"},
+        {"nombre": "Daniel Cataño", "posicion": "MCO"},
+        {"nombre": "David Mackalister Silva", "posicion": "MC"},
+        {"nombre": "Daniel Ruiz", "posicion": "EI"},
+        {"nombre": "Jhon Córdoba", "posicion": "ED"},
+        {"nombre": "Leonardo Castro", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Iván Arboleda", "posicion": "POR"},
+        {"nombre": "Carlos Sarabia", "posicion": "LD"},
+        {"nombre": "Jorge Arias", "posicion": "DFC"},
+        {"nombre": "Juan Carlos Pereira", "posicion": "MC"},
+        {"nombre": "Félix Charrupí", "posicion": "MC"},
+        {"nombre": "Jader Valencia", "posicion": "EI"},
+        {"nombre": "Santiago Giordana", "posicion": "DC"}
+      ]
+    },
+    "América de Cali": {
+      "titulares": [
+        {"nombre": "Joel Graterol", "posicion": "POR"},
+        {"nombre": "Yerson Candelo", "posicion": "LD"},
+        {"nombre": "Daniel Bocanegra", "posicion": "DFC"},
+        {"nombre": "Jeison Palacios", "posicion": "DFC"},
+        {"nombre": "Marcos Mina", "posicion": "LI"},
+        {"nombre": "Franco Leys", "posicion": "MCD"},
+        {"nombre": "Alexis Zapata", "posicion": "MC"},
+        {"nombre": "Jader Quiñónes", "posicion": "MC"},
+        {"nombre": "Carlos Darwin Quintero", "posicion": "MCO"},
+        {"nombre": "Cristian Barrios", "posicion": "ED"},
+        {"nombre": "Rodrigo Holgado", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Jorge Soto", "posicion": "POR"},
+        {"nombre": "Nilson Castrillón", "posicion": "LD"},
+        {"nombre": "Eder Álvarez Balanta", "posicion": "DFC"},
+        {"nombre": "Luis Paz", "posicion": "MCD"},
+        {"nombre": "Andrés Sarmiento", "posicion": "EI"},
+        {"nombre": "Adrián Ramos", "posicion": "DC"}
+      ]
+    },
+    "Junior de Barranquilla": {
+      "titulares": [
+        {"nombre": "Santiago Mele", "posicion": "POR"},
+        {"nombre": "Yeferson Moreno", "posicion": "LD"},
+        {"nombre": "Emanuel Olivera", "posicion": "DFC"},
+        {"nombre": "Jermein Peña", "posicion": "DFC"},
+        {"nombre": "Gabriel Fuentes", "posicion": "LI"},
+        {"nombre": "Didier Moreno", "posicion": "MCD"},
+        {"nombre": "Víctor Cantillo", "posicion": "MC"},
+        {"nombre": "Yimmi Chará", "posicion": "MCO"},
+        {"nombre": "José Enamorado", "posicion": "ED"},
+        {"nombre": "Deiber Caicedo", "posicion": "EI"},
+        {"nombre": "Carlos Bacca", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Jefersson Martínez", "posicion": "POR"},
+        {"nombre": "Cebolla Navia", "posicion": "DFC"},
+        {"nombre": "Jhon Vélez", "posicion": "MC"},
+        {"nombre": "Homer Martínez", "posicion": "MCD"},
+        {"nombre": "Luis González", "posicion": "MCO"},
+        {"nombre": "Marco Pérez", "posicion": "DC"}
+      ]
+    },
+    "Independiente Santa Fe": {
+      "titulares": [
+        {"nombre": "Andrés Mosquera Marmolejo", "posicion": "POR"},
+        {"nombre": "Elvis Perlaza", "posicion": "LD"},
+        {"nombre": "Marcelo Ortiz", "posicion": "DFC"},
+        {"nombre": "Facundo Agüero", "posicion": "DFC"},
+        {"nombre": "David Ramírez Pisciotti", "posicion": "LI"},
+        {"nombre": "Daniel Torres", "posicion": "MCD"},
+        {"nombre": "Yilmar Velásquez", "posicion": "MC"},
+        {"nombre": "Jhojan Torres", "posicion": "MC"},
+        {"nombre": "Francisco Chaverra", "posicion": "ED"},
+        {"nombre": "Agustín Rodríguez", "posicion": "DC"},
+        {"nombre": "Hugo Rodallega", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Juan Espitia", "posicion": "POR"},
+        {"nombre": "Julián Millán", "posicion": "DFC"},
+        {"nombre": "Jhon Meléndez", "posicion": "LD"},
+        {"nombre": "Juan Pablo Zuluaga", "posicion": "MC"},
+        {"nombre": "Jairo Ditta", "posicion": "EI"},
+        {"nombre": "Santiago Mosquera", "posicion": "DC"}
+      ]
+    },
+    "Deportivo Cali": {
+      "titulares": [
+        {"nombre": "Alejandro Rodríguez", "posicion": "POR"},
+        {"nombre": "Jonathan Marulanda", "posicion": "LD"},
+        {"nombre": "José Caldera", "posicion": "DFC"},
+        {"nombre": "Francisco Meza", "posicion": "DFC"},
+        {"nombre": "Yulián Gómez", "posicion": "LI"},
+        {"nombre": "Alex Mejía", "posicion": "MCD"},
+        {"nombre": "Gian Franco Cabezas", "posicion": "MC"},
+        {"nombre": "Javier Reina", "posicion": "MCO"},
+        {"nombre": "Andrés Andrade", "posicion": "ED"},
+        {"nombre": "Fabián Castillo", "posicion": "EI"},
+        {"nombre": "Fredy Montero", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Gastón Guruceaga", "posicion": "POR"},
+        {"nombre": "Enrique Camargo", "posicion": "MC"},
+        {"nombre": "Juan Manuel Valencia", "posicion": "MC"},
+        {"nombre": "Kelvin Osorio", "posicion": "MCO"},
+        {"nombre": "Jarlan Barrera", "posicion": "MCO"},
+        {"nombre": "Juan José Córdoba", "posicion": "DC"}
+      ]
+    },
+    "Independiente Medellín": {
+      "titulares": [
+        {"nombre": "Eder Chaux", "posicion": "POR"},
+        {"nombre": "Leyser Chaverra", "posicion": "LD"},
+        {"nombre": "José Ortiz", "posicion": "DFC"},
+        {"nombre": "Fainer Torijano", "posicion": "DFC"},
+        {"nombre": "Jimer Fory", "posicion": "LI"},
+        {"nombre": "Jaime Alvarado", "posicion": "MCD"},
+        {"nombre": "Pablo Lima", "posicion": "MC"},
+        {"nombre": "Baldomero Perlaza", "posicion": "MC"},
+        {"nombre": "Leandro Varela", "posicion": "ED"},
+        {"nombre": "Jhon Montaño", "posicion": "EI"},
+        {"nombre": "Luciano Pons", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Yimy Gómez", "posicion": "POR"},
+        {"nombre": "Julián Gómez", "posicion": "LI"},
+        {"nombre": "Malcom Palacios", "posicion": "DFC"},
+        {"nombre": "Diego Moreno", "posicion": "MC"},
+        {"nombre": "Marcus Vinicius", "posicion": "MCO"},
+        {"nombre": "Brayan León", "posicion": "DC"}
+      ]
+    },
+    "Once Caldas": {
+      "titulares": [
+        {"nombre": "James Aguirre", "posicion": "POR"},
+        {"nombre": "Juan David Cuesta", "posicion": "LD"},
+        {"nombre": "Stiven Palacios", "posicion": "DFC"},
+        {"nombre": "Yónatan Murillo", "posicion": "DFC"},
+        {"nombre": "Juan Cuesta", "posicion": "LI"},
+        {"nombre": "Mateo García", "posicion": "MCD"},
+        {"nombre": "Iván Rojas", "posicion": "MC"},
+        {"nombre": "Alejandro García", "posicion": "MCO"},
+        {"nombre": "Billy Arce", "posicion": "EI"},
+        {"nombre": "Johan Rojas", "posicion": "ED"},
+        {"nombre": "Dayro Moreno", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Gerardo Ortiz", "posicion": "POR"},
+        {"nombre": "Sergio Palacios", "posicion": "DFC"},
+        {"nombre": "Luis Palacios", "posicion": "MC"},
+        {"nombre": "Michael Barrios", "posicion": "ED"},
+        {"nombre": "Esteban Beltrán", "posicion": "DC"}
+      ]
+    },
+    "Deportivo Tolima": {
+      "titulares": [
+        {"nombre": "Neto Volpi", "posicion": "POR"},
+        {"nombre": "Yhorm Hurtado", "posicion": "LD"},
+        {"nombre": "Marlon Torres", "posicion": "DFC"},
+        {"nombre": "César Haydar", "posicion": "DFC"},
+        {"nombre": "Junior Hernández", "posicion": "LI"},
+        {"nombre": "Cristian Trujillo", "posicion": "MCD"},
+        {"nombre": "Juan Pablo Nieto", "posicion": "MC"},
+        {"nombre": "Yeison Guzmán", "posicion": "MCO"},
+        {"nombre": "Jeison Lucumí", "posicion": "ED"},
+        {"nombre": "Kevin Pérez", "posicion": "EI"},
+        {"nombre": "Brayan Gil", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Juan Chaverra", "posicion": "POR"},
+        {"nombre": "Anderson Angulo", "posicion": "DFC"},
+        {"nombre": "Facundo Boné", "posicion": "MC"},
+        {"nombre": "Carlos Esparragoza", "posicion": "MC"},
+        {"nombre": "Lucas González", "posicion": "DC"}
+      ]
+    },
+    "Atlético Bucaramanga": {
+      "titulares": [
+        {"nombre": "Aldair Quintana", "posicion": "POR"},
+        {"nombre": "Aldair Gutiérrez", "posicion": "LD"},
+        {"nombre": "Jefferson Mena", "posicion": "DFC"},
+        {"nombre": "Carlos Henao", "posicion": "DFC"},
+        {"nombre": "Cristian Zapata", "posicion": "LI"},
+        {"nombre": "Fabry Castro", "posicion": "MCD"},
+        {"nombre": "Aldair Zárate", "posicion": "MC"},
+        {"nombre": "Jean Colorado", "posicion": "MC"},
+        {"nombre": "Johermison Chávez", "posicion": "ED"},
+        {"nombre": "Fabián Sambueza", "posicion": "MCO"},
+        {"nombre": "Daniel Ponce", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Luis Vásquez", "posicion": "POR"},
+        {"nombre": "Santiago Jiménez", "posicion": "DFC"},
+        {"nombre": "Frank Castañeda", "posicion": "MC"},
+        {"nombre": "Johan Bocanegra", "posicion": "MCO"},
+        {"nombre": "Misael Martínez", "posicion": "DC"}
+      ]
+    },
+    "Envigado FC": {
+      "titulares": [
+        {"nombre": "Joan Parra", "posicion": "POR"},
+        {"nombre": "Gendry Cuervo", "posicion": "LD"},
+        {"nombre": "Jhon Banguera", "posicion": "DFC"},
+        {"nombre": "Santiago Noreña", "posicion": "DFC"},
+        {"nombre": "Carlos Arboleda", "posicion": "LI"},
+        {"nombre": "Juan Ceballos", "posicion": "MCD"},
+        {"nombre": "Felipe Jaramillo", "posicion": "MC"},
+        {"nombre": "Bayron Garcés", "posicion": "MCO"},
+        {"nombre": "Jesús Ceballos", "posicion": "ED"},
+        {"nombre": "Rubio España", "posicion": "EI"},
+        {"nombre": "Yeison Moreno", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Andrés Tovar", "posicion": "POR"},
+        {"nombre": "Edison López", "posicion": "DFC"},
+        {"nombre": "Daniel Arcila", "posicion": "MC"},
+        {"nombre": "Luis Díaz", "posicion": "DC"}
+      ]
+    },
+    "Deportivo Pereira": {
+      "titulares": [
+        {"nombre": "Salvador Ichazo", "posicion": "POR"},
+        {"nombre": "Eber Moreno", "posicion": "LD"},
+        {"nombre": "Jean Pestaña", "posicion": "DFC"},
+        {"nombre": "José Moya", "posicion": "DFC"},
+        {"nombre": "Julián Bazán", "posicion": "LI"},
+        {"nombre": "Juan David Ríos", "posicion": "MCD"},
+        {"nombre": "Ewil Murillo", "posicion": "MC"},
+        {"nombre": "Alejandro Piedrahíta", "posicion": "MCO"},
+        {"nombre": "Darwin Quintero", "posicion": "ED"},
+        {"nombre": "Yesus Cabrera", "posicion": "EI"},
+        {"nombre": "Faber Gil", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Franklin Mosquera", "posicion": "POR"},
+        {"nombre": "Santiago Aguilar", "posicion": "DFC"},
+        {"nombre": "Carlos Robles", "posicion": "MC"},
+        {"nombre": "Jhonny Jordan", "posicion": "DC"}
+      ]
+    },
+    "Inter de Bogotá": {
+      "titulares": [
+        {"nombre": "Portero Titular", "posicion": "POR"},
+        {"nombre": "Lateral D", "posicion": "LD"},
+        {"nombre": "Central 1", "posicion": "DFC"},
+        {"nombre": "Central 2", "posicion": "DFC"},
+        {"nombre": "Lateral I", "posicion": "LI"},
+        {"nombre": "Volante 1", "posicion": "MCD"},
+        {"nombre": "Volante 2", "posicion": "MC"},
+        {"nombre": "Volante 3", "posicion": "MCO"},
+        {"nombre": "Extremo D", "posicion": "ED"},
+        {"nombre": "Extremo I", "posicion": "EI"},
+        {"nombre": "Delantero", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Suplente P", "posicion": "POR"},
+        {"nombre": "Suplente D", "posicion": "DFC"},
+        {"nombre": "Suplente V", "posicion": "MC"},
+        {"nombre": "Suplente A", "posicion": "DC"}
+      ]
+    },
+    "Águilas Doradas": {
+      "titulares": [
+        {"nombre": "José Contreras", "posicion": "POR"},
+        {"nombre": "Mateo Puerta", "posicion": "LD"},
+        {"nombre": "Jean Pestaña", "posicion": "DFC"},
+        {"nombre": "Héctor Arango", "posicion": "DFC"},
+        {"nombre": "Javier Mena", "posicion": "LI"},
+        {"nombre": "Guillermo Celis", "posicion": "MCD"},
+        {"nombre": "Jesús Rivas", "posicion": "MC"},
+        {"nombre": "Fredy Salazar", "posicion": "MCO"},
+        {"nombre": "John Fredy Salazar", "posicion": "ED"},
+        {"nombre": "Wilson Morelo", "posicion": "DC"},
+        {"nombre": "Agustín Vuletich", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Héctor Pineda", "posicion": "POR"},
+        {"nombre": "Stiven Ibaguen", "posicion": "DFC"},
+        {"nombre": "Adrián Estacio", "posicion": "MC"},
+        {"nombre": "Jorge Ramos", "posicion": "DC"}
+      ]
+    },
+    "Boyacá Chicó": {
+      "titulares": [
+        {"nombre": "Rogerio Caicedo", "posicion": "POR"},
+        {"nombre": "Víctor Perea", "posicion": "LD"},
+        {"nombre": "Henry Plazas", "posicion": "DFC"},
+        {"nombre": "Delvin Alfonzo", "posicion": "DFC"},
+        {"nombre": "Eduard Banguero", "posicion": "LI"},
+        {"nombre": "Agustín Aleo", "posicion": "MCD"},
+        {"nombre": "Sebastián Támara", "posicion": "MC"},
+        {"nombre": "Geimer Balanta", "posicion": "MCO"},
+        {"nombre": "Wilmar Cruz", "posicion": "ED"},
+        {"nombre": "Michael Gómez", "posicion": "EI"},
+        {"nombre": "Alejandro Arboleda", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Sebastián Arango", "posicion": "POR"},
+        {"nombre": "Frank Lozano", "posicion": "DFC"},
+        {"nombre": "Yeison Tolosa", "posicion": "MC"},
+        {"nombre": "Ángel Caicedo", "posicion": "DC"}
+      ]
+    },
+    "Alianza FC": {
+      "titulares": [
+        {"nombre": "Grazziani Pier", "posicion": "POR"},
+        {"nombre": "Efraín Navarro", "posicion": "LD"},
+        {"nombre": "Pedro Franco", "posicion": "DFC"},
+        {"nombre": "Luciano Ospina", "posicion": "DFC"},
+        {"nombre": "Leonardo Saldaña", "posicion": "LI"},
+        {"nombre": "Rubén Manjarrés", "posicion": "MCD"},
+        {"nombre": "Ever Meza", "posicion": "MC"},
+        {"nombre": "Jesús Figueroa", "posicion": "MCO"},
+        {"nombre": "Mayer Gil", "posicion": "ED"},
+        {"nombre": "Edwin Torres", "posicion": "EI"},
+        {"nombre": "Emerson Batalla", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Pier Grazziani", "posicion": "POR"},
+        {"nombre": "Jesús Antonio", "posicion": "DFC"},
+        {"nombre": "Diego Barreto", "posicion": "MC"},
+        {"nombre": "Ronaldo Aponzá", "posicion": "DC"}
+      ]
+    },
+    "Fortaleza CEIF": {
+      "titulares": [
+        {"nombre": "Luis Castillo", "posicion": "POR"},
+        {"nombre": "Alejandro Moralez", "posicion": "LD"},
+        {"nombre": "Daniel Rivera", "posicion": "DFC"},
+        {"nombre": "Alejandro Gutiérrez", "posicion": "DFC"},
+        {"nombre": "César Hinestroza", "posicion": "LI"},
+        {"nombre": "Leonardo Pico", "posicion": "MCD"},
+        {"nombre": "Sebastián Navarro", "posicion": "MC"},
+        {"nombre": "Jesús Arrieta", "posicion": "MCO"},
+        {"nombre": "Nicolás Rodríguez", "posicion": "ED"},
+        {"nombre": "Adrián Parra", "posicion": "EI"},
+        {"nombre": "Santiago Córdoba", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Juan Castillo", "posicion": "POR"},
+        {"nombre": "Jerónimo Barrera", "posicion": "DFC"},
+        {"nombre": "Juan Pineda", "posicion": "MC"},
+        {"nombre": "Jhonathan Urrutia", "posicion": "DC"}
+      ]
+    },
+    "Jaguares de Córdoba": {
+      "titulares": [
+        {"nombre": "Geovanni Banguera", "posicion": "POR"},
+        {"nombre": "Carlos Pájaro", "posicion": "LD"},
+        {"nombre": "Kleimar Mosquera", "posicion": "DFC"},
+        {"nombre": "Manuel Arias", "posicion": "DFC"},
+        {"nombre": "Mauricio Castaño", "posicion": "LI"},
+        {"nombre": "Duvalier Mosquera", "posicion": "MCD"},
+        {"nombre": "Yilber Arboleda", "posicion": "MC"},
+        {"nombre": "Juan David Pérez", "posicion": "MCO"},
+        {"nombre": "Jaime Díaz", "posicion": "ED"},
+        {"nombre": "Wilson Morelo", "posicion": "DC"},
+        {"nombre": "Pablo Rojas", "posicion": "EI"}
+      ],
+      "suplentes": [
+        {"nombre": "Jhon Figueroa", "posicion": "POR"},
+        {"nombre": "Gerardo Gordillo", "posicion": "DFC"},
+        {"nombre": "Enrique Serje", "posicion": "MC"},
+        {"nombre": "Freddy Espinel", "posicion": "DC"}
+      ]
+    },
+    "Patriotas Boyacá": {
+      "titulares": [
+        {"nombre": "Juan David Valencia", "posicion": "POR"},
+        {"nombre": "Carlos de las Salas", "posicion": "LD"},
+        {"nombre": "José Luis Moreno", "posicion": "DFC"},
+        {"nombre": "Gianfranco Peña", "posicion": "DFC"},
+        {"nombre": "Jhojan Riascos", "posicion": "LI"},
+        {"nombre": "Adalberto Peñaranda", "posicion": "MCD"},
+        {"nombre": "Juan Diaz", "posicion": "MC"},
+        {"nombre": "Stiven Román", "posicion": "MCO"},
+        {"nombre": "Carlos Mosquera", "posicion": "ED"},
+        {"nombre": "Mateo Rodas", "posicion": "EI"},
+        {"nombre": "Flabián Londoño", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Sergio Román", "posicion": "POR"},
+        {"nombre": "Andrés Alarcón", "posicion": "DFC"},
+        {"nombre": "Ángel Olea", "posicion": "MC"},
+        {"nombre": "Iván Rivas", "posicion": "DC"}
+      ]
+    },
+    "Deportivo Pasto": {
+      "titulares": [
+        {"nombre": "Diego Martínez", "posicion": "POR"},
+        {"nombre": "Israel Alba", "posicion": "LD"},
+        {"nombre": "Jerson Malagón", "posicion": "DFC"},
+        {"nombre": "Christian Mafla", "posicion": "DFC"},
+        {"nombre": "Brayan Carabalí", "posicion": "LI"},
+        {"nombre": "Camilo Ayala", "posicion": "MCD"},
+        {"nombre": "Juan Castilla", "posicion": "MC"},
+        {"nombre": "Kevin Londoño", "posicion": "MCO"},
+        {"nombre": "Gustavo Britos", "posicion": "ED"},
+        {"nombre": "Santiago Tréllez", "posicion": "DC"},
+        {"nombre": "Andrés Amaya", "posicion": "EI"}
+      ],
+      "suplentes": [
+        {"nombre": "Marco Espíndola", "posicion": "POR"},
+        {"nombre": "Hernán Pertuz", "posicion": "DFC"},
+        {"nombre": "Víctor Mejía", "posicion": "MC"},
+        {"nombre": "Darwin López", "posicion": "DC"}
+      ]
+    }
+  },
+  "LaLiga": {
+    "Real Madrid": {
+      "titulares": [
+        {"nombre": "Thibaut Courtois", "posicion": "POR"},
+        {"nombre": "Dani Carvajal", "posicion": "LD"},
+        {"nombre": "Éder Militão", "posicion": "DFC"},
+        {"nombre": "Antonio Rüdiger", "posicion": "DFC"},
+        {"nombre": "Ferland Mendy", "posicion": "LI"},
+        {"nombre": "Aurélien Tchouaméni", "posicion": "MCD"},
+        {"nombre": "Federico Valverde", "posicion": "MC"},
+        {"nombre": "Jude Bellingham", "posicion": "MCO"},
+        {"nombre": "Rodrygo Goes", "posicion": "ED"},
+        {"nombre": "Vinícius Júnior", "posicion": "EI"},
+        {"nombre": "Kylian Mbappé", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Andriy Lunin", "posicion": "POR"},
+        {"nombre": "Lucas Vázquez", "posicion": "LD"},
+        {"nombre": "Fran García", "posicion": "LI"},
+        {"nombre": "Eduardo Camavinga", "posicion": "MC"},
+        {"nombre": "Luka Modrić", "posicion": "MC"},
+        {"nombre": "Brahim Díaz", "posicion": "MCO"},
+        {"nombre": "Endrick", "posicion": "DC"}
+      ]
+    },
+    "FC Barcelona": {
+      "titulares": [
+        {"nombre": "Marc-André ter Stegen", "posicion": "POR"},
+        {"nombre": "Jules Koundé", "posicion": "LD"},
+        {"nombre": "Pau Cubarsí", "posicion": "DFC"},
+        {"nombre": "Iñigo Martínez", "posicion": "DFC"},
+        {"nombre": "Alejandro Balde", "posicion": "LI"},
+        {"nombre": "Marc Casadó", "posicion": "MCD"},
+        {"nombre": "Pedri", "posicion": "MC"},
+        {"nombre": "Dani Olmo", "posicion": "MCO"},
+        {"nombre": "Lamine Yamal", "posicion": "ED"},
+        {"nombre": "Raphinha", "posicion": "EI"},
+        {"nombre": "Robert Lewandowski", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Iñaki Peña", "posicion": "POR"},
+        {"nombre": "Ronald Araújo", "posicion": "DFC"},
+        {"nombre": "Gavi", "posicion": "MC"},
+        {"nombre": "Frenkie de Jong", "posicion": "MC"},
+        {"nombre": "Fermín López", "posicion": "MCO"},
+        {"nombre": "Ferran Torres", "posicion": "DC"},
+        {"nombre": "Ansu Fati", "posicion": "EI"}
+      ]
+    },
+    "Atlético de Madrid": {
+      "titulares": [
+        {"nombre": "Jan Oblak", "posicion": "POR"},
+        {"nombre": "Nahuel Molina", "posicion": "LD"},
+        {"nombre": "Robin Le Normand", "posicion": "DFC"},
+        {"nombre": "José María Giménez", "posicion": "DFC"},
+        {"nombre": "Reinildo Mandava", "posicion": "LI"},
+        {"nombre": "Koke", "posicion": "MCD"},
+        {"nombre": "Rodrigo De Paul", "posicion": "MC"},
+        {"nombre": "Conor Gallagher", "posicion": "MC"},
+        {"nombre": "Antoine Griezmann", "posicion": "MCO"},
+        {"nombre": "Alexander Sørloth", "posicion": "DC"},
+        {"nombre": "Julián Álvarez", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Juan Musso", "posicion": "POR"},
+        {"nombre": "César Azpilicueta", "posicion": "DFC"},
+        {"nombre": "Axel Witsel", "posicion": "DFC"},
+        {"nombre": "Pablo Barrios", "posicion": "MC"},
+        {"nombre": "Samuel Lino", "posicion": "EI"},
+        {"nombre": "Angel Correa", "posicion": "DC"}
+      ]
+    },
+    "Sevilla FC": {
+      "titulares": [
+        {"nombre": "Ørjan Nyland", "posicion": "POR"},
+        {"nombre": "José Ángel Carmona", "posicion": "LD"},
+        {"nombre": "Loïc Badé", "posicion": "DFC"},
+        {"nombre": "Kike Salas", "posicion": "DFC"},
+        {"nombre": "Adrià Pedrosa", "posicion": "LI"},
+        {"nombre": "Nemanja Gudelj", "posicion": "MCD"},
+        {"nombre": "Lucien Agoumé", "posicion": "MC"},
+        {"nombre": "Juanlu Sánchez", "posicion": "MC"},
+        {"nombre": "Dodi Lukebakio", "posicion": "ED"},
+        {"nombre": "Chidera Ejuke", "posicion": "EI"},
+        {"nombre": "Isaac Romero", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Álvaro Fernández", "posicion": "POR"},
+        {"nombre": "Marcão", "posicion": "DFC"},
+        {"nombre": "Gonzalo Montiel", "posicion": "LD"},
+        {"nombre": "Pedro Ortiz", "posicion": "MC"},
+        {"nombre": "Suso", "posicion": "MCO"},
+        {"nombre": "Kelechi Iheanacho", "posicion": "DC"}
+      ]
+    },
+    "Real Sociedad": {
+      "titulares": [
+        {"nombre": "Álex Remiro", "posicion": "POR"},
+        {"nombre": "Jon Aramburu", "posicion": "LD"},
+        {"nombre": "Igor Zubeldia", "posicion": "DFC"},
+        {"nombre": "Nayef Aguerd", "posicion": "DFC"},
+        {"nombre": "Javi López", "posicion": "LI"},
+        {"nombre": "Martín Zubimendi", "posicion": "MCD"},
+        {"nombre": "Brais Méndez", "posicion": "MC"},
+        {"nombre": "Luka Sucic", "posicion": "MC"},
+        {"nombre": "Takefusa Kubo", "posicion": "ED"},
+        {"nombre": "Sheraldo Becker", "posicion": "EI"},
+        {"nombre": "Mikel Oyarzabal", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Unai Marrero", "posicion": "POR"},
+        {"nombre": "Jon Pacheco", "posicion": "DFC"},
+        {"nombre": "Álvaro Odriozola", "posicion": "LD"},
+        {"nombre": "Beñat Turrientes", "posicion": "MC"},
+        {"nombre": "Arsen Zakharyan", "posicion": "MCO"},
+        {"nombre": "Orri Óskarsson", "posicion": "DC"}
+      ]
+    },
+    "Villarreal CF": {
+      "titulares": [
+        {"nombre": "Diego Conde", "posicion": "POR"},
+        {"nombre": "Kiko Femenía", "posicion": "LD"},
+        {"nombre": "Raúl Albiol", "posicion": "DFC"},
+        {"nombre": "Logan Costa", "posicion": "DFC"},
+        {"nombre": "Sergi Cardona", "posicion": "LI"},
+        {"nombre": "Dani Parejo", "posicion": "MC"},
+        {"nombre": "Pape Gueye", "posicion": "MC"},
+        {"nombre": "Álex Baena", "posicion": "MCO"},
+        {"nombre": "Ilias Akhomach", "posicion": "ED"},
+        {"nombre": "Yeremy Pino", "posicion": "EI"},
+        {"nombre": "Ayoze Pérez", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Luiz Júnior", "posicion": "POR"},
+        {"nombre": "Willy Kambwala", "posicion": "DFC"},
+        {"nombre": "Alfonso Pedraza", "posicion": "LI"},
+        {"nombre": "Santi Comesaña", "posicion": "MC"},
+        {"nombre": "Denis Suárez", "posicion": "MCO"},
+        {"nombre": "Thierno Barry", "posicion": "DC"}
+      ]
+    },
+    "Athletic Club": {
+      "titulares": [
+        {"nombre": "Julen Agirrezabala", "posicion": "POR"},
+        {"nombre": "Oscar de Marcos", "posicion": "LD"},
+        {"nombre": "Dani Vivian", "posicion": "DFC"},
+        {"nombre": "Aitor Paredes", "posicion": "DFC"},
+        {"nombre": "Yuri Berchiche", "posicion": "LI"},
+        {"nombre": "Beñat Prados", "posicion": "MCD"},
+        {"nombre": "Íñigo Ruiz de Galarreta", "posicion": "MC"},
+        {"nombre": "Oihan Sancet", "posicion": "MCO"},
+        {"nombre": "Iñaki Williams", "posicion": "ED"},
+        {"nombre": "Nico Williams", "posicion": "EI"},
+        {"nombre": "Gorka Guruzeta", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Alex Padilla", "posicion": "POR"},
+        {"nombre": "Yeray Álvarez", "posicion": "DFC"},
+        {"nombre": "Andoni Gorosabel", "posicion": "LD"},
+        {"nombre": "Mikel Vesga", "posicion": "MC"},
+        {"nombre": "Álex Berenguer", "posicion": "ED"},
+        {"nombre": "Javier Martón", "posicion": "DC"}
+      ]
+    },
+    "Real Betis": {
+      "titulares": [
+        {"nombre": "Rui Silva", "posicion": "POR"},
+        {"nombre": "Youssouf Sabaly", "posicion": "LD"},
+        {"nombre": "Marc Bartra", "posicion": "DFC"},
+        {"nombre": "Diego Llorente", "posicion": "DFC"},
+        {"nombre": "Romain Perraud", "posicion": "LI"},
+        {"nombre": "Johnny Cardoso", "posicion": "MCD"},
+        {"nombre": "William Carvalho", "posicion": "MC"},
+        {"nombre": "Pablo Fornals", "posicion": "MCO"},
+        {"nombre": "Antony", "posicion": "ED"},
+        {"nombre": "Abde Ezzalzouli", "posicion": "EI"},
+        {"nombre": "Cédric Bakambu", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Adrián", "posicion": "POR"},
+        {"nombre": "Natan", "posicion": "DFC"},
+        {"nombre": "Héctor Bellerín", "posicion": "LD"},
+        {"nombre": "Sergi Altimira", "posicion": "MC"},
+        {"nombre": "Giovani Lo Celso", "posicion": "MCO"},
+        {"nombre": "Chimy Ávila", "posicion": "DC"}
+      ]
+    },
+    "Valencia CF": {
+      "titulares": [
+        {"nombre": "Giorgi Mamardashvili", "posicion": "POR"},
+        {"nombre": "Dimitri Foulquier", "posicion": "LD"},
+        {"nombre": "Cristhian Mosquera", "posicion": "DFC"},
+        {"nombre": "César Tárrega", "posicion": "DFC"},
+        {"nombre": "José Luis Gayà", "posicion": "LI"},
+        {"nombre": "Pepelu", "posicion": "MCD"},
+        {"nombre": "Javi Guerra", "posicion": "MC"},
+        {"nombre": "Diego López", "posicion": "ED"},
+        {"nombre": "Luis Rioja", "posicion": "EI"},
+        {"nombre": "André Almeida", "posicion": "MCO"},
+        {"nombre": "Hugo Duro", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Stole Dimitrievski", "posicion": "POR"},
+        {"nombre": "Mouctar Diakhaby", "posicion": "DFC"},
+        {"nombre": "Thierry Correia", "posicion": "LD"},
+        {"nombre": "Enzo Barrenechea", "posicion": "MC"},
+        {"nombre": "Sergi Canós", "posicion": "ED"},
+        {"nombre": "Rafa Mir", "posicion": "DC"}
+      ]
+    },
+    "Celta de Vigo": {
+      "titulares": [
+        {"nombre": "Vicente Guaita", "posicion": "POR"},
+        {"nombre": "Javier Manquillo", "posicion": "LD"},
+        {"nombre": "Carl Starfelt", "posicion": "DFC"},
+        {"nombre": "Marcos Alonso", "posicion": "DFC"},
+        {"nombre": "Hugo Álvarez", "posicion": "LI"},
+        {"nombre": "Fran Beltrán", "posicion": "MCD"},
+        {"nombre": "Ilaix Moriba", "posicion": "MC"},
+        {"nombre": "Iago Aspas", "posicion": "MCO"},
+        {"nombre": "Williot Swedberg", "posicion": "ED"},
+        {"nombre": "Jonathan Bamba", "posicion": "EI"},
+        {"nombre": "Borja Iglesias", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Iván Villar", "posicion": "POR"},
+        {"nombre": "Jailson", "posicion": "DFC"},
+        {"nombre": "Oscar Mingueza", "posicion": "LD"},
+        {"nombre": "Damián Rodríguez", "posicion": "MC"},
+        {"nombre": "Alphonse González", "posicion": "ED"},
+        {"nombre": "Anastasios Douvikas", "posicion": "DC"}
+      ]
+    },
+    "Osasuna": {
+      "titulares": [
+        {"nombre": "Sergio Herrera", "posicion": "POR"},
+        {"nombre": "Jesús Areso", "posicion": "LD"},
+        {"nombre": "Alejandro Catena", "posicion": "DFC"},
+        {"nombre": "Flavien Boyomo", "posicion": "DFC"},
+        {"nombre": "Abel Bretones", "posicion": "LI"},
+        {"nombre": "Lucas Torró", "posicion": "MCD"},
+        {"nombre": "Jon Moncayola", "posicion": "MC"},
+        {"nombre": "Aimar Oroz", "posicion": "MCO"},
+        {"nombre": "Rubén Peña", "posicion": "ED"},
+        {"nombre": "Bryan Zaragoza", "posicion": "EI"},
+        {"nombre": "Ante Budimir", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Aitor Fernández", "posicion": "POR"},
+        {"nombre": "Unai García", "posicion": "DFC"},
+        {"nombre": "Nacho Vidal", "posicion": "LD"},
+        {"nombre": "Pablo Ibáñez", "posicion": "MC"},
+        {"nombre": "Moi Gómez", "posicion": "MCO"},
+        {"nombre": "José Arnaiz", "posicion": "DC"}
+      ]
+    },
+    "Getafe CF": {
+      "titulares": [
+        {"nombre": "David Soria", "posicion": "POR"},
+        {"nombre": "Juan Iglesias", "posicion": "LD"},
+        {"nombre": "Dene Djené", "posicion": "DFC"},
+        {"nombre": "Omar Alderete", "posicion": "DFC"},
+        {"nombre": "Diego Rico", "posicion": "LI"},
+        {"nombre": "Mauro Arambarri", "posicion": "MCD"},
+        {"nombre": "Luis Milla", "posicion": "MC"},
+        {"nombre": "Carles Pérez", "posicion": "ED"},
+        {"nombre": "Álex Sola", "posicion": "EI"},
+        {"nombre": "Christantus Uche", "posicion": "MCO"},
+        {"nombre": "Bertuğ Yıldırım", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Jiří Letáček", "posicion": "POR"},
+        {"nombre": "Juan Berrocal", "posicion": "DFC"},
+        {"nombre": "Abdoulaye Keita", "posicion": "MC"},
+        {"nombre": "Peter Federico", "posicion": "ED"},
+        {"nombre": "Borja Mayoral", "posicion": "DC"}
+      ]
+    },
+    "Rayo Vallecano": {
+      "titulares": [
+        {"nombre": "Augusto Batalla", "posicion": "POR"},
+        {"nombre": "Andrei Rațiu", "posicion": "LD"},
+        {"nombre": "Abdul Mumin", "posicion": "DFC"},
+        {"nombre": "Florian Lejeune", "posicion": "DFC"},
+        {"nombre": "Alfonso Espino", "posicion": "LI"},
+        {"nombre": "Pathé Ciss", "posicion": "MCD"},
+        {"nombre": "Gerard Gumbau", "posicion": "MC"},
+        {"nombre": "Jorge de Frutos", "posicion": "ED"},
+        {"nombre": "Adri Embarba", "posicion": "EI"},
+        {"nombre": "Unai López", "posicion": "MCO"},
+        {"nombre": "Sergio Camello", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Dani Cárdenas", "posicion": "POR"},
+        {"nombre": "Iván Balliu", "posicion": "LD"},
+        {"nombre": "Pelayo Fernández", "posicion": "DFC"},
+        {"nombre": "Óscar Valentín", "posicion": "MC"},
+        {"nombre": "James Rodríguez", "posicion": "MCO"},
+        {"nombre": "Randy Nteka", "posicion": "DC"}
+      ]
+    },
+    "Deportivo Alavés": {
+      "titulares": [
+        {"nombre": "Antonio Sivera", "posicion": "POR"},
+        {"nombre": "Nahuel Tenaglia", "posicion": "LD"},
+        {"nombre": "Abqar", "posicion": "DFC"},
+        {"nombre": "Aleksandar Sedlar", "posicion": "DFC"},
+        {"nombre": "Manu Sánchez", "posicion": "LI"},
+        {"nombre": "Antonio Blanco", "posicion": "MCD"},
+        {"nombre": "Ander Guevara", "posicion": "MC"},
+        {"nombre": "Jon Guridi", "posicion": "MCO"},
+        {"nombre": "Carlos Vicente", "posicion": "ED"},
+        {"nombre": "Carlos Martín", "posicion": "EI"},
+        {"nombre": "Kike García", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Jesús Owono", "posicion": "POR"},
+        {"nombre": "Santiago Mouriño", "posicion": "DFC"},
+        {"nombre": "Hugo Novoa", "posicion": "LD"},
+        {"nombre": "Tomás Conechny", "posicion": "MC"},
+        {"nombre": "Asier Villalibre", "posicion": "DC"}
+      ]
+    },
+    "Elche CF": {
+      "titulares": [
+        {"nombre": "Matías Dituro", "posicion": "POR"},
+        {"nombre": "Álvaro Núñez", "posicion": "LD"},
+        {"nombre": "Bambo Diaby", "posicion": "DFC"},
+        {"nombre": "David Affengruber", "posicion": "DFC"},
+        {"nombre": "José Salinas", "posicion": "LI"},
+        {"nombre": "Aleix Febas", "posicion": "MC"},
+        {"nombre": "Cristian Salvador", "posicion": "MCD"},
+        {"nombre": "Nico Castro", "posicion": "MCO"},
+        {"nombre": "Yago Santiago", "posicion": "ED"},
+        {"nombre": "Rashid Aliu", "posicion": "EI"},
+        {"nombre": "Agustín Álvarez", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "San Román", "posicion": "POR"},
+        {"nombre": "Pedro Bigas", "posicion": "DFC"},
+        {"nombre": "Gerard Hernández", "posicion": "MC"},
+        {"nombre": "Sory Kaba", "posicion": "DC"}
+      ]
+    },
+    "RCD Espanyol": {
+      "titulares": [
+        {"nombre": "Joan García", "posicion": "POR"},
+        {"nombre": "Omar El Hilali", "posicion": "LD"},
+        {"nombre": "Leandro Cabrera", "posicion": "DFC"},
+        {"nombre": "Marash Kumbulla", "posicion": "DFC"},
+        {"nombre": "Brian Oliván", "posicion": "LI"},
+        {"nombre": "Pol Lozano", "posicion": "MCD"},
+        {"nombre": "Alex Král", "posicion": "MC"},
+        {"nombre": "Jofre Carreras", "posicion": "ED"},
+        {"nombre": "Javi Puado", "posicion": "EI"},
+        {"nombre": "Edu Expósito", "posicion": "MCO"},
+        {"nombre": "Alejo Véliz", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Fernando Pacheco", "posicion": "POR"},
+        {"nombre": "Sergi Gómez", "posicion": "DFC"},
+        {"nombre": "Álvaro Tejero", "posicion": "LD"},
+        {"nombre": "Pere Milla", "posicion": "ED"},
+        {"nombre": "Walid Cheddira", "posicion": "DC"}
+      ]
+    },
+    "Levante UD": {
+      "titulares": [
+        {"nombre": "Andrés Fernández", "posicion": "POR"},
+        {"nombre": "Andrés García", "posicion": "LD"},
+        {"nombre": "Unai Elgezabal", "posicion": "DFC"},
+        {"nombre": "Adrián de la Fuente", "posicion": "DFC"},
+        {"nombre": "Manu Sánchez", "posicion": "LI"},
+        {"nombre": "Oriol Rey", "posicion": "MCD"},
+        {"nombre": "Pablo Martínez", "posicion": "MC"},
+        {"nombre": "Carlos Álvarez", "posicion": "MCO"},
+        {"nombre": "Sergio Lozano", "posicion": "ED"},
+        {"nombre": "Iván Romero", "posicion": "EI"},
+        {"nombre": "Roger Brugué", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Alfonso Pastor", "posicion": "POR"},
+        {"nombre": "Jorge Cabello", "posicion": "DFC"},
+        {"nombre": "Vicente Iborra", "posicion": "MC"},
+        {"nombre": "José Morales", "posicion": "DC"}
+      ]
+    },
+    "Deportivo La Coruña": {
+      "titulares": [
+        {"nombre": "Helton Leite", "posicion": "POR"},
+        {"nombre": "Ximo Navarro", "posicion": "LD"},
+        {"nombre": "Pablo Vázquez", "posicion": "DFC"},
+        {"nombre": "Dani Barcia", "posicion": "DFC"},
+        {"nombre": "Sergio Escudero", "posicion": "LI"},
+        {"nombre": "Diego Villares", "posicion": "MCD"},
+        {"nombre": "Mfulu", "posicion": "MC"},
+        {"nombre": "Yeremay Hernández", "posicion": "ED"},
+        {"nombre": "David Mella", "posicion": "EI"},
+        {"nombre": "Lucas Pérez", "posicion": "MCO"},
+        {"nombre": "Barbero", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Germán Parreño", "posicion": "POR"},
+        {"nombre": "Luís Quintero", "posicion": "DFC"},
+        {"nombre": "Mario Soriano", "posicion": "MC"},
+        {"nombre": "Cristian Herrera", "posicion": "DC"}
+      ]
+    },
+    "Málaga CF": {
+      "titulares": [
+        {"nombre": "Alfonso Herrero", "posicion": "POR"},
+        {"nombre": "Carlos Puga", "posicion": "LD"},
+        {"nombre": "Nelson Monte", "posicion": "DFC"},
+        {"nombre": "Einar Galilea", "posicion": "DFC"},
+        {"nombre": "Dani Sánchez", "posicion": "LI"},
+        {"nombre": "Luismi Sánchez", "posicion": "MCD"},
+        {"nombre": "Ramón Enríquez", "posicion": "MC"},
+        {"nombre": "Antoñito Cordero", "posicion": "ED"},
+        {"nombre": "Yanis Rahmani", "posicion": "EI"},
+        {"nombre": "Aaron Ochoa", "posicion": "MCO"},
+        {"nombre": "Dioni", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Carlos López", "posicion": "POR"},
+        {"nombre": "Álex Pastor", "posicion": "DFC"},
+        {"nombre": "Juanpe", "posicion": "MC"},
+        {"nombre": "Brahian Castrillón", "posicion": "DC"}
+      ]
+    },
+    "Racing de Santander": {
+      "titulares": [
+        {"nombre": "Jokin Ezkieta", "posicion": "POR"},
+        {"nombre": "Michelin", "posicion": "LD"},
+        {"nombre": "Javi Montero", "posicion": "DFC"},
+        {"nombre": "Manu Hernando", "posicion": "DFC"},
+        {"nombre": "Saúl García", "posicion": "LI"},
+        {"nombre": "Aritz Aldasoro", "posicion": "MCD"},
+        {"nombre": "Unai Vencedor", "posicion": "MC"},
+        {"nombre": "Iñigo Vicente", "posicion": "EI"},
+        {"nombre": "Andrés Martín", "posicion": "ED"},
+        {"nombre": "Pablo Rodríguez", "posicion": "MCO"},
+        {"nombre": "Juan Carlos Arana", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Miquel Parera", "posicion": "POR"},
+        {"nombre": "Pol Moreno", "posicion": "DFC"},
+        {"nombre": "Maguette Gueye", "posicion": "MC"},
+        {"nombre": "Jon Karrikaburu", "posicion": "DC"}
+      ]
+    }
+  },
+  "Premier League": {
+    "Manchester City": {
+      "titulares": [
+        {"nombre": "Ederson", "posicion": "POR"},
+        {"nombre": "Kyle Walker", "posicion": "LD"},
+        {"nombre": "Ruben Dias", "posicion": "DFC"},
+        {"nombre": "Manuel Akanji", "posicion": "DFC"},
+        {"nombre": "Josko Gvardiol", "posicion": "LI"},
+        {"nombre": "Rodri", "posicion": "MCD"},
+        {"nombre": "Ilkay Gündogan", "posicion": "MC"},
+        {"nombre": "Kevin De Bruyne", "posicion": "MCO"},
+        {"nombre": "Bernardo Silva", "posicion": "ED"},
+        {"nombre": "Phil Foden", "posicion": "EI"},
+        {"nombre": "Erling Haaland", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Stefan Ortega", "posicion": "POR"},
+        {"nombre": "John Stones", "posicion": "DFC"},
+        {"nombre": "Nathan Aké", "posicion": "LI"},
+        {"nombre": "Mateo Kovacic", "posicion": "MC"},
+        {"nombre": "Matheus Nunes", "posicion": "MC"},
+        {"nombre": "Savinho", "posicion": "ED"},
+        {"nombre": "Jérémy Doku", "posicion": "EI"}
+      ]
+    },
+    "Arsenal FC": {
+      "titulares": [
+        {"nombre": "David Raya", "posicion": "POR"},
+        {"nombre": "Ben White", "posicion": "LD"},
+        {"nombre": "William Saliba", "posicion": "DFC"},
+        {"nombre": "Gabriel Magalhães", "posicion": "DFC"},
+        {"nombre": "Riccardo Calafiori", "posicion": "LI"},
+        {"nombre": "Thomas Partey", "posicion": "MCD"},
+        {"nombre": "Declan Rice", "posicion": "MC"},
+        {"nombre": "Martin Ødegaard", "posicion": "MCO"},
+        {"nombre": "Bukayo Saka", "posicion": "ED"},
+        {"nombre": "Gabriel Martinelli", "posicion": "EI"},
+        {"nombre": "Kai Havertz", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Neto", "posicion": "POR"},
+        {"nombre": "Jurriën Timber", "posicion": "LD"},
+        {"nombre": "Oleksandr Zinchenko", "posicion": "LI"},
+        {"nombre": "Mikel Merino", "posicion": "MC"},
+        {"nombre": "Jorginho", "posicion": "MCD"},
+        {"nombre": "Leandro Trossard", "posicion": "EI"},
+        {"nombre": "Gabriel Jesus", "posicion": "DC"}
+      ]
+    },
+    "Liverpool FC": {
+      "titulares": [
+        {"nombre": "Alisson Becker", "posicion": "POR"},
+        {"nombre": "Trent Alexander-Arnold", "posicion": "LD"},
+        {"nombre": "Ibrahima Konaté", "posicion": "DFC"},
+        {"nombre": "Virgil van Dijk", "posicion": "DFC"},
+        {"nombre": "Andrew Robertson", "posicion": "LI"},
+        {"nombre": "Ryan Gravenberch", "posicion": "MCD"},
+        {"nombre": "Alexis Mac Allister", "posicion": "MC"},
+        {"nombre": "Dominik Szoboszlai", "posicion": "MCO"},
+        {"nombre": "Mohamed Salah", "posicion": "ED"},
+        {"nombre": "Luis Díaz", "posicion": "EI"},
+        {"nombre": "Diogo Jota", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Caoimhin Kelleher", "posicion": "POR"},
+        {"nombre": "Joe Gomez", "posicion": "DFC"},
+        {"nombre": "Kostas Tsimikas", "posicion": "LI"},
+        {"nombre": "Wataru Endo", "posicion": "MCD"},
+        {"nombre": "Curtis Jones", "posicion": "MC"},
+        {"nombre": "Cody Gakpo", "posicion": "EI"},
+        {"nombre": "Darwin Núñez", "posicion": "DC"}
+      ]
+    },
+    "Manchester United": {
+      "titulares": [
+        {"nombre": "André Onana", "posicion": "POR"},
+        {"nombre": "Noussair Mazraoui", "posicion": "LD"},
+        {"nombre": "Matthijs de Ligt", "posicion": "DFC"},
+        {"nombre": "Lisandro Martínez", "posicion": "DFC"},
+        {"nombre": "Luke Shaw", "posicion": "LI"},
+        {"nombre": "Casemiro", "posicion": "MCD"},
+        {"nombre": "Kobbie Mainoo", "posicion": "MC"},
+        {"nombre": "Bruno Fernandes", "posicion": "MCO"},
+        {"nombre": "Amad Diallo", "posicion": "ED"},
+        {"nombre": "Alejandro Garnacho", "posicion": "EI"},
+        {"nombre": "Rasmus Højlund", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Altay Bayındır", "posicion": "POR"},
+        {"nombre": "Harry Maguire", "posicion": "DFC"},
+        {"nombre": "Diogo Dalot", "posicion": "LD"},
+        {"nombre": "Manuel Ugarte", "posicion": "MCD"},
+        {"nombre": "Christian Eriksen", "posicion": "MC"},
+        {"nombre": "Marcus Rashford", "posicion": "EI"},
+        {"nombre": "Joshua Zirkzee", "posicion": "DC"}
+      ]
+    },
+    "Chelsea FC": {
+      "titulares": [
+        {"nombre": "Robert Sánchez", "posicion": "POR"},
+        {"nombre": "Malo Gusto", "posicion": "LD"},
+        {"nombre": "Wesley Fofana", "posicion": "DFC"},
+        {"nombre": "Levi Colwill", "posicion": "DFC"},
+        {"nombre": "Marc Cucurella", "posicion": "LI"},
+        {"nombre": "Moisés Caicedo", "posicion": "MCD"},
+        {"nombre": "Enzo Fernández", "posicion": "MC"},
+        {"nombre": "Cole Palmer", "posicion": "MCO"},
+        {"nombre": "Noni Madueke", "posicion": "ED"},
+        {"nombre": "Pedro Neto", "posicion": "EI"},
+        {"nombre": "Nicolas Jackson", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Filip Jörgensen", "posicion": "POR"},
+        {"nombre": "Reece James", "posicion": "LD"},
+        {"nombre": "Tosin Adarabioyo", "posicion": "DFC"},
+        {"nombre": "Lavia Roméo", "posicion": "MCD"},
+        {"nombre": "Jadon Sancho", "posicion": "EI"},
+        {"nombre": "Mykhailo Mudryk", "posicion": "EI"},
+        {"nombre": "Christopher Nkunku", "posicion": "DC"}
+      ]
+    },
+    "Tottenham Hotspur": {
+      "titulares": [
+        {"nombre": "Guglielmo Vicario", "posicion": "POR"},
+        {"nombre": "Pedro Porro", "posicion": "LD"},
+        {"nombre": "Cristian Romero", "posicion": "DFC"},
+        {"nombre": "Micky van de Ven", "posicion": "DFC"},
+        {"nombre": "Destiny Udogie", "posicion": "LI"},
+        {"nombre": "Yves Bissouma", "posicion": "MCD"},
+        {"nombre": "Pape Matar Sarr", "posicion": "MC"},
+        {"nombre": "James Maddison", "posicion": "MCO"},
+        {"nombre": "Dejan Kulusevski", "posicion": "ED"},
+        {"nombre": "Son Heung-min", "posicion": "EI"},
+        {"nombre": "Dominic Solanke", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Fraser Forster", "posicion": "POR"},
+        {"nombre": "Radu Drăgușin", "posicion": "DFC"},
+        {"nombre": "Archie Gray", "posicion": "LD"},
+        {"nombre": "Rodrigo Bentancur", "posicion": "MCD"},
+        {"nombre": "Lucas Bergvall", "posicion": "MC"},
+        {"nombre": "Brennan Johnson", "posicion": "ED"},
+        {"nombre": "Richarlison", "posicion": "DC"}
+      ]
+    },
+    "Aston Villa": {
+      "titulares": [
+        {"nombre": "Emiliano Martínez", "posicion": "POR"},
+        {"nombre": "Ezri Konsa", "posicion": "LD"},
+        {"nombre": "Diego Carlos", "posicion": "DFC"},
+        {"nombre": "Pau Torres", "posicion": "DFC"},
+        {"nombre": "Lucas Digne", "posicion": "LI"},
+        {"nombre": "Amadou Onana", "posicion": "MCD"},
+        {"nombre": "Youri Tielemans", "posicion": "MC"},
+        {"nombre": "John McGinn", "posicion": "MC"},
+        {"nombre": "Leon Bailey", "posicion": "ED"},
+        {"nombre": "Morgan Rogers", "posicion": "EI"},
+        {"nombre": "Ollie Watkins", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Robin Olsen", "posicion": "POR"},
+        {"nombre": "Tyrone Mings", "posicion": "DFC"},
+        {"nombre": "Ian Maatsen", "posicion": "LI"},
+        {"nombre": "Ross Barkley", "posicion": "MC"},
+        {"nombre": "Jacob Ramsey", "posicion": "EI"},
+        {"nombre": "Jhon Durán", "posicion": "DC"}
+      ]
+    },
+    "Newcastle United": {
+      "titulares": [
+        {"nombre": "Nick Pope", "posicion": "POR"},
+        {"nombre": "Tino Livramento", "posicion": "LD"},
+        {"nombre": "Fabian Schär", "posicion": "DFC"},
+        {"nombre": "Dan Burn", "posicion": "DFC"},
+        {"nombre": "Lewis Hall", "posicion": "LI"},
+        {"nombre": "Bruno Guimarães", "posicion": "MCD"},
+        {"nombre": "Sandro Tonali", "posicion": "MC"},
+        {"nombre": "Joelinton", "posicion": "MC"},
+        {"nombre": "Jacob Murphy", "posicion": "ED"},
+        {"nombre": "Anthony Gordon", "posicion": "EI"},
+        {"nombre": "Alexander Isak", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Martin Dúbravka", "posicion": "POR"},
+        {"nombre": "Kieran Trippier", "posicion": "LD"},
+        {"nombre": "Lloyd Kelly", "posicion": "DFC"},
+        {"nombre": "Sean Longstaff", "posicion": "MC"},
+        {"nombre": "Joe Willock", "posicion": "MC"},
+        {"nombre": "Harvey Barnes", "posicion": "EI"},
+        {"nombre": "Callum Wilson", "posicion": "DC"}
+      ]
+    },
+    "Brighton & Hove Albion": {
+      "titulares": [
+        {"nombre": "Bart Verbruggen", "posicion": "POR"},
+        {"nombre": "Joel Veltman", "posicion": "LD"},
+        {"nombre": "Jan Paul van Hecke", "posicion": "DFC"},
+        {"nombre": "Lewis Dunk", "posicion": "DFC"},
+        {"nombre": "Pervis Estupiñán", "posicion": "LI"},
+        {"nombre": "Carlos Baleba", "posicion": "MCD"},
+        {"nombre": "Yasin Ayari", "posicion": "MC"},
+        {"nombre": "Yankuba Minteh", "posicion": "ED"},
+        {"nombre": "Kaoru Mitoma", "posicion": "EI"},
+        {"nombre": "Georginio Rutter", "posicion": "MCO"},
+        {"nombre": "Danny Welbeck", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Jason Steele", "posicion": "POR"},
+        {"nombre": "Igor Julio", "posicion": "DFC"},
+        {"nombre": "Tariq Lamptey", "posicion": "LD"},
+        {"nombre": "Mats Wieffer", "posicion": "MCD"},
+        {"nombre": "Simon Adingra", "posicion": "ED"},
+        {"nombre": "Evan Ferguson", "posicion": "DC"},
+        {"nombre": "João Pedro", "posicion": "DC"}
+      ]
+    },
+    "Crystal Palace": {
+      "titulares": [
+        {"nombre": "Dean Henderson", "posicion": "POR"},
+        {"nombre": "Daniel Muñoz", "posicion": "LD"},
+        {"nombre": "Marc Guéhi", "posicion": "DFC"},
+        {"nombre": "Maxence Lacroix", "posicion": "DFC"},
+        {"nombre": "Tyrick Mitchell", "posicion": "LI"},
+        {"nombre": "Adam Wharton", "posicion": "MCD"},
+        {"nombre": "Jefferson Lerma", "posicion": "MC"},
+        {"nombre": "Daichi Kamada", "posicion": "MCO"},
+        {"nombre": "Ismaïla Sarr", "posicion": "ED"},
+        {"nombre": "Eberechi Eze", "posicion": "EI"},
+        {"nombre": "Jean-Philippe Mateta", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Matt Turner", "posicion": "POR"},
+        {"nombre": "Chris Richards", "posicion": "DFC"},
+        {"nombre": "Nathaniel Clyne", "posicion": "LD"},
+        {"nombre": "Will Hughes", "posicion": "MC"},
+        {"nombre": "Matheus França", "posicion": "MCO"},
+        {"nombre": "Eddie Nketiah", "posicion": "DC"}
+      ]
+    },
+    "Everton FC": {
+      "titulares": [
+        {"nombre": "Jordan Pickford", "posicion": "POR"},
+        {"nombre": "Ashley Young", "posicion": "LD"},
+        {"nombre": "James Tarkowski", "posicion": "DFC"},
+        {"nombre": "Jarrad Branthwaite", "posicion": "DFC"},
+        {"nombre": "Vitaliy Mykolenko", "posicion": "LI"},
+        {"nombre": "Idrissa Gueye", "posicion": "MCD"},
+        {"nombre": "Abdoulaye Doucouré", "posicion": "MC"},
+        {"nombre": "Dwight McNeil", "posicion": "MCO"},
+        {"nombre": "Jack Harrison", "posicion": "ED"},
+        {"nombre": "Iliman Ndiaye", "posicion": "EI"},
+        {"nombre": "Dominic Calvert-Lewin", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "João Virgínia", "posicion": "POR"},
+        {"nombre": "Jake O'Brien", "posicion": "DFC"},
+        {"nombre": "Nathan Patterson", "posicion": "LD"},
+        {"nombre": "Tim Iroegbunam", "posicion": "MC"},
+        {"nombre": "Jesper Lindstrøm", "posicion": "ED"},
+        {"nombre": "Beto", "posicion": "DC"}
+      ]
+    },
+    "Fulham FC": {
+      "titulares": [
+        {"nombre": "Bernd Leno", "posicion": "POR"},
+        {"nombre": "Kenny Tete", "posicion": "LD"},
+        {"nombre": "Joachim Andersen", "posicion": "DFC"},
+        {"nombre": "Calvin Bassey", "posicion": "DFC"},
+        {"nombre": "Antonee Robinson", "posicion": "LI"},
+        {"nombre": "Sasa Lukic", "posicion": "MCD"},
+        {"nombre": "Sander Berge", "posicion": "MC"},
+        {"nombre": "Andreas Pereira", "posicion": "MCO"},
+        {"nombre": "Adama Traoré", "posicion": "ED"},
+        {"nombre": "Alex Iwobi", "posicion": "EI"},
+        {"nombre": "Raúl Jiménez", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Steven Benda", "posicion": "POR"},
+        {"nombre": "Issa Diop", "posicion": "DFC"},
+        {"nombre": "Timothy Castagne", "posicion": "LD"},
+        {"nombre": "Harrison Reed", "posicion": "MC"},
+        {"nombre": "Emile Smith Rowe", "posicion": "MCO"},
+        {"nombre": "Reiss Nelson", "posicion": "EI"},
+        {"nombre": "Rodrigo Muniz", "posicion": "DC"}
+      ]
+    },
+    "Brentford FC": {
+      "titulares": [
+        {"nombre": "Mark Flekken", "posicion": "POR"},
+        {"nombre": "Sepp van den Berg", "posicion": "LD"},
+        {"nombre": "Nathan Collins", "posicion": "DFC"},
+        {"nombre": "Ethan Pinnock", "posicion": "DFC"},
+        {"nombre": "Kristoffer Ajer", "posicion": "LI"},
+        {"nombre": "Christian Nørgaard", "posicion": "MCD"},
+        {"nombre": "Vitaly Janelt", "posicion": "MC"},
+        {"nombre": "Mikkel Damsgaard", "posicion": "MCO"},
+        {"nombre": "Bryan Mbeumo", "posicion": "ED"},
+        {"nombre": "Keane Lewis-Potter", "posicion": "EI"},
+        {"nombre": "Yoane Wissa", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Håkon Valdimarsson", "posicion": "POR"},
+        {"nombre": "Ben Mee", "posicion": "DFC"},
+        {"nombre": "Rico Henry", "posicion": "LI"},
+        {"nombre": "Mathias Jensen", "posicion": "MC"},
+        {"nombre": "Kevin Schade", "posicion": "EI"},
+        {"nombre": "Igor Thiago", "posicion": "DC"}
+      ]
+    },
+    "AFC Bournemouth": {
+      "titulares": [
+        {"nombre": "Kepa Arrizabalaga", "posicion": "POR"},
+        {"nombre": "Julián Araujo", "posicion": "LD"},
+        {"nombre": "Illia Zabarnyi", "posicion": "DFC"},
+        {"nombre": "Marcos Senesi", "posicion": "DFC"},
+        {"nombre": "Milos Kerkez", "posicion": "LI"},
+        {"nombre": "Lewis Cook", "posicion": "MCD"},
+        {"nombre": "Ryan Christie", "posicion": "MC"},
+        {"nombre": "Justin Kluivert", "posicion": "MCO"},
+        {"nombre": "Antoine Semenyo", "posicion": "ED"},
+        {"nombre": "Marcus Tavernier", "posicion": "EI"},
+        {"nombre": "Evanilson", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Mark Travers", "posicion": "POR"},
+        {"nombre": "Dean Huijsen", "posicion": "DFC"},
+        {"nombre": "Adam Smith", "posicion": "LD"},
+        {"nombre": "Alex Scott", "posicion": "MC"},
+        {"nombre": "Dango Ouattara", "posicion": "ED"},
+        {"nombre": "Enes Ünal", "posicion": "DC"}
+      ]
+    },
+    "Nottingham Forest": {
+      "titulares": [
+        {"nombre": "Matz Sels", "posicion": "POR"},
+        {"nombre": "Ola Aina", "posicion": "LD"},
+        {"nombre": "Nikola Milenković", "posicion": "DFC"},
+        {"nombre": "Murillo", "posicion": "DFC"},
+        {"nombre": "Alex Moreno", "posicion": "LI"},
+        {"nombre": "Ryan Yates", "posicion": "MCD"},
+        {"nombre": "Elliot Anderson", "posicion": "MC"},
+        {"nombre": "Morgan Gibbs-White", "posicion": "MCO"},
+        {"nombre": "Anthony Elanga", "posicion": "ED"},
+        {"nombre": "Callum Hudson-Odoi", "posicion": "EI"},
+        {"nombre": "Chris Wood", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Carlos Miguel", "posicion": "POR"},
+        {"nombre": "Willy Boly", "posicion": "DFC"},
+        {"nombre": "Neco Williams", "posicion": "LD"},
+        {"nombre": "Nícolas Domínguez", "posicion": "MC"},
+        {"nombre": "Jota Silva", "posicion": "EI"},
+        {"nombre": "Taiwo Awoniyi", "posicion": "DC"}
+      ]
+    },
+    "Leeds United": {
+      "titulares": [
+        {"nombre": "Illan Meslier", "posicion": "POR"},
+        {"nombre": "Jayden Bogle", "posicion": "LD"},
+        {"nombre": "Joe Rodon", "posicion": "DFC"},
+        {"nombre": "Pascal Struijk", "posicion": "DFC"},
+        {"nombre": "Junior Firpo", "posicion": "LI"},
+        {"nombre": "Ethan Ampadu", "posicion": "MCD"},
+        {"nombre": "Ilia Gruev", "posicion": "MC"},
+        {"nombre": "Brenden Aaronson", "posicion": "MCO"},
+        {"nombre": "Daniel James", "posicion": "ED"},
+        {"nombre": "Wilfried Gnonto", "posicion": "EI"},
+        {"nombre": "Mateo Joseph", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Karl Darlow", "posicion": "POR"},
+        {"nombre": "Maximilian Wöber", "posicion": "DFC"},
+        {"nombre": "Sam Byram", "posicion": "LD"},
+        {"nombre": "Ao Tanaka", "posicion": "MC"},
+        {"nombre": "Manor Solomon", "posicion": "EI"},
+        {"nombre": "Joel Piroe", "posicion": "DC"}
+      ]
+    },
+    "Sunderland AFC": {
+      "titulares": [
+        {"nombre": "Anthony Patterson", "posicion": "POR"},
+        {"nombre": "Trai Hume", "posicion": "LD"},
+        {"nombre": "Luke O'Nien", "posicion": "DFC"},
+        {"nombre": "Dan Ballard", "posicion": "DFC"},
+        {"nombre": "Dennis Cirkin", "posicion": "LI"},
+        {"nombre": "Dan Neil", "posicion": "MCD"},
+        {"nombre": "Chris Rigg", "posicion": "MC"},
+        {"nombre": "Jobe Bellingham", "posicion": "MCO"},
+        {"nombre": "Patrick Roberts", "posicion": "ED"},
+        {"nombre": "Romaine Mundle", "posicion": "EI"},
+        {"nombre": "Eliezer Mayenda", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Simon Moore", "posicion": "POR"},
+        {"nombre": "Leo Hjelde", "posicion": "DFC"},
+        {"nombre": "Alan Browne", "posicion": "MC"},
+        {"nombre": "Adil Aouchiche", "posicion": "MCO"},
+        {"nombre": "Wilson Isidor", "posicion": "DC"}
+      ]
+    },
+    "Coventry City": {
+      "titulares": [
+        {"nombre": "Oliver Dovin", "posicion": "POR"},
+        {"nombre": "Milan van Ewijk", "posicion": "LD"},
+        {"nombre": "Bobby Thomas", "posicion": "DFC"},
+        {"nombre": "Liam Kitching", "posicion": "DFC"},
+        {"nombre": "Jake Bidwell", "posicion": "LI"},
+        {"nombre": "Ben Sheaf", "posicion": "MCD"},
+        {"nombre": "Josh Eccles", "posicion": "MC"},
+        {"nombre": "Jack Rudoni", "posicion": "MCO"},
+        {"nombre": "Tatsuhiro Sakamoto", "posicion": "ED"},
+        {"nombre": "Haji Wright", "posicion": "EI"},
+        {"nombre": "Ellis Simms", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Brad Collins", "posicion": "POR"},
+        {"nombre": "Joel Latibeaudiere", "posicion": "DFC"},
+        {"nombre": "Victor Torp", "posicion": "MC"},
+        {"nombre": "Brandon Thomas-Asante", "posicion": "DC"}
+      ]
+    },
+    "Ipswich Town": {
+      "titulares": [
+        {"nombre": "Arijanet Muric", "posicion": "POR"},
+        {"nombre": "Axel Tuanzebe", "posicion": "LD"},
+        {"nombre": "Luke Woolfenden", "posicion": "DFC"},
+        {"nombre": "Jacob Greaves", "posicion": "DFC"},
+        {"nombre": "Leif Davis", "posicion": "LI"},
+        {"nombre": "Sam Morsy", "posicion": "MCD"},
+        {"nombre": "Jens Cajuste", "posicion": "MC"},
+        {"nombre": "Omari Hutchinson", "posicion": "MCO"},
+        {"nombre": "Chiedozie Ogbene", "posicion": "ED"},
+        {"nombre": "Sammie Szmodics", "posicion": "EI"},
+        {"nombre": "Liam Delap", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Christian Walton", "posicion": "POR"},
+        {"nombre": "Dara O'Shea", "posicion": "DFC"},
+        {"nombre": "Ben Johnson", "posicion": "LD"},
+        {"nombre": "Kalvin Phillips", "posicion": "MCD"},
+        {"nombre": "Jack Clarke", "posicion": "EI"},
+        {"nombre": "George Hirst", "posicion": "DC"}
+      ]
+    },
+    "Hull City": {
+      "titulares": [
+        {"nombre": "Ivor Pandur", "posicion": "POR"},
+        {"nombre": "Lewie Coyle", "posicion": "LD"},
+        {"nombre": "Alfons Sampsted", "posicion": "DFC"},
+        {"nombre": "Charlie Hughes", "posicion": "DFC"},
+        {"nombre": "Ryan Giles", "posicion": "LI"},
+        {"nombre": "Oscar Zambrano", "posicion": "MCD"},
+        {"nombre": "Xavier Simons", "posicion": "MC"},
+        {"nombre": "Regan Slater", "posicion": "MCO"},
+        {"nombre": "Abu Kamara", "posicion": "ED"},
+        {"nombre": "Liam Millar", "posicion": "EI"},
+        {"nombre": "Chris Bedia", "posicion": "DC"}
+      ],
+      "suplentes": [
+        {"nombre": "Anthony Racioppi", "posicion": "POR"},
+        {"nombre": "Sean McLoughlin", "posicion": "DFC"},
+        {"nombre": "Steven Alzate", "posicion": "MC"},
+        {"nombre": "Mason Burstow", "posicion": "DC"}
+      ]
+    }
+  },
+  "NBA": {
+    "Los Angeles Lakers": {
+      "regla_cambios": "Ilimitados",
+      "titulares": [
+        {"nombre": "D'Angelo Russell", "posicion": "PG"},
+        {"nombre": "Austin Reaves", "posicion": "SG"},
+        {"nombre": "LeBron James", "posicion": "SF"},
+        {"nombre": "Rui Hachimura", "posicion": "PF"},
+        {"nombre": "Anthony Davis", "posicion": "C"}
+      ],
+      "suplentes": [
+        {"nombre": "Gabe Vincent", "posicion": "PG"},
+        {"nombre": "Max Christie", "posicion": "SG"},
+        {"nombre": "Dalton Knecht", "posicion": "SF"},
+        {"nombre": "Jarred Vanderbilt", "posicion": "PF"},
+        {"nombre": "Jaxson Hayes", "posicion": "C"}
+      ]
+    },
+    "Golden State Warriors": {
+      "regla_cambios": "Ilimitados",
+      "titulares": [
+        {"nombre": "Stephen Curry", "posicion": "PG"},
+        {"nombre": "Brandin Podziemski", "posicion": "SG"},
+        {"nombre": "Andrew Wiggins", "posicion": "SF"},
+        {"nombre": "Jonathan Kuminga", "posicion": "PF"},
+        {"nombre": "Draymond Green", "posicion": "C"}
+      ],
+      "suplentes": [
+        {"nombre": "Buddy Hield", "posicion": "SG"},
+        {"nombre": "De'Anthony Melton", "posicion": "PG"},
+        {"nombre": "Kyle Anderson", "posicion": "PF"},
+        {"nombre": "Gary Payton II", "posicion": "SG"},
+        {"nombre": "Kevon Looney", "posicion": "C"}
+      ]
+    },
+    "Boston Celtics": {
+      "regla_cambios": "Ilimitados",
+      "titulares": [
+        {"nombre": "Jrue Holiday", "posicion": "PG"},
+        {"nombre": "Derrick White", "posicion": "SG"},
+        {"nombre": "Jaylen Brown", "posicion": "SF"},
+        {"nombre": "Jayson Tatum", "posicion": "PF"},
+        {"nombre": "Kristaps Porzingis", "posicion": "C"}
+      ],
+      "suplentes": [
+        {"nombre": "Peyton Pritchard", "posicion": "PG"},
+        {"nombre": "Sam Hauser", "posicion": "SF"},
+        {"nombre": "Al Horford", "posicion": "C"},
+        {"nombre": "Luke Kornet", "posicion": "C"},
+        {"nombre": "Xavier Tillman", "posicion": "PF"}
+      ]
+    },
+    "Chicago Bulls": {
+      "regla_cambios": "Ilimitados",
+      "titulares": [
+        {"nombre": "Coby White", "posicion": "PG"},
+        {"nombre": "Josh Giddey", "posicion": "SG"},
+        {"nombre": "Zach LaVine", "posicion": "SF"},
+        {"nombre": "Patrick Williams", "posicion": "PF"},
+        {"nombre": "Nikola Vucevic", "posicion": "C"}
+      ],
+      "suplentes": [
+        {"nombre": "Ayo Dosunmu", "posicion": "PG"},
+        {"nombre": "Lonzo Ball", "posicion": "PG"},
+        {"nombre": "Matas Buzelis", "posicion": "SF"},
+        {"nombre": "Torrey Craig", "posicion": "PF"},
+        {"nombre": "Jalen Smith", "posicion": "C"}
+      ]
+    },
+    "Atlanta Hawks": {
+      "regla_cambios": "Ilimitados",
+      "titulares": [
+        {"nombre": "Trae Young", "posicion": "PG"},
+        {"nombre": "Dyson Daniels", "posicion": "SG"},
+        {"nombre": "Zaccharie Risacher", "posicion": "SF"},
+        {"nombre": "Jalen Johnson", "posicion": "PF"},
+        {"nombre": "Clint Capela", "posicion": "C"}
+      ],
+      "suplentes": [
+        {"nombre": "Bogdan Bogdanovic", "posicion": "SG"},
+        {"nombre": "De'Andre Hunter", "posicion": "SF"},
+        {"nombre": "Onyeka Okongwu", "posicion": "C"},
+        {"nombre": "Larry Nance Jr.", "posicion": "PF"},
+        {"nombre": "Garrison Mathews", "posicion": "SG"}
+      ]
+    },
+    "Brooklyn Nets": {
+      "regla_cambios": "Ilimitados",
+      "titulares": [
+        {"nombre": "Dennis Schröder", "posicion": "PG"},
+        {"nombre": "Cam Thomas", "posicion": "SG"},
+        {"nombre": "Cameron Johnson", "posicion": "SF"},
+        {"nombre": "Dorian Finney-Smith", "posicion": "PF"},
+        {"nombre": "Nic Claxton", "posicion": "C"}
+      ],
+      "suplentes": [
+        {"nombre": "Ben Simmons", "posicion": "PG"},
+        {"nombre": "Shake Milton", "posicion": "SG"},
+        {"nombre": "Ziaire Williams", "posicion": "SF"},
+        {"nombre": "Noah Clowney", "posicion": "PF"},
+        {"nombre": "Day'Ron Sharpe", "posicion": "C"}
+      ]
+    },
+    "Charlotte Hornets": {
+      "regla_cambios": "Ilimitados",
+      "titulares": [
+        {"nombre": "LaMelo Ball", "posicion": "PG"},
+        {"nombre": "Brandon Miller", "posicion": "SG"},
+        {"nombre": "Josh Green", "posicion": "SF"},
+        {"nombre": "Miles Bridges", "posicion": "PF"},
+        {"nombre": "Nick Richards", "posicion": "C"}
+      ],
+      "suplentes": [
+        {"nombre": "Tre Mann", "posicion": "PG"},
+        {"nombre": "Vasilije Micic", "posicion": "PG"},
+        {"nombre": "Cody Martin", "posicion": "SF"},
+        {"nombre": "Grant Williams", "posicion": "PF"},
+        {"nombre": "Tidjane Salaun", "posicion": "PF"}
+      ]
+    },
+    "Cleveland Cavaliers": {
+      "regla_cambios": "Ilimitados",
+      "titulares": [
+        {"nombre": "Darius Garland", "posicion": "PG"},
+        {"nombre": "Donovan Mitchell", "posicion": "SG"},
+        {"nombre": "Max Strus", "posicion": "SF"},
+        {"nombre": "Evan Mobley", "posicion": "PF"},
+        {"nombre": "Jarrett Allen", "posicion": "C"}
+      ],
+      "suplentes": [
+        {"nombre": "Ty Jerome", "posicion": "PG"},
+        {"nombre": "Caris LeVert", "posicion": "SG"},
+        {"nombre": "Isaac Okoro", "posicion": "SF"},
+        {"nombre": "Georges Niang", "posicion": "PF"},
+        {"nombre": "Tristan Thompson", "posicion": "C"}
+      ]
+    },
+    "Detroit Pistons": {
+      "regla_cambios": "Ilimitados",
+      "titulares": [
+        {"nombre": "Cade Cunningham", "posicion": "PG"},
+        {"nombre": "Jaden Ivey", "posicion": "SG"},
+        {"nombre": "Tim Hardaway Jr.", "posicion": "SF"},
+        {"nombre": "Tobias Harris", "posicion": "PF"},
+        {"nombre": "Jalen Duren", "posicion": "C"}
+      ],
+      "suplentes": [
+        {"nombre": "Marcus Sasser", "posicion": "PG"},
+        {"nombre": "Malik Beasley", "posicion": "SG"},
+        {"nombre": "Ausar Thompson", "posicion": "SF"},
+        {"nombre": "Simone Fontecchio", "posicion": "PF"},
+        {"nombre": "Isaiah Stewart", "posicion": "C"}
+      ]
+    },
+    "Indiana Pacers": {
+      "regla_cambios": "Ilimitados",
+      "titulares": [
+        {"nombre": "Tyrese Haliburton", "posicion": "PG"},
+        {"nombre": "Andrew Nembhard", "posicion": "SG"},
+        {"nombre": "Aaron Nesmith", "posicion": "SF"},
+        {"nombre": "Pascal Siakam", "posicion": "PF"},
+        {"nombre": "Myles Turner", "posicion": "C"}
+      ],
+      "suplentes": [
+        {"nombre": "T.J. McConnell", "posicion": "PG"},
+        {"nombre": "Bennedict Mathurin", "posicion": "SG"},
+        {"nombre": "Ben Sheppard", "posicion": "SG"},
+        {"nombre": "Obi Toppin", "posicion": "PF"},
+        {"nombre": "Isaiah Jackson", "posicion": "C"}
+      ]
+    },
+    "Miami Heat": {
+      "regla_cambios": "Ilimitados",
+      "titulares": [
+        {"nombre": "Terry Rozier", "posicion": "PG"},
+        {"nombre": "Tyler Herro", "posicion": "SG"},
+        {"nombre": "Jimmy Butler", "posicion": "SF"},
+        {"nombre": "Nikola Jovic", "posicion": "PF"},
+        {"nombre": "Bam Adebayo", "posicion": "C"}
+      ],
+      "suplentes": [
+        {"nombre": "Josh Richardson", "posicion": "SG"},
+        {"nombre": "Duncan Robinson", "posicion": "SG"},
+        {"nombre": "Jaime Jaquez Jr.", "posicion": "SF"},
+        {"nombre": "Haywood Highsmith", "posicion": "PF"},
+        {"nombre": "Kel'el Ware", "posicion": "C"}
+      ]
+    },
+    "Milwaukee Bucks": {
+      "regla_cambios": "Ilimitados",
+      "titulares": [
+        {"nombre": "Damian Lillard", "posicion": "PG"},
+        {"nombre": "Gary Trent Jr.", "posicion": "SG"},
+        {"nombre": "Khris Middleton", "posicion": "SF"},
+        {"nombre": "Giannis Antetokounmpo", "posicion": "PF"},
+        {"nombre": "Brook Lopez", "posicion": "C"}
+      ],
+      "suplentes": [
+        {"nombre": "Delon Wright", "posicion": "PG"},
+        {"nombre": "Pat Connaughton", "posicion": "SG"},
+        {"nombre": "Taurean Prince", "posicion": "SF"},
+        {"nombre": "Bobby Portis", "posicion": "PF"},
+        {"nombre": "AJ Green", "posicion": "SG"}
+      ]
+    },
+    "New York Knicks": {
+      "regla_cambios": "Ilimitados",
+      "titulares": [
+        {"nombre": "Jalen Brunson", "posicion": "PG"},
+        {"nombre": "Mikal Bridges", "posicion": "SG"},
+        {"nombre": "OG Anunoby", "posicion": "SF"},
+        {"nombre": "Karl-Anthony Towns", "posicion": "PF"},
+        {"nombre": "Mitchell Robinson", "posicion": "C"}
+      ],
+      "suplentes": [
+        {"nombre": "Miles McBride", "posicion": "PG"},
+        {"nombre": "Cameron Payne", "posicion": "PG"},
+        {"nombre": "Josh Hart", "posicion": "SF"},
+        {"nombre": "Precious Achiuwa", "posicion": "PF"},
+        {"nombre": "Jericho Sims", "posicion": "C"}
+      ]
+    },
+    "Orlando Magic": {
+      "regla_cambios": "Ilimitados",
+      "titulares": [
+        {"nombre": "Jalen Suggs", "posicion": "PG"},
+        {"nombre": "Kentavious Caldwell-Pope", "posicion": "SG"},
+        {"nombre": "Franz Wagner", "posicion": "SF"},
+        {"nombre": "Paolo Banchero", "posicion": "PF"},
+        {"nombre": "Wendell Carter Jr.", "posicion": "C"}
+      ],
+      "suplentes": [
+        {"nombre": "Cole Anthony", "posicion": "PG"},
+        {"nombre": "Anthony Black", "posicion": "SG"},
+        {"nombre": "Gary Harris", "posicion": "SG"},
+        {"nombre": "Jonathan Isaac", "posicion": "PF"},
+        {"nombre": "Goga Bitadze", "posicion": "C"}
+      ]
+    },
+    "Philadelphia 76ers": {
+      "regla_cambios": "Ilimitados",
+      "titulares": [
+        {"nombre": "Tyrese Maxey", "posicion": "PG"},
+        {"nombre": "Kelly Oubre Jr.", "posicion": "SG"},
+        {"nombre": "Paul George", "posicion": "SF"},
+        {"nombre": "Caleb Martin", "posicion": "PF"},
+        {"nombre": "Joel Embiid", "posicion": "C"}
+      ],
+      "suplentes": [
+        {"nombre": "Kyle Lowry", "posicion": "PG"},
+        {"nombre": "Eric Gordon", "posicion": "SG"},
+        {"nombre": "Jared McCain", "posicion": "SG"},
+        {"nombre": "KJ Martin", "posicion": "SF"},
+        {"nombre": "Andre Drummond", "posicion": "C"}
+      ]
+    },
+    "Toronto Raptors": {
+      "regla_cambios": "Ilimitados",
+      "titulares": [
+        {"nombre": "Immanuel Quickley", "posicion": "PG"},
+        {"nombre": "Gradey Dick", "posicion": "SG"},
+        {"nombre": "RJ Barrett", "posicion": "SF"},
+        {"nombre": "Scottie Barnes", "posicion": "PF"},
+        {"nombre": "Jakob Poeltl", "posicion": "C"}
+      ],
+      "suplentes": [
+        {"nombre": "Davion Mitchell", "posicion": "PG"},
+        {"nombre": "Ochai Agbaji", "posicion": "SG"},
+        {"nombre": "Bruce Brown", "posicion": "SF"},
+        {"nombre": "Chris Boucher", "posicion": "PF"},
+        {"nombre": "Kelly Olynyk", "posicion": "C"}
+      ]
+    },
+    "Washington Wizards": {
+      "regla_cambios": "Ilimitados",
+      "titulares": [
+        {"nombre": "Carlton Carrington", "posicion": "PG"},
+        {"nombre": "Jordan Poole", "posicion": "SG"},
+        {"nombre": "Bilal Coulibaly", "posicion": "SF"},
+        {"nombre": "Kyle Kuzma", "posicion": "PF"},
+        {"nombre": "Alex Sarr", "posicion": "C"}
+      ],
+      "suplentes": [
+        {"nombre": "Malcolm Brogdon", "posicion": "PG"},
+        {"nombre": "Corey Kispert", "posicion": "SF"},
+        {"nombre": "Saddiq Bey", "posicion": "SF"},
+        {"nombre": "Richaun Holmes", "posicion": "C"},
+        {"nombre": "Jonas Valanciunas", "posicion": "C"}
+      ]
+    },
+    "Dallas Mavericks": {
+      "regla_cambios": "Ilimitados",
+      "titulares": [
+        {"nombre": "Luka Doncic", "posicion": "PG"},
+        {"nombre": "Kyrie Irving", "posicion": "SG"},
+        {"nombre": "Klay Thompson", "posicion": "SF"},
+        {"nombre": "P.J. Washington", "posicion": "PF"},
+        {"nombre": "Daniel Gafford", "posicion": "C"}
+      ],
+      "suplentes": [
+        {"nombre": "Spencer Dinwiddie", "posicion": "PG"},
+        {"nombre": "Jaden Hardy", "posicion": "SG"},
+        {"nombre": "Naji Marshall", "posicion": "SF"},
+        {"nombre": "Maxi Kleber", "posicion": "PF"},
+        {"nombre": "Dereck Lively II", "posicion": "C"}
+      ]
+    },
+    "Denver Nuggets": {
+      "regla_cambios": "Ilimitados",
+      "titulares": [
+        {"nombre": "Jamal Murray", "posicion": "PG"},
+        {"nombre": "Christian Braun", "posicion": "SG"},
+        {"nombre": "Michael Porter Jr.", "posicion": "SF"},
+        {"nombre": "Aaron Gordon", "posicion": "PF"},
+        {"nombre": "Nikola Jokic", "posicion": "C"}
+      ],
+      "suplentes": [
+        {"nombre": "Russell Westbrook", "posicion": "PG"},
+        {"nombre": "Julian Strawther", "posicion": "SG"},
+        {"nombre": "Peyton Watson", "posicion": "SF"},
+        {"nombre": "Daron Holmes II", "posicion": "PF"},
+        {"nombre": "DeAndre Jordan", "posicion": "C"}
+      ]
+    },
+    "Houston Rockets": {
+      "regla_cambios": "Ilimitados",
+      "titulares": [
+        {"nombre": "Fred VanVleet", "posicion": "PG"},
+        {"nombre": "Jalen Green", "posicion": "SG"},
+        {"nombre": "Dillon Brooks", "posicion": "SF"},
+        {"nombre": "Jabari Smith Jr.", "posicion": "PF"},
+        {"nombre": "Alperen Sengun", "posicion": "C"}
+      ],
+      "suplentes": [
+        {"nombre": "Amen Thompson", "posicion": "PG"},
+        {"nombre": "Reed Sheppard", "posicion": "SG"},
+        {"nombre": "Cam Whitmore", "posicion": "SF"},
+        {"nombre": "Tari Eason", "posicion": "PF"},
+        {"nombre": "Steven Adams", "posicion": "C"}
+      ]
+    }
+  },
+  "MLB": {
+    "New York Yankees": {
+      "regla_cambios": "Sin reingreso libre",
+      "titulares": [
+        {"nombre": "Jose Trevino", "posicion": "C"},
+        {"nombre": "Anthony Rizzo", "posicion": "1B"},
+        {"nombre": "Gleyber Torres", "posicion": "2B"},
+        {"nombre": "Anthony Volpe", "posicion": "SS"},
+        {"nombre": "Jon Berti", "posicion": "3B"},
+        {"nombre": "Aaron Judge", "posicion": "CF"},
+        {"nombre": "Juan Soto", "posicion": "RF"},
+        {"nombre": "Alex Verdugo", "posicion": "LF"},
+        {"nombre": "Giancarlo Stanton", "posicion": "DH"}
+      ],
+      "suplentes": [
+        {"nombre": "Austin Wells", "posicion": "C"},
+        {"nombre": "Oswaldo Cabrera", "posicion": "INF"},
+        {"nombre": "Trent Grisham", "posicion": "OF"},
+        {"nombre": "Gerrit Cole", "posicion": "SP"},
+        {"nombre": "Clay Holmes", "posicion": "RP"}
+      ]
+    },
+    "Los Angeles Dodgers": {
+      "regla_cambios": "Sin reingreso libre",
+      "titulares": [
+        {"nombre": "Will Smith", "posicion": "C"},
+        {"nombre": "Freddie Freeman", "posicion": "1B"},
+        {"nombre": "Gavin Lux", "posicion": "2B"},
+        {"nombre": "Mookie Betts", "posicion": "SS"},
+        {"nombre": "Max Muncy", "posicion": "3B"},
+        {"nombre": "Teoscar Hernández", "posicion": "LF"},
+        {"nombre": "James Outman", "posicion": "CF"},
+        {"nombre": "Andy Pages", "posicion": "RF"},
+        {"nombre": "Shohei Ohtani", "posicion": "DH"}
+      ],
+      "suplentes": [
+        {"nombre": "Austin Barnes", "posicion": "C"},
+        {"nombre": "Miguel Rojas", "posicion": "INF"},
+        {"nombre": "Chris Taylor", "posicion": "UTL"},
+        {"nombre": "Tyler Glasnow", "posicion": "SP"},
+        {"nombre": "Evan Phillips", "posicion": "RP"}
+      ]
+    },
+    "Baltimore Orioles": {
+      "regla_cambios": "Sin reingreso libre",
+      "titulares": [
+        {"nombre": "Adley Rutschman", "posicion": "C"},
+        {"nombre": "Ryan Mountcastle", "posicion": "1B"},
+        {"nombre": "Jackson Holliday", "posicion": "2B"},
+        {"nombre": "Gunnar Henderson", "posicion": "SS"},
+        {"nombre": "Jordan Westburg", "posicion": "3B"},
+        {"nombre": "Colton Cowser", "posicion": "LF"},
+        {"nombre": "Cedric Mullins", "posicion": "CF"},
+        {"nombre": "Anthony Santander", "posicion": "RF"},
+        {"nombre": "Ryan O'Hearn", "posicion": "DH"}
+      ],
+      "suplentes": [
+        {"nombre": "James McCann", "posicion": "C"},
+        {"nombre": "Ramon Urias", "posicion": "INF"},
+        {"nombre": "Heston Kjerstad", "posicion": "OF"},
+        {"nombre": "Corbin Burnes", "posicion": "SP"},
+        {"nombre": "Craig Kimbrel", "posicion": "RP"}
+      ]
+    },
+    "Boston Red Sox": {
+      "regla_cambios": "Sin reingreso libre",
+      "titulares": [
+        {"nombre": "Connor Wong", "posicion": "C"},
+        {"nombre": "Triston Casas", "posicion": "1B"},
+        {"nombre": "Vaughn Grissom", "posicion": "2B"},
+        {"nombre": "Trevor Story", "posicion": "SS"},
+        {"nombre": "Rafael Devers", "posicion": "3B"},
+        {"nombre": "Jarren Duran", "posicion": "LF"},
+        {"nombre": "Ceddanne Rafaela", "posicion": "CF"},
+        {"nombre": "Wilyer Abreu", "posicion": "RF"},
+        {"nombre": "Masataka Yoshida", "posicion": "DH"}
+      ],
+      "suplentes": [
+        {"nombre": "Reese McGuire", "posicion": "C"},
+        {"nombre": "Romy Gonzalez", "posicion": "INF"},
+        {"nombre": "Rob Refsnyder", "posicion": "OF"},
+        {"nombre": "Tanner Houck", "posicion": "SP"},
+        {"nombre": "Kenley Jansen", "posicion": "RP"}
+      ]
+    },
+    "Tampa Bay Rays": {
+      "regla_cambios": "Sin reingreso libre",
+      "titulares": [
+        {"nombre": "Ben Rortvedt", "posicion": "C"},
+        {"nombre": "Yandy Díaz", "posicion": "1B"},
+        {"nombre": "Brandon Lowe", "posicion": "2B"},
+        {"nombre": "Taylor Walls", "posicion": "SS"},
+        {"nombre": "Junior Caminero", "posicion": "3B"},
+        {"nombre": "Richie Palacios", "posicion": "LF"},
+        {"nombre": "Jose Siri", "posicion": "CF"},
+        {"nombre": "Josh Lowe", "posicion": "RF"},
+        {"nombre": "Christopher Morel", "posicion": "DH"}
+      ],
+      "suplentes": [
+        {"nombre": "Alex Jackson", "posicion": "C"},
+        {"nombre": "Jonathan Aranda", "posicion": "INF"},
+        {"nombre": "Jonny DeLuca", "posicion": "OF"},
+        {"nombre": "Shane Baz", "posicion": "SP"},
+        {"nombre": "Pete Fairbanks", "posicion": "RP"}
+      ]
+    },
+    "Toronto Blue Jays": {
+      "regla_cambios": "Sin reingreso libre",
+      "titulares": [
+        {"nombre": "Alejandro Kirk", "posicion": "C"},
+        {"nombre": "Vladimir Guerrero Jr.", "posicion": "1B"},
+        {"nombre": "Will Wagner", "posicion": "2B"},
+        {"nombre": "Bo Bichette", "posicion": "SS"},
+        {"nombre": "Ernie Clement", "posicion": "3B"},
+        {"nombre": "Davis Schneider", "posicion": "LF"},
+        {"nombre": "Daulton Varsho", "posicion": "CF"},
+        {"nombre": "George Springer", "posicion": "RF"},
+        {"nombre": "Spencer Horwitz", "posicion": "DH"}
+      ],
+      "suplentes": [
+        {"nombre": "Tyler Heineman", "posicion": "C"},
+        {"nombre": "Leo Jimenez", "posicion": "INF"},
+        {"nombre": "Joey Loperfido", "posicion": "OF"},
+        {"nombre": "Kevin Gausman", "posicion": "SP"},
+        {"nombre": "Chad Green", "posicion": "RP"}
+      ]
+    },
+    "Chicago White Sox": {
+      "regla_cambios": "Sin reingreso libre",
+      "titulares": [
+        {"nombre": "Korey Lee", "posicion": "C"},
+        {"nombre": "Andrew Vaughn", "posicion": "1B"},
+        {"nombre": "Lenyn Sosa", "posicion": "2B"},
+        {"nombre": "Jacob Amaya", "posicion": "SS"},
+        {"nombre": "Bryan Ramos", "posicion": "3B"},
+        {"nombre": "Andrew Benintendi", "posicion": "LF"},
+        {"nombre": "Luis Robert Jr.", "posicion": "CF"},
+        {"nombre": "Dominic Fletcher", "posicion": "RF"},
+        {"nombre": "Gavin Sheets", "posicion": "DH"}
+      ],
+      "suplentes": [
+        {"nombre": "Chuckie Robinson", "posicion": "C"},
+        {"nombre": "Nicky Lopez", "posicion": "INF"},
+        {"nombre": "Zach DeLoach", "posicion": "OF"},
+        {"nombre": "Garrett Crochet", "posicion": "SP"}
+      ]
+    },
+    "Cleveland Guardians": {
+      "regla_cambios": "Sin reingreso libre",
+      "titulares": [
+        {"nombre": "Bo Naylor", "posicion": "C"},
+        {"nombre": "Josh Naylor", "posicion": "1B"},
+        {"nombre": "Andrés Giménez", "posicion": "2B"},
+        {"nombre": "Brayan Rocchio", "posicion": "SS"},
+        {"nombre": "José Ramírez", "posicion": "3B"},
+        {"nombre": "Steven Kwan", "posicion": "LF"},
+        {"nombre": "Lane Thomas", "posicion": "CF"},
+        {"nombre": "Jhonkensy Noel", "posicion": "RF"},
+        {"nombre": "David Fry", "posicion": "DH"}
+      ],
+      "suplentes": [
+        {"nombre": "Austin Hedges", "posicion": "C"},
+        {"nombre": "Tyler Freeman", "posicion": "UTL"},
+        {"nombre": "Will Brennan", "posicion": "OF"},
+        {"nombre": "Tanner Bibee", "posicion": "SP"},
+        {"nombre": "Emmanuel Clase", "posicion": "RP"}
+      ]
+    },
+    "Detroit Tigers": {
+      "regla_cambios": "Sin reingreso libre",
+      "titulares": [
+        {"nombre": "Jake Rogers", "posicion": "C"},
+        {"nombre": "Spencer Torkelson", "posicion": "1B"},
+        {"nombre": "Colt Keith", "posicion": "2B"},
+        {"nombre": "Trey Sweeney", "posicion": "SS"},
+        {"nombre": "Zach McKinstry", "posicion": "3B"},
+        {"nombre": "Riley Greene", "posicion": "LF"},
+        {"nombre": "Parker Meadows", "posicion": "CF"},
+        {"nombre": "Wenceel Pérez", "posicion": "RF"},
+        {"nombre": "Kerry Carpenter", "posicion": "DH"}
+      ],
+      "suplentes": [
+        {"nombre": "Dillon Dingler", "posicion": "C"},
+        {"nombre": "Matt Vierling", "posicion": "UTL"},
+        {"nombre": "Justyn-Henry Malloy", "posicion": "OF"},
+        {"nombre": "Tarik Skubal", "posicion": "SP"},
+        {"nombre": "Jason Foley", "posicion": "RP"}
+      ]
+    },
+    "Kansas City Royals": {
+      "regla_cambios": "Sin reingreso libre",
+      "titulares": [
+        {"nombre": "Salvador Perez", "posicion": "C"},
+        {"nombre": "Vinnie Pasquantino", "posicion": "1B"},
+        {"nombre": "Michael Massey", "posicion": "2B"},
+        {"nombre": "Bobby Witt Jr.", "posicion": "SS"},
+        {"nombre": "Maikel Garcia", "posicion": "3B"},
+        {"nombre": "MJ Melendez", "posicion": "LF"},
+        {"nombre": "Kyle Isbel", "posicion": "CF"},
+        {"nombre": "Hunter Renfroe", "posicion": "RF"},
+        {"nombre": "Nelson Velázquez", "posicion": "DH"}
+      ],
+      "suplentes": [
+        {"nombre": "Freddy Fermin", "posicion": "C"},
+        {"nombre": "Paul DeJong", "posicion": "INF"},
+        {"nombre": "Dairon Blanco", "posicion": "OF"},
+        {"nombre": "Cole Ragans", "posicion": "SP"},
+        {"nombre": "Lucas Erceg", "posicion": "RP"}
+      ]
+    },
+    "Minnesota Twins": {
+      "regla_cambios": "Sin reingreso libre",
+      "titulares": [
+        {"nombre": "Ryan Jeffers", "posicion": "C"},
+        {"nombre": "Carlos Santana", "posicion": "1B"},
+        {"nombre": "Edouard Julien", "posicion": "2B"},
+        {"nombre": "Carlos Correa", "posicion": "SS"},
+        {"nombre": "Royce Lewis", "posicion": "3B"},
+        {"nombre": "Austin Martin", "posicion": "LF"},
+        {"nombre": "Byron Buxton", "posicion": "CF"},
+        {"nombre": "Max Kepler", "posicion": "RF"},
+        {"nombre": "Matt Wallner", "posicion": "DH"}
+      ],
+      "suplentes": [
+        {"nombre": "Christian Vázquez", "posicion": "C"},
+        {"nombre": "Willi Castro", "posicion": "UTL"},
+        {"nombre": "Trevor Larnach", "posicion": "OF"},
+        {"nombre": "Pablo López", "posicion": "SP"},
+        {"nombre": "Jhoan Duran", "posicion": "RP"}
+      ]
+    },
+    "Houston Astros": {
+      "regla_cambios": "Sin reingreso libre",
+      "titulares": [
+        {"nombre": "Yainer Diaz", "posicion": "C"},
+        {"nombre": "Jon Singleton", "posicion": "1B"},
+        {"nombre": "Jose Altuve", "posicion": "2B"},
+        {"nombre": "Jeremy Peña", "posicion": "SS"},
+        {"nombre": "Alex Bregman", "posicion": "3B"},
+        {"nombre": "Yordan Alvarez", "posicion": "LF"},
+        {"nombre": "Jake Meyers", "posicion": "CF"},
+        {"nombre": "Kyle Tucker", "posicion": "RF"},
+        {"nombre": "Ben Gamel", "posicion": "DH"}
+      ],
+      "suplentes": [
+        {"nombre": "Victor Caratini", "posicion": "C"},
+        {"nombre": "Mauricio Dubón", "posicion": "UTL"},
+        {"nombre": "Chas McCormick", "posicion": "OF"},
+        {"nombre": "Framber Valdez", "posicion": "SP"},
+        {"nombre": "Josh Hader", "posicion": "RP"}
+      ]
+    },
+    "Los Angeles Angels": {
+      "regla_cambios": "Sin reingreso libre",
+      "titulares": [
+        {"nombre": "Logan O'Hoppe", "posicion": "C"},
+        {"nombre": "Nolan Schanuel", "posicion": "1B"},
+        {"nombre": "Luis Rengifo", "posicion": "2B"},
+        {"nombre": "Zach Neto", "posicion": "SS"},
+        {"nombre": "Anthony Rendon", "posicion": "3B"},
+        {"nombre": "Taylor Ward", "posicion": "LF"},
+        {"nombre": "Mickey Moniak", "posicion": "CF"},
+        {"nombre": "Jo Adell", "posicion": "RF"},
+        {"nombre": "Mike Trout", "posicion": "DH"}
+      ],
+      "suplentes": [
+        {"nombre": "Matt Thaiss", "posicion": "C"},
+        {"nombre": "Jack López", "posicion": "INF"},
+        {"nombre": "Kevin Pillar", "posicion": "OF"},
+        {"nombre": "Tyler Anderson", "posicion": "SP"}
+      ]
+    },
+    "Athletics": {
+      "regla_cambios": "Sin reingreso libre",
+      "titulares": [
+        {"nombre": "Shea Langeliers", "posicion": "C"},
+        {"nombre": "Ryan Noda", "posicion": "1B"},
+        {"nombre": "Zack Gelof", "posicion": "2B"},
+        {"nombre": "Jacob Wilson", "posicion": "SS"},
+        {"nombre": "Max Schuemann", "posicion": "3B"},
+        {"nombre": "Miguel Andujar", "posicion": "LF"},
+        {"nombre": "JJ Bleday", "posicion": "CF"},
+        {"nombre": "Lawrence Butler", "posicion": "RF"},
+        {"nombre": "Brent Rooker", "posicion": "DH"}
+      ],
+      "suplentes": [
+        {"nombre": "Kyle McCann", "posicion": "C"},
+        {"nombre": "Darell Hernaiz", "posicion": "INF"},
+        {"nombre": "Seth Brown", "posicion": "OF"},
+        {"nombre": "JP Sears", "posicion": "SP"},
+        {"nombre": "Mason Miller", "posicion": "RP"}
+      ]
+    },
+    "Seattle Mariners": {
+      "regla_cambios": "Sin reingreso libre",
+      "titulares": [
+        {"nombre": "Cal Raleigh", "posicion": "C"},
+        {"nombre": "Luke Raley", "posicion": "1B"},
+        {"nombre": "Jorge Polanco", "posicion": "2B"},
+        {"nombre": "J.P. Crawford", "posicion": "SS"},
+        {"nombre": "Josh Rojas", "posicion": "3B"},
+        {"nombre": "Randy Arozarena", "posicion": "LF"},
+        {"nombre": "Julio Rodríguez", "posicion": "CF"},
+        {"nombre": "Victor Robles", "posicion": "RF"},
+        {"nombre": "Mitch Garver", "posicion": "DH"}
+      ],
+      "suplentes": [
+        {"nombre": "Seby Zavala", "posicion": "C"},
+        {"nombre": "Dylan Moore", "posicion": "UTL"},
+        {"nombre": "Mitch Haniger", "posicion": "OF"},
+        {"nombre": "Logan Gilbert", "posicion": "SP"},
+        {"nombre": "Andrés Muñoz", "posicion": "RP"}
+      ]
+    },
+    "Texas Rangers": {
+      "regla_cambios": "Sin reingreso libre",
+      "titulares": [
+        {"nombre": "Jonah Heim", "posicion": "C"},
+        {"nombre": "Nathaniel Lowe", "posicion": "1B"},
+        {"nombre": "Marcus Semien", "posicion": "2B"},
+        {"nombre": "Corey Seager", "posicion": "SS"},
+        {"nombre": "Josh Smith", "posicion": "3B"},
+        {"nombre": "Wyatt Langford", "posicion": "LF"},
+        {"nombre": "Leody Taveras", "posicion": "CF"},
+        {"nombre": "Adolis García", "posicion": "RF"},
+        {"nombre": "Carson Kelly", "posicion": "DH"}
+      ],
+      "suplentes": [
+        {"nombre": "Andrew Knizner", "posicion": "C"},
+        {"nombre": "Ezequiel Duran", "posicion": "INF"},
+        {"nombre": "Travis Jankowski", "posicion": "OF"},
+        {"nombre": "Nathan Eovaldi", "posicion": "SP"},
+        {"nombre": "Kirby Yates", "posicion": "RP"}
+      ]
+    },
+    "Atlanta Braves": {
+      "regla_cambios": "Sin reingreso libre",
+      "titulares": [
+        {"nombre": "Sean Murphy", "posicion": "C"},
+        {"nombre": "Matt Olson", "posicion": "1B"},
+        {"nombre": "Ozzie Albies", "posicion": "2B"},
+        {"nombre": "Orlando Arcia", "posicion": "SS"},
+        {"nombre": "Austin Riley", "posicion": "3B"},
+        {"nombre": "Jarred Kelenic", "posicion": "LF"},
+        {"nombre": "Michael Harris II", "posicion": "CF"},
+        {"nombre": "Jorge Soler", "posicion": "RF"},
+        {"nombre": "Marcell Ozuna", "posicion": "DH"}
+      ],
+      "suplentes": [
+        {"nombre": "Travis d'Arnaud", "posicion": "C"},
+        {"nombre": "Whit Merrifield", "posicion": "INF"},
+        {"nombre": "Ramón Laureano", "posicion": "OF"},
+        {"nombre": "Chris Sale", "posicion": "SP"},
+        {"nombre": "Raisel Iglesias", "posicion": "RP"}
+      ]
+    },
+    "Miami Marlins": {
+      "regla_cambios": "Sin reingreso libre",
+      "titulares": [
+        {"nombre": "Nick Fortes", "posicion": "C"},
+        {"nombre": "Jake Burger", "posicion": "1B"},
+        {"nombre": "Otto Lopez", "posicion": "2B"},
+        {"nombre": "Xavier Edwards", "posicion": "SS"},
+        {"nombre": "Connor Norby", "posicion": "3B"},
+        {"nombre": "Kyle Stowers", "posicion": "LF"},
+        {"nombre": "Derek Hill", "posicion": "CF"},
+        {"nombre": "Jesus Sanchez", "posicion": "RF"},
+        {"nombre": "Jonah Bride", "posicion": "DH"}
+      ],
+      "suplentes": [
+        {"nombre": "Jhonny Pereda", "posicion": "C"},
+        {"nombre": "Cristian Pache", "posicion": "OF"},
+        {"nombre": "Sandy Alcantara", "posicion": "SP"}
+      ]
+    },
+    "New York Mets": {
+      "regla_cambios": "Sin reingreso libre",
+      "titulares": [
+        {"nombre": "Francisco Alvarez", "posicion": "C"},
+        {"nombre": "Pete Alonso", "posicion": "1B"},
+        {"nombre": "Jose Iglesias", "posicion": "2B"},
+        {"nombre": "Francisco Lindor", "posicion": "SS"},
+        {"nombre": "Mark Vientos", "posicion": "3B"},
+        {"nombre": "Brandon Nimmo", "posicion": "LF"},
+        {"nombre": "Harrison Bader", "posicion": "CF"},
+        {"nombre": "Starling Marte", "posicion": "RF"},
+        {"nombre": "Jesse Winker", "posicion": "DH"}
+      ],
+      "suplentes": [
+        {"nombre": "Luis Torrens", "posicion": "C"},
+        {"nombre": "Jeff McNeil", "posicion": "UTL"},
+        {"nombre": "Tyrone Taylor", "posicion": "OF"},
+        {"nombre": "Sean Manaea", "posicion": "SP"},
+        {"nombre": "Edwin Diaz", "posicion": "RP"}
+      ]
+    },
+    "Philadelphia Phillies": {
+      "regla_cambios": "Sin reingreso libre",
+      "titulares": [
+        {"nombre": "J.T. Realmuto", "posicion": "C"},
+        {"nombre": "Bryce Harper", "posicion": "1B"},
+        {"nombre": "Bryson Stott", "posicion": "2B"},
+        {"nombre": "Trea Turner", "posicion": "SS"},
+        {"nombre": "Alec Bohm", "posicion": "3B"},
+        {"nombre": "Brandon Marsh", "posicion": "LF"},
+        {"nombre": "Johan Rojas", "posicion": "CF"},
+        {"nombre": "Nick Castellanos", "posicion": "RF"},
+        {"nombre": "Kyle Schwarber", "posicion": "DH"}
+      ],
+      "suplentes": [
+        {"nombre": "Garrett Stubbs", "posicion": "C"},
+        {"nombre": "Edmundo Sosa", "posicion": "INF"},
+        {"nombre": "Austin Hays", "posicion": "OF"},
+        {"nombre": "Zack Wheeler", "posicion": "SP"},
+        {"nombre": "Carlos Estévez", "posicion": "RP"}
+      ]
+    }
+  },
+  "League of Legends": {
+    "T1": {
+      "regla_cambios": "Entre partidas de serie",
+      "titulares": [
+        {"nombre": "Zeus", "posicion": "TOP"},
+        {"nombre": "Oner", "posicion": "JNG"},
+        {"nombre": "Faker", "posicion": "MID"},
+        {"nombre": "Gumayusi", "posicion": "ADC"},
+        {"nombre": "Keria", "posicion": "SUP"}
+      ],
+      "suplentes": [
+        {"nombre": "Roach", "posicion": "SUB"}
+      ]
+    },
+    "Gen.G": {
+      "regla_cambios": "Entre partidas de serie",
+      "titulares": [
+        {"nombre": "Kiin", "posicion": "TOP"},
+        {"nombre": "Canyon", "posicion": "JNG"},
+        {"nombre": "Chovy", "posicion": "MID"},
+        {"nombre": "Peyz", "posicion": "ADC"},
+        {"nombre": "Lehends", "posicion": "SUP"}
+      ],
+      "suplentes": [
+        {"nombre": "Helper", "posicion": "SUB"}
+      ]
+    },
+    "Hanwha Life Esports": {
+      "regla_cambios": "Entre partidas de serie",
+      "titulares": [
+        {"nombre": "Doran", "posicion": "TOP"},
+        {"nombre": "Peanut", "posicion": "JNG"},
+        {"nombre": "Zeka", "posicion": "MID"},
+        {"nombre": "Viper", "posicion": "ADC"},
+        {"nombre": "Delight", "posicion": "SUP"}
+      ],
+      "suplentes": [
+        {"nombre": "Grizzly", "posicion": "JNG"}
+      ]
+    },
+    "Dplus KIA": {
+      "regla_cambios": "Entre partidas de serie",
+      "titulares": [
+        {"nombre": "Kingen", "posicion": "TOP"},
+        {"nombre": "Lucid", "posicion": "JNG"},
+        {"nombre": "ShowMaker", "posicion": "MID"},
+        {"nombre": "Aiming", "posicion": "ADC"},
+        {"nombre": "Moham", "posicion": "SUP"}
+      ],
+      "suplentes": [
+        {"nombre": "Kellin", "posicion": "SUP"}
+      ]
+    },
+    "KT Rolster": {
+      "regla_cambios": "Entre partidas de serie",
+      "titulares": [
+        {"nombre": "PerfecT", "posicion": "TOP"},
+        {"nombre": "Pyosik", "posicion": "JNG"},
+        {"nombre": "Bdd", "posicion": "MID"},
+        {"nombre": "Deft", "posicion": "ADC"},
+        {"nombre": "BeryL", "posicion": "SUP"}
+      ],
+      "suplentes": [
+        {"nombre": "HamBak", "posicion": "JNG"}
+      ]
+    },
+    "JD Gaming": {
+      "regla_cambios": "Entre partidas de serie",
+      "titulares": [
+        {"nombre": "Flandre", "posicion": "TOP"},
+        {"nombre": "Kanavi", "posicion": "JNG"},
+        {"nombre": "Yagao", "posicion": "MID"},
+        {"nombre": "Ruler", "posicion": "ADC"},
+        {"nombre": "MISSING", "posicion": "SUP"}
+      ],
+      "suplentes": [
+        {"nombre": "sheer", "posicion": "TOP"}
+      ]
+    },
+    "Bilibili Gaming": {
+      "regla_cambios": "Entre partidas de serie",
+      "titulares": [
+        {"nombre": "Bin", "posicion": "TOP"},
+        {"nombre": "Xun", "posicion": "JNG"},
+        {"nombre": "knight", "posicion": "MID"},
+        {"nombre": "Elk", "posicion": "ADC"},
+        {"nombre": "ON", "posicion": "SUP"}
+      ],
+      "suplentes": [
+        {"nombre": "Wei", "posicion": "JNG"}
+      ]
+    },
+    "Top Esports": {
+      "regla_cambios": "Entre partidas de serie",
+      "titulares": [
+        {"nombre": "369", "posicion": "TOP"},
+        {"nombre": "Tian", "posicion": "JNG"},
+        {"nombre": "Creme", "posicion": "MID"},
+        {"nombre": "JackeyLove", "posicion": "ADC"},
+        {"nombre": "Meiko", "posicion": "SUP"}
+      ],
+      "suplentes": [
+        {"nombre": "Niket", "posicion": "SUP"}
+      ]
+    },
+    "Weibo Gaming": {
+      "regla_cambios": "Entre partidas de serie",
+      "titulares": [
+        {"nombre": "Breathe", "posicion": "TOP"},
+        {"nombre": "Tarzan", "posicion": "JNG"},
+        {"nombre": "Xiaohu", "posicion": "MID"},
+        {"nombre": "Light", "posicion": "ADC"},
+        {"nombre": "Crisp", "posicion": "SUP"}
+      ],
+      "suplentes": [
+        {"nombre": "You荡", "posicion": "JNG"}
+      ]
+    },
+    "LNG Esports": {
+      "regla_cambios": "Entre partidas de serie",
+      "titulares": [
+        {"nombre": "Zika", "posicion": "TOP"},
+        {"nombre": "Weiwei", "posicion": "JNG"},
+        {"nombre": "Scout", "posicion": "MID"},
+        {"nombre": "GALA", "posicion": "ADC"},
+        {"nombre": "Hang", "posicion": "SUP"}
+      ],
+      "suplentes": [
+        {"nombre": "Yusha", "posicion": "SUB"}
+      ]
+    },
+    "G2 Esports": {
+      "regla_cambios": "Entre partidas de serie",
+      "titulares": [
+        {"nombre": "BrokenBlade", "posicion": "TOP"},
+        {"nombre": "Yike", "posicion": "JNG"},
+        {"nombre": "Caps", "posicion": "MID"},
+        {"nombre": "Hans Sama", "posicion": "ADC"},
+        {"nombre": "Mikyx", "posicion": "SUP"}
+      ],
+      "suplentes": [
+        {"nombre": "Rodrigo", "posicion": "SUB"}
+      ]
+    },
+    "Fnatic": {
+      "regla_cambios": "Entre partidas de serie",
+      "titulares": [
+        {"nombre": "Oscarinin", "posicion": "TOP"},
+        {"nombre": "Razork", "posicion": "JNG"},
+        {"nombre": "Humanoid", "posicion": "MID"},
+        {"nombre": "Noah", "posicion": "ADC"},
+        {"nombre": "Jun", "posicion": "SUP"}
+      ],
+      "suplentes": [
+        {"nombre": "Gaax", "posicion": "SUB"}
+      ]
+    },
+    "Team Vitality": {
+      "regla_cambios": "Entre partidas de serie",
+      "titulares": [
+        {"nombre": "Photon", "posicion": "TOP"},
+        {"nombre": "Lyncas", "posicion": "JNG"},
+        {"nombre": "Vetheo", "posicion": "MID"},
+        {"nombre": "Carzzy", "posicion": "ADC"},
+        {"nombre": "Hylissang", "posicion": "SUP"}
+      ],
+      "suplentes": [
+        {"nombre": "Mac", "posicion": "SUB"}
+      ]
+    },
+    "MAD Lions KOI": {
+      "regla_cambios": "Entre partidas de serie",
+      "titulares": [
+        {"nombre": "Myrwn", "posicion": "TOP"},
+        {"nombre": "Elyoya", "posicion": "JNG"},
+        {"nombre": "Fresskowy", "posicion": "MID"},
+        {"nombre": "Supa", "posicion": "ADC"},
+        {"nombre": "Alvaro", "posicion": "SUP"}
+      ],
+      "suplentes": [
+        {"nombre": "Melhet", "posicion": "SUB"}
+      ]
+    },
+    "Cloud9": {
+      "regla_cambios": "Entre partidas de serie",
+      "titulares": [
+        {"nombre": "Thanatos", "posicion": "TOP"},
+        {"nombre": "Blaber", "posicion": "JNG"},
+        {"nombre": "Jojopyun", "posicion": "MID"},
+        {"nombre": "Berserker", "posicion": "ADC"},
+        {"nombre": "VOLCANO", "posicion": "SUP"}
+      ],
+      "suplentes": [
+        {"nombre": "Inori", "posicion": "JNG"}
+      ]
+    },
+    "Team Liquid": {
+      "regla_cambios": "Entre partidas de serie",
+      "titulares": [
+        {"nombre": "Impact", "posicion": "TOP"},
+        {"nombre": "UmTi", "posicion": "JNG"},
+        {"nombre": "APA", "posicion": "MID"},
+        {"nombre": "Yeon", "posicion": "ADC"},
+        {"nombre": "CoreJJ", "posicion": "SUP"}
+      ],
+      "suplentes": [
+        {"nombre": "Roamer", "posicion": "MID"}
+      ]
+    },
+    "FlyQuest": {
+      "regla_cambios": "Entre partidas de serie",
+      "titulares": [
+        {"nombre": "Bwipo", "posicion": "TOP"},
+        {"nombre": "Inspired", "posicion": "JNG"},
+        {"nombre": "Quad", "posicion": "MID"},
+        {"nombre": "Massu", "posicion": "ADC"},
+        {"nombre": "Busio", "posicion": "SUP"}
+      ],
+      "suplentes": [
+        {"nombre": "Arrow", "posicion": "ADC"}
+      ]
+    },
+    "100 Thieves": {
+      "regla_cambios": "Entre partidas de serie",
+      "titulares": [
+        {"nombre": "Sniper", "posicion": "TOP"},
+        {"nombre": "River", "posicion": "JNG"},
+        {"nombre": "Quid", "posicion": "MID"},
+        {"nombre": "Tomi", "posicion": "ADC"},
+        {"nombre": "Eyla", "posicion": "SUP"}
+      ],
+      "suplentes": [
+        {"nombre": "Kumo", "posicion": "TOP"}
+      ]
+    },
+    "PSG Talon": {
+      "regla_cambios": "Entre partidas de serie",
+      "titulares": [
+        {"nombre": "Azhi", "posicion": "TOP"},
+        {"nombre": "Junjia", "posicion": "JNG"},
+        {"nombre": "Maple", "posicion": "MID"},
+        {"nombre": "Betty", "posicion": "ADC"},
+        {"nombre": "Woody", "posicion": "SUP"}
+      ],
+      "suplentes": [
+        {"nombre": "HongSuo", "posicion": "MID"}
+      ]
+    },
+    "CTBC Flying Oyster": {
+      "regla_cambios": "Entre partidas de serie",
+      "titulares": [
+        {"nombre": "Rest", "posicion": "TOP"},
+        {"nombre": "Karsa", "posicion": "JNG"},
+        {"nombre": "Gori", "posicion": "MID"},
+        {"nombre": "Shunn", "posicion": "ADC"},
+        {"nombre": "SwordArt", "posicion": "SUP"}
+      ],
+      "suplentes": [
+        {"nombre": "JimieN", "posicion": "MID"}
+      ]
+    }
+  }
   }
 }
