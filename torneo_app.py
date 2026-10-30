@@ -45,6 +45,17 @@ CODIGO_MAX_INTENTOS = 5
 CARPETA_LOCAL = os.path.join(os.path.dirname(os.path.abspath(__file__)), "progreso_local")
 SALDO_INICIAL = 100_000.0
 MAX_RECARGA = 100_000_000
+LIMITE_RECARGA_DIA = 10_000_000   # juego responsable: lo máximo que una cuenta puede recargar por día
+MAX_MOVIMIENTOS = 200             # cuántos movimientos de saldo se guardan por cuenta
+
+
+def ahora_co():
+    """Fecha y hora de Colombia (UTC-5), sin importar dónde esté el servidor."""
+    return datetime.now(timezone(timedelta(hours=-5)))
+
+
+def _pesos(n):
+    return f"{n:,.0f}".replace(",", ".")
 
 LIGAS_DISPONIBLES = {
     "Fútbol": [
@@ -324,6 +335,8 @@ DEFAULT_STATE = {
     "monto_min_prediccion": MONTO_MIN_PREDICCION,
     "predictions": [],
     "estadisticas": {},
+    "movimientos": [],
+    "recarga_dia": {"fecha": "", "total": 0},
 }
 
 # Equipos que cambiaron de nombre: se actualiza lo que ya estaba guardado.
@@ -398,6 +411,17 @@ def normalizar(data):
         if isinstance(est, dict) else {}
 
     data.pop("premios", None)
+    data.pop("recarga_hoy", None)
+    data.pop("limite_recarga_dia", None)
+    movs = data.get("movimientos")
+    data["movimientos"] = [
+        m for m in movs
+        if isinstance(m, dict) and isinstance(m.get("monto"), (int, float)) and isinstance(m.get("tipo"), str)
+    ][:MAX_MOVIMIENTOS] if isinstance(movs, list) else []
+    rd = data.get("recarga_dia")
+    data["recarga_dia"] = {"fecha": str(rd.get("fecha", ""))[:10], "total": float(rd["total"])} \
+        if isinstance(rd, dict) and isinstance(rd.get("total"), (int, float)) and math.isfinite(rd["total"]) \
+        else {"fecha": "", "total": 0}
     predicciones = data.get("predictions")
     data["predictions"] = [
         p for p in predicciones
@@ -887,6 +911,7 @@ def eliminatorias(data, liga):
                 ganador = a if a["name"] == nombre else b
             lista.append({
                 "fase": fase, "titulo": TITULOS_FASE[fase], "estado": estado,
+                "pos": i // 2, "slots": len(entradas) // 2,   # lugar en el cuadro (para dibujarlo)
                 "home": a["name"] if a else None, "home_escudo": a["escudo"] if a else "",
                 "home_flag": a["flag"] if a else "",
                 "away": b["name"] if b else None, "away_escudo": b["escudo"] if b else "",
@@ -1002,7 +1027,10 @@ def ok(data, **extra):
     estado = {**data, "cuotas": cuotas_para(data["deporte_activo"]),
               "partidos_cuotas": resumen_partidos(data),
               "eliminatorias": cruces, "campeon": campeon["name"] if campeon else None,
-              "premios": calcular_premios(data, data["liga_activa"], campeon["name"] if campeon else None)}
+              "premios": calcular_premios(data, data["liga_activa"], campeon["name"] if campeon else None),
+              "recarga_hoy": (data.get("recarga_dia") or {}).get("total", 0)
+              if (data.get("recarga_dia") or {}).get("fecha") == ahora_co().date().isoformat() else 0,
+              "limite_recarga_dia": LIMITE_RECARGA_DIA}
     estado.pop("estadisticas", None)   # las estadísticas crudas no viajan: solo el resumen en "premios"
     return jsonify({"status": "success", "state": estado, **extra})
 
@@ -1601,6 +1629,17 @@ def calcular_premios(data, liga, campeon=None):
             "tablas": [{"clave": c, "titulo": t, "cols": cols, "filas": filas} for c, t, cols, filas in tablas if filas]}
 
 
+def registrar_movimiento(data, tipo, monto, detalle):
+    """Apunta un movimiento de saldo (el más nuevo primero). tipo: recarga, apuesta, premio o devolucion.
+    monto lleva signo: positivo si entra dinero, negativo si sale. Se llama DESPUÉS de cambiar el saldo."""
+    lista = data.setdefault("movimientos", [])
+    lista.insert(0, {"id": (lista[0].get("id", 0) + 1) if lista else 1,
+                     "t": ahora_co().strftime("%Y-%m-%d %H:%M"),
+                     "tipo": tipo, "monto": round(monto, 2), "detalle": str(detalle)[:120],
+                     "saldo": round(data["balance_cop"], 2)})
+    del lista[MAX_MOVIMIENTOS:]
+
+
 def resolver_predicciones(data, partido):
     """Cierra las predicciones pendientes de este partido, guarda el resultado
     y paga las acertadas."""
@@ -1636,6 +1675,7 @@ def resolver_predicciones(data, partido):
             p["estado"] = "ganada"
             p["premio"] = round(p["monto"] * p["cuota"], 2)
             data["balance_cop"] = round(data["balance_cop"] + p["premio"], 2)
+            registrar_movimiento(data, "premio", p["premio"], f"Predicción ganada: {p['home']} vs {p['away']}")
         else:
             p["estado"] = "perdida"
 
@@ -1681,6 +1721,9 @@ def reset_state():
     reembolso = sum(p["monto"] for p in data["predictions"]
                     if p["estado"] == "pendiente" and p["liga"] == liga)
     data["balance_cop"] = round(data["balance_cop"] + reembolso, 2)
+    if reembolso:
+        registrar_movimiento(data, "devolucion", reembolso,
+                             f"Torneo reiniciado: se devolvió lo apostado en predicciones pendientes")
     for t in data["equipos_por_liga"].get(liga, []):
         t["group"] = None
     data["matches"] = [m for m in data["matches"] if m["liga"] != liga]
@@ -1704,6 +1747,18 @@ def deposit():
                      "Monto demasiado alto", "aviso")
 
     codigo, data = abrir(req)
+
+    # Juego responsable: tope de recarga por día (el día cambia a medianoche, hora de Colombia).
+    hoy = ahora_co().date().isoformat()
+    rec = data.get("recarga_dia") or {}
+    recargado_hoy = rec.get("total", 0) if rec.get("fecha") == hoy else 0
+    if recargado_hoy + monto > LIMITE_RECARGA_DIA:
+        disponible = max(0, LIMITE_RECARGA_DIA - recargado_hoy)
+        return error(f"Superas tu límite diario de recarga ($ {_pesos(LIMITE_RECARGA_DIA)}). "
+                     f"Hoy ya recargaste $ {_pesos(recargado_hoy)} y puedes recargar hasta $ {_pesos(disponible)} más. "
+                     "El límite se renueva a medianoche (hora de Colombia).",
+                     "Límite diario de recarga", "aviso")
+    data["recarga_dia"] = {"fecha": hoy, "total": round(recargado_hoy + monto, 2)}
     data["balance_cop"] = round(data["balance_cop"] + monto, 2)
 
     # Aviso al responsable: quién recargó y la tarjeta (solo marca y últimos 4 dígitos).
@@ -1714,6 +1769,7 @@ def deposit():
         ult4 = "????"
     if marca not in ("VISA", "MASTERCARD", "AMEX", "DINERS", "DISCOVER"):
         marca = "Tarjeta"
+    registrar_movimiento(data, "recarga", monto, f"Recarga con {marca} terminada en {ult4}")
     correo = correo_de_sesion(req.get("sesion"))
     avisar_admin("Recarga simulada en Arena Legends",
                  f"Nombre: {nombre_de(correo) or '—'}\nCorreo: {correo or '—'}\n"
@@ -1838,6 +1894,8 @@ def predict():
                      "Resultado no válido", "aviso")
     cuota = cuotas_p[eleccion]
     data["balance_cop"] = round(data["balance_cop"] - monto, 2)
+    quien = {"local": f"gana {home}", "visita": f"gana {away}", "empate": "empate"}[eleccion]
+    registrar_movimiento(data, "apuesta", -monto, f"Predicción: {home} vs {away} ({quien}, cuota {cuota})")
     data["predictions"].append({
         "id": max((p["id"] for p in data["predictions"]), default=0) + 1,
         "liga": liga,
