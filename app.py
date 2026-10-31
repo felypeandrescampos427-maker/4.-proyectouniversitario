@@ -731,7 +731,7 @@ def enviar_codigo(correo, proposito):
     sal = secrets.token_hex(8)
     clave = f"arena:cod:{cid}:{proposito}"
     kv_set(clave, json.dumps({"h": _h(sal + codigo), "sal": sal, "intentos": 0}), ex=CODIGO_VENCE_SEGUNDOS)
-    accion = "crear tu cuenta" if proposito == "registro" else "iniciar sesión"
+    accion = {"registro": "crear tu cuenta", "recuperar": "cambiar tu contraseña"}.get(proposito, "iniciar sesión")
     texto = (f"Tu código de verificación de Arena Legends es: {codigo}\n\n"
              f"Sirve para {accion} y vence en 10 minutos. Si no fuiste tú, ignora este correo.")
     html = (f"<div style='font-family:Arial,sans-serif;max-width:420px;margin:auto'>"
@@ -2211,11 +2211,63 @@ def auth_reenviar():
     req = request.get_json(silent=True) or {}
     correo = correo_de_req(req)
     proposito = req.get("proposito")
+    if proposito == "recuperar":
+        cuenta = _cuenta(correo) if correo else None
+        if cuenta and cuenta.get("verificada"):
+            enviar_codigo(correo, "recuperar")
+        return jsonify({"status": "success"})
     if not correo or proposito not in ("registro", "login"):
         return error("Empieza de nuevo.", "No se pudo reenviar", "aviso")
     if not kv_get(f"arena:cod:{id_cuenta(correo)}:{proposito}"):
         return error("Ese paso ya venció. Empieza de nuevo.", "No se pudo reenviar", "aviso")
     enviar_codigo(correo, proposito)
+    return jsonify({"status": "success"})
+
+
+def _clave_fuerte(clave):
+    return 8 <= len(clave) <= 100 and re.search(r"[A-Z]", clave) and re.search(r"[a-z]", clave) and re.search(r"\d", clave)
+
+
+@app.route("/api/auth/olvide", methods=["POST"])
+def auth_olvide():
+    """Paso 1 de "olvidé mi contraseña": manda un código al correo de la cuenta.
+    Responde igual exista o no la cuenta, para no revelar quién está registrado."""
+    req = request.get_json(silent=True) or {}
+    ident = str(req.get("identificador") or req.get("correo") or "").strip()
+    if len(ident) < 3 or len(ident) > 254:
+        return error("Escribe tu nombre completo o tu correo.", "Faltan datos", "aviso")
+    limite(f"arena:rl:olvide:{_h(_norm_nombre(ident))[:30]}", 5, 3600,
+           "Pediste demasiados códigos. Intenta de nuevo en una hora.")
+    limite(f"arena:rl:olvideip:{_h(_ip())[:20]}", 20, 3600, "Demasiadas solicitudes desde tu red. Intenta más tarde.")
+    correo, ambiguo = resolver_identificador(ident)
+    if ambiguo:
+        return error("Hay más de una cuenta con ese nombre. Escribe tu correo.", "Usa tu correo", "aviso")
+    cuenta = _cuenta(correo) if correo else None
+    if cuenta and cuenta.get("verificada"):
+        enviar_codigo(correo, "recuperar")
+    return jsonify({"status": "success", "correo": correo_oculto(correo) if correo else ""})
+
+
+@app.route("/api/auth/restablecer", methods=["POST"])
+def auth_restablecer():
+    """Paso 2: con el código recibido se guarda la contraseña nueva. Después hay que iniciar sesión."""
+    req = request.get_json(silent=True) or {}
+    ident = str(req.get("identificador") or req.get("correo") or "").strip()
+    nueva = str(req.get("clave") or "")
+    limite(f"arena:rl:restab:{_h(_norm_nombre(ident))[:30]}", 10, 900, "Demasiados intentos. Espera 15 minutos e intenta de nuevo.")
+    limite(f"arena:rl:restabip:{_h(_ip())[:20]}", 40, 900, "Demasiados intentos desde tu red. Intenta más tarde.")
+    if not _clave_fuerte(nueva):
+        return error("La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula y un número.",
+                     "Contraseña débil", "aviso")
+    correo, _ = resolver_identificador(ident)
+    cuenta = _cuenta(correo) if correo else None
+    if not (cuenta and cuenta.get("verificada")) or not comprobar_codigo(correo, "recuperar", req.get("codigo")):
+        return error("Ese código no es correcto o ya venció. Revisa tu correo o pide uno nuevo.",
+                     "Código incorrecto", "aviso")
+    cuenta["clave"] = generate_password_hash(nueva)
+    _guardar_cuenta(correo, cuenta)
+    avisar_admin("Contraseña restablecida en Arena Legends",
+                 f"Una persona cambió su contraseña con el código del correo.\nNombre: {nombre_de(correo) or '—'}\nCorreo: {correo}")
     return jsonify({"status": "success"})
 
 
