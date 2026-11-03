@@ -1363,12 +1363,16 @@
         pintarNarracion();
 
         // Voz: usa las voces en español que tenga el navegador (relator y comentarista suenan distinto).
-        function vocesEspanol() {
-            if (!('speechSynthesis' in window)) return [];
-            const todas = speechSynthesis.getVoices().filter(v => /^es/i.test(v.lang));
-            const orden = l => { const i = ['es-CO', 'es-MX', 'es-US', 'es-419', 'es-AR', 'es-ES'].indexOf(l.replace('_', '-')); return i < 0 ? 9 : i; };
-            return todas.sort((a, b) => orden(a.lang) - orden(b.lang));
-        }
+      function vocesEspanol() {
+    if (!('speechSynthesis' in window)) return [];
+    const todas = speechSynthesis.getVoices().filter(v => /^es/i.test(v.lang));
+    const orden = l => { const i = ['es-CO', 'es-MX', 'es-US', 'es-419', 'es-AR', 'es-ES'].indexOf(l.replace('_', '-')); return i < 0 ? 9 : i; };
+    // Las voces de hombre van primero (el navegador no dice el género, se reconoce por el nombre).
+    const HOMBRES = /gonzalo|jorge|raul|raúl|pablo|alvaro|álvaro|diego|juan|carlos|tomas|tomás|jaime|miguel|male|hombre/i;
+    const MUJERES = /sabina|helena|dalia|elvira|paulina|salome|salomé|monica|mónica|marisol|laura|female|mujer/i;
+    const puntaje = v => (HOMBRES.test(v.name) ? 0 : (MUJERES.test(v.name) ? 40 : 20)) + orden(v.lang);
+    return todas.sort((a, b) => puntaje(a) - puntaje(b));
+}
         if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = () => {};
         function hablarEvento(e) {
             if (!hayVoz() || !e.narracion || (sim && sim.saltar)) return;   // al saltar, ya no se habla
@@ -1383,7 +1387,7 @@
                 const voz = voces.length ? (relator ? voces[0] : (voces[1] || voces[0])) : null;
                 if (voz) { u.voice = voz; u.lang = voz.lang; }
                 u.rate = relator ? 1.12 : 0.98;
-                u.pitch = relator ? 1.05 : 0.85;
+                u.pitch = relator ? 0.9 : 0.75;
                 speechSynthesis.speak(u);
             });
         }
