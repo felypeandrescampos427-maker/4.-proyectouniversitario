@@ -1339,18 +1339,63 @@
         const setReloj = texto => { $('simReloj').textContent = '⏱️ ' + texto; };
         const separador = () => { const l = document.createElement('div'); l.className = 'border-t border-dashed border-[#3D3D3D] my-1'; return l; };
 
-        // ---------- NARRADORES ----------
-        const CLAVE_NARRACION = 'arena_legends_narracion';
-        let narracionOn = true;
-        try { narracionOn = localStorage.getItem(CLAVE_NARRACION) !== 'no'; } catch (e) { /* sin almacenamiento */ }
-        function pintarNarracion() { const el = document.getElementById('narracion-estado'); if (el) el.textContent = narracionOn ? 'Sí' : 'No'; }
+        // ---------- NARRADORES (texto y voz) ----------
+        const CLAVE_NARRACION = 'arena_legends_narracion_modo';
+        let modoNarracion = 'voz';   // 'voz' (texto + voz), 'texto' o 'no'
+        try { const g = localStorage.getItem(CLAVE_NARRACION); if (['voz', 'texto', 'no'].includes(g)) modoNarracion = g; } catch (e) { /* sin almacenamiento */ }
+        let narracionOn = modoNarracion !== 'no';
+        const hayVoz = () => modoNarracion === 'voz' && 'speechSynthesis' in window;
+        function pintarNarracion() {
+            const el = document.getElementById('narracion-estado');
+            if (el) el.textContent = modoNarracion === 'voz' ? 'Con voz 🔊' : (modoNarracion === 'texto' ? 'Solo texto' : 'No');
+        }
         function alternarNarracion() {
-            narracionOn = !narracionOn;
-            try { localStorage.setItem(CLAVE_NARRACION, narracionOn ? 'si' : 'no'); } catch (e) { /* sin almacenamiento */ }
+            modoNarracion = modoNarracion === 'voz' ? 'texto' : (modoNarracion === 'texto' ? 'no' : 'voz');
+            narracionOn = modoNarracion !== 'no';
+            try { localStorage.setItem(CLAVE_NARRACION, modoNarracion); } catch (e) { /* sin almacenamiento */ }
+            if (modoNarracion !== 'voz') detenerVoz();
             pintarNarracion();
-            mostrarToast(narracionOn ? '🎙️ Narradores activados' : 'Narradores desactivados');
+            mostrarToast(modoNarracion === 'voz' ? '🎙️ Narradores con voz' : (modoNarracion === 'texto' ? '🎙️ Narradores solo con texto' : 'Narradores desactivados'));
+            if (modoNarracion === 'voz' && 'speechSynthesis' in window) {   // el primer clic permite que el navegador deje hablar
+                const u = new SpeechSynthesisUtterance('Narradores con voz'); u.lang = 'es-CO'; u.volume = 0.6; speechSynthesis.speak(u);
+            }
         }
         pintarNarracion();
+
+        // Voz: usa las voces en español que tenga el navegador (relator y comentarista suenan distinto).
+        function vocesEspanol() {
+            if (!('speechSynthesis' in window)) return [];
+            const todas = speechSynthesis.getVoices().filter(v => /^es/i.test(v.lang));
+            const orden = l => { const i = ['es-CO', 'es-MX', 'es-US', 'es-419', 'es-AR', 'es-ES'].indexOf(l.replace('_', '-')); return i < 0 ? 9 : i; };
+            return todas.sort((a, b) => orden(a.lang) - orden(b.lang));
+        }
+        if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = () => {};
+        function hablarEvento(e) {
+            if (!hayVoz() || !e.narracion || (sim && sim.saltar)) return;   // al saltar, ya no se habla
+            try { hablarEventoSeguro(e); } catch (err) { modoNarracion = 'texto'; pintarNarracion(); }   // si la voz falla, sigue solo con texto
+        }
+        function hablarEventoSeguro(e) {
+            const voces = vocesEspanol();
+            e.narracion.forEach(([quien, frase], i) => {
+                const relator = i === 0;
+                const u = new SpeechSynthesisUtterance(frase.replace(/(\d+)-(\d+)/g, '$1 a $2').replace(/[\[\]]/g, ''));
+                u.lang = 'es-CO';
+                const voz = voces.length ? (relator ? voces[0] : (voces[1] || voces[0])) : null;
+                if (voz) { u.voice = voz; u.lang = voz.lang; }
+                u.rate = relator ? 1.12 : 0.98;
+                u.pitch = relator ? 1.05 : 0.85;
+                speechSynthesis.speak(u);
+            });
+        }
+        function detenerVoz() { try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) { /* sin voz */ } }
+        async function esperarVoz(actual) {
+            if (!hayVoz()) return;
+            try {
+            const hasta = Date.now() + 12000;   // tope por si el navegador no avisa que terminó
+            await pausa(150);
+            while ((speechSynthesis.speaking || speechSynthesis.pending) && sim === actual && !sim.saltar && Date.now() < hasta) await pausa(120);
+            } catch (err) { /* sin voz */ }
+        }
 
         function mostrarEvento(e, live) {
             const caja = $('simComentarios');
@@ -1401,7 +1446,9 @@
                     setReloj(e.reloj);
                 }
                 mostrarEvento(e, live);
+                hablarEvento(e);
                 await esperar(e.tipo === 'gol' ? 1500 : 850);
+                await esperarVoz(actual);
             }
             if (sim !== actual) return;
 
@@ -1413,6 +1460,7 @@
 
         function abrirSimulacion(data) {
             const live = data.live;
+            detenerVoz();
             sim = { estado: data.state, saltar: false, empuje: { home: 0, away: 0 }, pos: null, intervaloCampo: null };
 
             $('simComentarios').innerHTML = '';
@@ -1430,7 +1478,7 @@
             reproducirSimulacion(live);
         }
 
-        function saltarSimulacion() { if (sim) sim.saltar = true; }
+        function saltarSimulacion() { if (sim) sim.saltar = true; detenerVoz(); }
 
         function continuarTorneo() {
             if (!sim) return;
