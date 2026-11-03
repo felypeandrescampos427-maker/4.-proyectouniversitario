@@ -1352,11 +1352,16 @@ def _eventos_futbol(local, visitante, goles_local, goles_visitante):
             autor = _elegir(activos[1:], pos[lado], rango[lado], _PESO_GOL)
             asist = None
             otros = [j for j in activos if j != autor]
-            if otros and random.random() < 0.72:
-                asist = _elegir(otros, pos[lado], rango[lado], _PESO_ASIST)
-            texto = (f"¡GOL! Anotación de {autor} ({eq})" + (f", asistencia de {asist}" if asist else "")
-                     + f" [{marcador[0]}-{marcador[1]}]")
-            extra = {"jugador": autor, "asist": asist}
+            if random.random() < 0.12:   # penal dentro de los 90 minutos: el gol no tiene asistencia
+                texto = (f"¡Penal para {eq}! {autor} lo cobra y ¡GOL DE PENAL! "
+                         f"[{marcador[0]}-{marcador[1]}]")
+                extra = {"jugador": autor, "asist": None, "penal": True}
+            else:
+                if otros and random.random() < 0.72:
+                    asist = _elegir(otros, pos[lado], rango[lado], _PESO_ASIST)
+                texto = (f"¡GOL! Anotación de {autor} ({eq})" + (f", asistencia de {asist}" if asist else "")
+                         + f" [{marcador[0]}-{marcador[1]}]")
+                extra = {"jugador": autor, "asist": asist}
         elif tipo == "amarilla":
             jugador = random.choice([j for j in en_cancha(lado, minuto)[1:] if j not in amonestados])
             amonestados.add(jugador)
@@ -1507,6 +1512,138 @@ def construir_transmision(deporte, local, visitante, puntos_local, puntos_visita
     resumen = lambda t: {"name": t["name"], "escudo": t["escudo"], "flag": t["flag"]}
     return {"deporte": deporte, "home": resumen(local), "away": resumen(visitante), "eventos": eventos,
             "jugaron": {lado: [list(x) for x in lista] for lado, lista in jugaron.items()}, "porteros": porteros}
+
+
+# ---------------------------------------------------------------------------
+# Narradores: una pareja (relator + comentarista) por deporte.
+# Son personajes INVENTADOS para el juego; puedes cambiar los nombres aquí.
+# ---------------------------------------------------------------------------
+NARRADORES = {
+    "Fútbol": ("Rafa Montenegro", "Lucho Camargo"),
+    "Baloncesto": ("Dani Brooks", "Santi Ferrer"),
+    "Béisbol": ("Beto Alcázar", "Chelo Pineda"),
+    "eSports": ("Nico Vega", "Kiara Ortega"),
+}
+
+# tipo de evento -> (frases del relator, frases del comentarista). Marcadores: {j} jugador, {eq} equipo,
+# {m} marcador, {local} y {visit} equipos del partido, {sale} y {entra} en los cambios.
+_NARRACION = {
+    "Fútbol": {
+        "inicio": (["¡Rueda el balón! {local} y {visit} salen a buscar los tres puntos.",
+                    "Arranca el partido entre {local} y {visit}. ¡Qué ambiente en el estadio!"],
+                   ["Va a ser clave quién controle el medio campo.",
+                    "Los primeros minutos dicen mucho: hay que ver quién sale con más intensidad."]),
+        "gol": (["¡GOOOL de {eq}! ¡{j} la manda a guardar! Se pone {m}.",
+                 "¡Se rompe el silencio! {j} anota para {eq}. ¡{m}!",
+                 "¡Golazo, golazo! {j} la clava y {eq} festeja. Ahora {m}."],
+                ["Muy bien ejecutado: se vio la jerarquía de {j} dentro del área.",
+                 "Ahí falló la marca: dejaron solo a {j} y eso se paga caro.",
+                 "Gran movimiento previo; {eq} venía insistiendo por esa zona."]),
+        "amarilla": (["Tarjeta amarilla para {j} de {eq}. Tiene que cuidarse."],
+                     ["Queda condicionado: ahora debe medir sus entradas."]),
+        "roja": (["¡Roja directa para {j}! {eq} se queda con diez."],
+                 ["Se complica el partido para {eq}: tendrá que replegarse y sufrir."]),
+        "cambio": (["Movimiento en el banco de {eq}: sale {sale} y entra {entra}."],
+                   ["El técnico busca frescura para el tramo que viene."]),
+        "descanso": (["Se acaba el primer tiempo. El marcador es {m}."],
+                     ["Habrá que ver qué ajustes se hacen en el vestuario."]),
+        "jugada": (["{eq} se hace con el balón e intenta progresar."],
+                   ["Buena circulación, pero falta el último pase."]),
+        "fin": (["¡Se acabó! Final del partido: {local} {m} {visit}."],
+                ["Dos equipos que dejaron todo en la cancha."]),
+        "gol_penal": (["¡Lo cobra {j} y la manda al fondo! Gol de penal para {eq}, ahora {m}.",
+                       "¡Pitazo, penal y gol! {j} no tembló desde los doce pasos. Marcador {m}."],
+                      ["Con el arquero ya vencido, ese penal fue imposible de detener.",
+                       "Una falta ingenua dentro del área y se pagó caro."]),
+        "pen_gol": (["¡Y adentro! Gol en la tanda de penales: {pen}."], ["Qué sangre fría para patear con tanta presión."]),
+        "pen_falla": (["¡Lo falla! Se salva el arquero."], ["Los nervios pesan en una definición así."]),
+        "pen_inicio": (["¡Empate! Esto se va a los penales y los nervios mandan."], []),
+        "pen_fin": (["¡Terminó la tanda! Qué manera de definir una clasificación."], []),
+        "segundo": (["Se reanuda el juego: comienza el segundo tiempo."], []),
+    },
+    "Baloncesto": {
+        "inicio": (["¡Salta el balón! Comienza {local} contra {visit}."],
+                   ["Hay que mirar el ritmo: el que corra más la cancha tiene ventaja."]),
+        "gol": (["¡Canasta de {j} para {eq}! Va {m}.",
+                 "¡{j} la mete y {eq} responde! Marcador {m}."],
+                ["Muy buena circulación de balón antes del tiro.",
+                 "Defensa tardía: dejaron el espacio y {j} no perdona."]),
+        "jugada": (["¡Qué jugada! {eq} sigue empujando."], ["Así se genera ventaja: con movimiento y sin balón quieto."]),
+        "descanso": (["Termina el cuarto. Marcador {m}."], ["Hay que cerrar mejor los rebotes."]),
+        "fin": (["¡Final del partido! {local} {m} {visit}."], ["Un partido intenso de principio a fin."]),
+    },
+    "Béisbol": {
+        "inicio": (["¡Play ball! Arranca {local} contra {visit}."], ["Todo empieza con el pitcheo: si controla, manda el juego."]),
+        "gol": (["¡Carrera para {eq}! {j} cruza el plato. Va {m}.",
+                 "¡Se empuja una más! {j} anota para {eq}. Marcador {m}."],
+                ["Buen contacto y corrida agresiva en las bases.",
+                 "El lanzador dejó la bola en la zona y {j} la aprovechó."]),
+        "jugada": (["¡Gran jugada defensiva! {eq} se mantiene en el juego."], ["Detalles de defensa que pueden cambiar una entrada."]),
+        "descanso": (["Se cierra la entrada. Marcador {m}."], ["Habrá que ver si el abridor aguanta."]),
+        "fin": (["¡Termina el juego! {local} {m} {visit}."], ["Un duelo muy parejo hasta el final."]),
+    },
+    "eSports": {
+        "inicio": (["¡Comienza la serie! {local} contra {visit}, todo listo en la Grieta."],
+                   ["La fase de picks y bans ya dio pistas sobre las estrategias."]),
+        "gol": (["¡Mapa para {eq}! {j} fue decisivo. La serie va {m}.",
+                 "¡Cae el nexo y {eq} se lleva el mapa! Serie {m}."],
+                ["Muy buena lectura de las peleas de equipo y del control de objetivos.",
+                 "{j} estuvo en todas: ahí se ganó el mapa."]),
+        "jugada": (["¡Qué jugada! {eq} cambia el ritmo de la partida."], ["Buen uso de las habilidades en el momento justo."]),
+        "descanso": (["Termina el mapa. Serie {m}."], ["Ahora toca ajustar la composición."]),
+        "fin": (["¡Se acabó la serie! {local} {m} {visit}."], ["Se decidió en los detalles."]),
+    },
+}
+
+
+def narrar_transmision(trans, local, visitante):
+    """Agrega a cada evento de la transmisión 1 o 2 frases de la pareja de narradores (campo "narracion")."""
+    deporte = trans["deporte"]
+    pool = _NARRACION.get(deporte)
+    pareja = NARRADORES.get(deporte)
+    if not pool or not pareja:
+        return trans
+    relator, comentarista = pareja
+    nombres = {"home": local["name"], "away": visitante["name"]}
+    for e in trans["eventos"]:
+        tipo = e["tipo"]
+        texto = e.get("texto", "")
+        clave = tipo
+        if tipo == "info":
+            if "segundo tiempo" in texto:
+                clave = "segundo"
+            elif "Empate" in texto:
+                clave = "pen_inicio"
+            elif "gana por penales" in texto:
+                clave = "pen_fin"
+            else:
+                continue
+        elif e.get("pen") is not None and tipo == "gol":
+            clave = "pen_gol"
+        elif e.get("penal") and tipo == "gol":
+            clave = "gol_penal"
+        elif e.get("pen") is not None and tipo == "jugada":
+            clave = "pen_falla"
+        elif tipo == "jugada" and random.random() < 0.45:
+            continue
+        elif deporte == "Baloncesto" and tipo == "gol" and random.random() < 0.55:
+            continue   # hay muchas canastas: se narra más o menos la mitad
+        frases = pool.get(clave)
+        if not frases:
+            continue
+        datos = {"j": e.get("jugador") or "el jugador", "eq": nombres.get(e.get("lado"), ""),
+                 "m": f"{e['marcador'][0]}-{e['marcador'][1]}", "local": local["name"], "visit": visitante["name"],
+                 "sale": e.get("sale", ""), "entra": e.get("entra", ""),
+                 "pen": "-".join(str(x) for x in e["pen"]) if e.get("pen") else ""}
+        lineas = []
+        if frases[0]:
+            lineas.append([relator, random.choice(frases[0]).format(**datos)])
+        if frases[1] and (tipo in ("gol", "roja", "fin") or random.random() < 0.6):
+            lineas.append([comentarista, random.choice(frases[1]).format(**datos)])
+        if lineas:
+            e["narracion"] = lineas
+    return trans
+
 
 
 # ---------------------------------------------------------------------------
@@ -1947,7 +2084,7 @@ def _aviso(mensaje, titulo="Ups, algo salió mal", tipo="error"):
     return (mensaje, titulo, tipo)
 
 
-def jugar_siguiente(data):
+def jugar_siguiente(data, narracion=False):
     """Juega el siguiente partido del calendario (grupos, luego fases finales).
     Devuelve (partido, transmisión, None) o (None, None, (mensaje, título, tipo)) si no se puede jugar."""
     liga = data["liga_activa"]
@@ -2013,6 +2150,8 @@ def jugar_siguiente(data):
     })
     resolver_predicciones(data, data["matches"][0])
     transmision = construir_transmision(deporte, local, visitante, goles_local, goles_visitante, penales)
+    if narracion:
+        narrar_transmision(transmision, local, visitante)
     actualizar_estadisticas(data, data["matches"][0], transmision)
     return data["matches"][0], transmision, None
 
@@ -2021,7 +2160,7 @@ def jugar_siguiente(data):
 def simulate_match():
     req = request.get_json(silent=True) or {}
     codigo, data = abrir(req)
-    partido, transmision, problema = jugar_siguiente(data)
+    partido, transmision, problema = jugar_siguiente(data, bool(req.get("narracion")))
     if problema:
         return error(*problema)
     return responder(codigo, data, live=transmision)
