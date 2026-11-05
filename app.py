@@ -1596,6 +1596,143 @@ _NARRACION = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Relato continuo: jugada a jugada, con los nombres de los jugadores en cancha.
+# Son eventos "narra" que no cambian el marcador ni las estadísticas: solo se narran.
+# ---------------------------------------------------------------------------
+_PARTICULAS = {"de", "da", "do", "dos", "van", "von", "di", "del", "le", "la", "el", "al"}
+
+
+def _apellido(nombre):
+    p = str(nombre).split()
+    if len(p) >= 3 and p[-2].lower() in _PARTICULAS:
+        return " ".join(p[-2:])
+    return p[-1] if p else str(nombre)
+
+
+_ATAQUES_FUTBOL = [
+    "La tiene {m1}, se la pasa a {m2}, {m2} abre para {d1} por la banda, centra al área... ¡{f1} cabecea y la manda por encima del travesaño!",
+    "Recupera {d1}, se la entrega a {m1}, {m1} levanta la cabeza y filtra para {f1}, {f1} define... ¡afuera, rozando el palo!",
+    "{m1} conduce por el medio, pared con {f1}, {f1} se la devuelve, {m1} dispara de media distancia... ¡atajada de {gk}!",
+    "Sale jugando {d1}, retrocede con {d2}, de vuelta a {m1}, {m1} se la lanza larga a {f1}... el balón se va largo, saque de arco para {rival}.",
+    "Tiro de esquina para {eq}. Lo cobra {m1}, al área, salta {f1}... ¡cabezazo desviado!",
+    "{f1} retrocede a buscar la pelota, se la deja a {m1}, {m1} se la pasa a {f2}, {f2} define... ¡bloqueado por la defensa!",
+    "Gran jugada individual de {f1}: se saca a uno, se saca a otro, entra al área y dispara... ¡{gk} se lo saca con el pie!",
+    "Toque, toque en el medio campo: {m1}, {m2}, {d1}, de nuevo {m1}... {eq} maneja la pelota con paciencia.",
+    "Falta de {x} sobre {f1} en tres cuartos de cancha. Cobra {m1} al área... despeja la defensa.",
+    "{d1} se proyecta por el costado, centro atrás para {m1}, {m1} remata de primera... ¡se va muy alto!",
+    "{m2} roba en el medio, se la toca a {m1}, {m1} abre a la derecha para {d1}, centro rasante... ¡{gk} la atrapa sin problemas!",
+    "Pelota larga de {d2} buscando a {f1}, {f1} se la baja de pecho, gira y remata... ¡al lateral de la red!",
+]
+_COMENT_FUTBOL = [
+    "{eq} está muy activo por ese sector, hay que cuidarlo.",
+    "Le faltó precisión en el último pase.",
+    "Buen manejo de {m1}: siempre aparece para descargar el balón.",
+    "Se vio la intención, pero {rival} cerró bien los espacios.",
+    "El partido se está jugando mucho en el medio campo.",
+    "{f1} está muy participativo, se mueve bien entre los centrales.",
+]
+_SAQUE_INICIAL = ("¡Empieza el partido! Sale tocando {f1} con {m1}, retrocede con {d1}, se la devuelven a {m1}... {eq} saca desde el círculo central.",
+                  "Veremos cómo plantean estos primeros minutos.")
+_SAQUE_SEGUNDO = ("Se reanuda el juego. Saca {eq}: la toca {m1} para {d1}, de nuevo al medio, y empieza a elaborar.",
+                  "Los entrenadores seguro hicieron ajustes en el descanso.")
+_GENERICOS = {
+    "Baloncesto": ["{a} sube la pelota, se la pasa a {b}, bloqueo de {c}, {b} lanza de tres... ¡no entra y {rival} se lleva el rebote!",
+                   "Defensa fuerte de {a} sobre {x}, pierde el balón {x}... contraataque de {eq}, ¡pero {b} falla la bandeja!",
+                   "Posesión larga de {eq}: {a}, {b}, {c}... buscan el mejor tiro antes de que se acabe el reloj."],
+    "Béisbol": ["Lanza {a}: strike a la esquina. {x} batea un rodado por segunda, {b} lo atrapa y ¡out en primera!",
+                "Cuenta llena para {x}... foul, otro foul... ¡se poncha mirando!",
+                "Corredor en primera, {a} vigila la base... {b} se roba la segunda, ¡safe por muy poco!"],
+    "eSports": ["{a} farmea en su línea, {b} presiona en el medio, {c} rota hacia el objetivo... pelea de equipo en el río, ¡{eq} la gana sin bajas!",
+                "Cambia el ritmo: {a} abre con la iniciativa, {b} entra con todo, {c} protege... ¡{rival} logra escapar con poca vida!",
+                "Visión de mapa de {a}: ve al equipo contrario rotando, avisa a {b} y a {c}... hay que ver quién se queda con el dragón."],
+}
+
+
+def _evento_relato(base, minuto, lado, marcador, relator, comentarista, texto, coment, corto=None, reloj=None):
+    lineas = [[relator, texto]]
+    if coment:
+        lineas.append([comentarista, coment])
+    return {"t": minuto, "corto": corto or f"{minuto}'", "reloj": reloj or f"{minuto}'", "tipo": "narra", "texto": "",
+            "lado": lado, "marcador": list(marcador), "narracion": lineas}
+
+
+def _relato_futbol(trans, local, visitante, relator, comentarista):
+    nombres = {"home": local["name"], "away": visitante["name"]}
+    pos = {lado: {n: p for n, p in trans["jugaron"][lado]} for lado in nombres}
+    activos = {lado: [n for n, _ in trans["jugaron"][lado][:11]] for lado in nombres}
+    otro = {"home": "away", "away": "home"}
+
+    def contexto(lado):
+        fuera = [n for n in activos[lado] if pos[lado].get(n) != "POR"]
+        grupo = lambda ps: [n for n in fuera if pos[lado].get(n) in ps]
+        d, m, f = grupo(("DEF",)) or fuera, grupo(("MED",)) or fuera, grupo(("DEL",)) or fuera
+        rival = otro[lado]
+        porteros = [n for n in activos[rival] if pos[rival].get(n) == "POR"]
+        rivales = [n for n in activos[rival] if pos[rival].get(n) != "POR"] or ["un rival"]
+        pick = lambda lista, k: random.sample(lista, min(k, len(lista))) + [random.choice(lista)] * max(0, k - len(lista))
+        d1, d2 = pick(d, 2); m1, m2 = pick(m, 2); f1, f2 = pick(f, 2)
+        return {"d1": _apellido(d1), "d2": _apellido(d2), "m1": _apellido(m1), "m2": _apellido(m2),
+                "f1": _apellido(f1), "f2": _apellido(f2), "eq": nombres[lado], "rival": nombres[rival],
+                "gk": _apellido(porteros[0]) if porteros else "el portero", "x": _apellido(random.choice(rivales))}
+
+    nuevos, prev_t, marcador = [], 0, [0, 0]
+    for e in trans["eventos"]:
+        t = e["t"]
+        if e["tipo"] == "gol" and e.get("jugador") and e.get("pen") is None and e["lado"] in nombres:
+            lado, ctx = e["lado"], contexto(e["lado"])
+            autor = _apellido(e["jugador"])
+            if e.get("penal"):
+                texto = f"¡Derriban a {ctx['f1']} dentro del área! El árbitro no lo duda: ¡penal para {ctx['eq']}! Se acomoda {autor} frente al balón..."
+            else:
+                pasador = _apellido(e["asist"]) if e.get("asist") else ctx["m1"]
+                texto = f"{pasador} la tiene, mira al área, filtra para {autor}... ¡{autor} se acomoda y dispara!"
+            nuevos.append(_evento_relato(e, t, lado, marcador, relator, comentarista, texto, None))
+        elif e["tipo"] not in ("inicio", "descanso", "fin", "info") and e.get("pen") is None and t - prev_t >= 4:
+            huecos = 1 if t - prev_t < 10 else 2
+            for i in range(huecos):
+                minuto = prev_t + round((t - prev_t) * (i + 1) / (huecos + 1))
+                lado = random.choice(list(nombres)); ctx = contexto(lado)
+                coment = random.choice(_COMENT_FUTBOL).format(**ctx) if random.random() < 0.6 else None
+                nuevos.append(_evento_relato(e, minuto, lado, marcador, relator, comentarista,
+                                             random.choice(_ATAQUES_FUTBOL).format(**ctx), coment))
+        nuevos.append(e)
+        marcador = e["marcador"]
+        prev_t = max(prev_t, t) if e.get("pen") is None else prev_t
+        # quién está en cancha
+        if e["tipo"] == "cambio" and e.get("sale") in activos.get(e.get("lado"), []):
+            activos[e["lado"]][activos[e["lado"]].index(e["sale"])] = e["entra"]
+        elif e["tipo"] == "roja" and e.get("jugador") in activos.get(e.get("lado"), []):
+            activos[e["lado"]].remove(e["jugador"])
+        elif e["tipo"] == "inicio" or (e["tipo"] == "info" and "segundo tiempo" in e.get("texto", "")):
+            lado = "home" if e["tipo"] == "inicio" else "away"
+            ctx = contexto(lado); plantilla = _SAQUE_INICIAL if e["tipo"] == "inicio" else _SAQUE_SEGUNDO
+            nuevos.append(_evento_relato(e, t, lado, marcador, relator, comentarista,
+                                         plantilla[0].format(**ctx), plantilla[1]))
+    trans["eventos"] = nuevos
+
+
+def _relato_generico(trans, local, visitante, relator, comentarista):
+    deporte = trans["deporte"]
+    plantillas = _GENERICOS.get(deporte)
+    if not plantillas:
+        return
+    nombres = {"home": local["name"], "away": visitante["name"]}
+    jug = {lado: [n for n, _ in trans["jugaron"][lado]] or ["el jugador"] for lado in nombres}
+    prob = {"Baloncesto": 0.12, "Béisbol": 0.6, "eSports": 1.0}[deporte]
+    nuevos = []
+    for i, e in enumerate(trans["eventos"]):
+        nuevos.append(e)
+        if i < len(trans["eventos"]) - 1 and e["tipo"] != "fin" and random.random() < prob:
+            lado = random.choice(list(nombres)); rival = "away" if lado == "home" else "home"
+            a, b, c = (random.sample(jug[lado], 3) if len(jug[lado]) >= 3 else (jug[lado] * 3)[:3])
+            texto = random.choice(plantillas).format(a=_apellido(a), b=_apellido(b), c=_apellido(c), eq=nombres[lado],
+                                                     rival=nombres[rival], x=_apellido(random.choice(jug[rival])))
+            nuevos.append(_evento_relato(e, e["t"], lado, e["marcador"], relator, comentarista, texto, None,
+                                         corto=e["corto"], reloj=e.get("reloj")))
+    trans["eventos"] = nuevos
+
+
 def narrar_transmision(trans, local, visitante):
     """Agrega a cada evento de la transmisión 1 o 2 frases de la pareja de narradores (campo "narracion")."""
     deporte = trans["deporte"]
@@ -1642,6 +1779,14 @@ def narrar_transmision(trans, local, visitante):
             lineas.append([comentarista, random.choice(frases[1]).format(**datos)])
         if lineas:
             e["narracion"] = lineas
+    # relato continuo entre jugada y jugada, con los nombres de los jugadores
+    try:
+        if deporte == "Fútbol":
+            _relato_futbol(trans, local, visitante, relator, comentarista)
+        else:
+            _relato_generico(trans, local, visitante, relator, comentarista)
+    except (KeyError, IndexError, ValueError, TypeError):
+        pass   # si algo falla, la transmisión sigue con las frases de siempre
     return trans
 
 
