@@ -1491,7 +1491,7 @@
                           const [bx, by] = sim.pos[lado][1 + Math.floor(Math.random() * 10)];
                           return [bx + 8, by + 8];
                       },
-                      texto: () => '¡GOL!' };
+                      texto: () => '¡GOL!', esFutbol: true };
             } else if (dep === 'Baloncesto') {
                 c = { n: 5, alto: 300, R: 15, dibujo: dibujoBaloncesto(), cartelY: 160,
                       base: { home: BASE_BALONCESTO, away: espejo(BASE_BALONCESTO) }, dir: { home: 1, away: -1 },
@@ -1548,8 +1548,13 @@
                 };
                 ponerTurno('away');
             }
-            posicionar(true);
-            moverBalon();
+            if (dep === 'Fútbol') {   // saque inicial: todos en su sitio y el balón quieto en el centro un instante
+                c.alEvento = alEventoFutbol;
+                posicionar(false);
+                ponerBalon(c.centro[0], c.centro[1]);
+                sim.pausaHasta = Date.now() + 20000;   // espera la voz de "saca desde el círculo central"
+                sim.esperaSaque = true;
+            } else { posicionar(true); moverBalon(); }
             sim.intervaloCampo = setInterval(moverCampo, 800);
         }
 
@@ -1604,10 +1609,132 @@
         function saque() {
             if (!sim || !sim.campo) return;
             const c = sim.campo;
+            if (sim.descanso) { posicionar(false); ponerBalon(c.centro[0], c.centro[1]); sim.pausaHasta = Infinity; return; }
             sim.empuje = { home: 0, away: 0 };
             posicionar(false);
             ponerBalon(c.centro[0], c.centro[1]);
             sim.pausaHasta = Date.now() + c.pausaSaque;
+        }
+
+        // ---------- FÚTBOL: jugadas paradas (falta, córner, penal), descanso y segundo tiempo ----------
+        // 'lado' es el equipo que ataca (el que cobra). Las posiciones se escriben como si atacara hacia la derecha
+        // y se espejan cuando ataca el visitante.
+        function prepararEspecial(tipo, lado, hold) {
+            if (!sim || !sim.campo || sim.descanso) return;
+            const actual = sim, token = ++sim.tokenEspecial;
+            const P = (x, y) => lado === 'home' ? [x, y] : [500 - x, y];
+            const rival = otroLado(lado);
+            let att, def, bola;
+            const arriba = Math.random() < .5;
+            if (tipo === 'corner') {
+                const yc = arriba ? 26 : 364;
+                bola = P(476, yc);
+                att = [[40, 195], [250, 120], [250, 170], [250, 220], [250, 270], [468, arriba ? 36 : 354], [350, 150], [350, 240], [430, 150], [436, 195], [426, 245]];
+                def = [[486, 195], [452, 115], [452, 165], [452, 225], [452, 275], [408, 140], [408, 195], [408, 250], [322, 130], [322, 195], [322, 260]];
+            } else if (tipo === 'falta') {
+                const xb = 320 + Math.random() * 40, yb = 110 + Math.random() * 170;
+                bola = P(xb, yb);
+                att = [[40, 195], [230, 110], [230, 165], [230, 225], [230, 280], [xb - 14, yb + 8], [xb - 40, yb - 36], [xb - 40, yb + 40], [425, 150], [432, 195], [425, 240]];
+                def = [[486, 195], [450, 115], [450, 165], [450, 225], [450, 275], [xb + 55, yb - 16], [xb + 55, yb], [xb + 55, yb + 16], [300, 130], [300, 195], [300, 260]];
+            } else {   // penal
+                bola = P(432, 195);
+                att = [[40, 195], [250, 100], [250, 160], [250, 230], [250, 290], [396, 110], [396, 160], [396, 230], [396, 280], [352, 140], [420, 195]];
+                def = [[490, 195], [384, 85], [384, 140], [384, 250], [384, 305], [330, 120], [330, 195], [330, 270], [300, 140], [300, 195], [300, 250]];
+            }
+            const poner = (l, lista) => lista.forEach(([x, y], i) => {
+                const [px, py] = P(x, y), el = document.getElementById(`pj-${l}-${i}`);
+                if (!el) return;
+                sim.pos[l][i] = [px, py];
+                el.style.transform = `translate(${px}px, ${py}px)`;
+            });
+            poner(lado, att); poner(rival, def);
+            ponerBalon(bola[0], bola[1]);
+            sim.pausaHasta = Date.now() + hold;
+            sim.preparado = { tipo, lado, t: Date.now() };
+            setTimeout(() => { if (sim === actual && sim.tokenEspecial === token) reanudar(lado); }, hold);
+        }
+
+        // Falta en el medio campo (tarjeta amarilla): el balón queda donde fue la falta y unos jugadores se juntan ahí.
+        function faltaEnMedio() {
+            if (!sim || !sim.campo || sim.descanso) return;
+            const actual = sim, token = ++sim.tokenEspecial;
+            const bx = 190 + Math.random() * 120, by = 100 + Math.random() * 190;
+            [['home', 5], ['home', 6], ['away', 5], ['away', 6]].forEach(([l, i], k) => {
+                const el = document.getElementById(`pj-${l}-${i}`);
+                const px = bx + (k % 2 ? 22 : -22), py = by + (l === 'home' ? -14 : 14);
+                if (!el) return;
+                sim.pos[l][i] = [px, py];
+                el.style.transform = `translate(${px}px, ${py}px)`;
+            });
+            ponerBalon(bx, by);
+            sim.pausaHasta = Date.now() + 1600;
+            setTimeout(() => { if (sim === actual && sim.tokenEspecial === token) reanudar(null); }, 1600);
+        }
+
+        // Después de la jugada parada el juego sigue desde ahí: el equipo que cobraba queda empujado al ataque.
+        function reanudar(lado) {
+            if (!sim || !sim.campo || sim.descanso) return;
+            sim.empuje = { home: 0, away: 0 };
+            if (lado) sim.empuje[lado] = 55;
+            sim.pausaHasta = 0;
+            posicionar(true);
+            moverBalon();
+        }
+
+        // Fin del primer tiempo: todos quietos hasta que empiece el segundo.
+        function entrarDescanso() {
+            if (!sim || !sim.campo) return;
+            sim.tokenEspecial++;
+            sim.descanso = true;
+            sim.empuje = { home: 0, away: 0 };
+            posicionar(false);
+            ponerBalon(sim.campo.centro[0], sim.campo.centro[1]);
+            sim.pausaHasta = Infinity;
+        }
+        function salirDescanso(e) {
+            if (!sim || !sim.campo) return;
+            sim.tokenEspecial++;
+            sim.descanso = false;
+            sim.empuje = { home: 0, away: 0 };
+            posicionar(false);
+            ponerBalon(sim.campo.centro[0], sim.campo.centro[1]);
+            sim.pausaHasta = Date.now() + 20000;   // el balón empieza a rodar cuando los narradores digan que se reanuda
+            sim.esperaSaque = true;
+            if (!(e && e.narracion && e.narracion.length)) sim.liberarTras = e;   // sin narración: sigue al terminar este evento
+        }
+
+        function penalFallado(e) {
+            prepararEspecial('penal', e.lado, 1500);
+            const actual = sim, c = sim.campo, token = sim.tokenEspecial;
+            setTimeout(() => {
+                if (sim !== actual || sim.tokenEspecial !== token) return;
+                const [gx] = c.porteria[e.lado];
+                ponerBalon(gx + (gx > 250 ? 10 : -10), Math.random() < .5 ? 130 : 262);   // se va desviado o lo ataja el portero
+            }, 650);
+        }
+
+        function alEventoFutbol(e) {
+            if (!sim || !sim.campo) return;
+            const txt = e.texto || '';
+            if (e.tipo === 'inicio') {   // el balón sigue quieto en el centro hasta que se diga que saca
+                if (!(e.narracion && e.narracion.length)) sim.liberarTras = e;
+                return;
+            }
+            if (e.tipo === 'narra' && sim.esperaSaque && e.narracion && e.narracion[0]
+                && /saca desde el c[ií]rculo|Se reanuda el juego\. Saca/i.test(e.narracion[0][1])) sim.liberarTras = e;
+            if (e.tipo === 'descanso') return entrarDescanso();
+            if (e.tipo === 'info') {
+                if (/segundo tiempo/i.test(txt)) return salirDescanso(e);
+                if (/penales/i.test(txt) && !e.pen) return saque();
+                return;
+            }
+            if (e.tipo === 'gol' || !e.lado) return;   // los goles los maneja celebrarGol
+            if (e.pen) return penalFallado(e);
+            if (e.tipo === 'amarilla') return faltaEnMedio();
+            const linea = txt || (e.narracion && e.narracion[0] ? e.narracion[0][1] : '');
+            if (/tiro de esquina/i.test(linea)) prepararEspecial('corner', e.lado, 2400);
+            else if (/penal/i.test(linea)) prepararEspecial('penal', e.lado, 4500);
+            else if (/(^|[.!¡?]\s*)Falta\b|Falta (de|peligrosa)/.test(linea)) prepararEspecial('falta', e.lado, 2400);
         }
 
         function construirPanelGenerico(live) {
@@ -1827,28 +1954,39 @@
             if (!c || !e.lado) return;
             const lado = e.lado;
             const pausa = e.pen ? 1400 : c.pausaGol;
-            if (cartel) { cartel.textContent = c.texto(e); cartel.style.opacity = 1; }
-            if (c.empuje) { sim.empuje[lado] = c.empuje; posicionar(true); }   // el equipo que anota se vuelca al ataque
-            sim.pausaHasta = Date.now() + pausa;
-            if (c.activo) {   // béisbol: el bateador recorre las bases hasta el plato
-                ponerJugadorEnFicha(lado, 9, e.jugador || sim.jugadores[lado][9]);
-                const el = document.getElementById(`pj-${lado}-9`);
-                if (el) {
-                    el.style.opacity = 1;
-                    RECORRIDO_BEISBOL.forEach(([x, y], k) => setTimeout(() => {
-                        if (sim === actual) el.style.transform = `translate(${x}px, ${y}px)`;
-                    }, 200 + k * 650));
-                }
-                ponerBalon(250, 266);
-            } else {          // fútbol y baloncesto: el balón se queda dentro del arco / aro
-                const [gx, gy] = c.porteria[lado];
-                ponerBalon(gx, gy + (Math.random() - .5) * (c.alto === 390 ? 20 : 0));
+            let demora = 0;   // en un penal el balón primero se pone en el punto y después entra
+            if (c.esFutbol && (e.pen || e.penal)) {
+                const p = sim.preparado;
+                if (p && p.tipo === 'penal' && p.lado === lado && Date.now() - p.t < 9000) demora = 400;
+                else { prepararEspecial('penal', lado, 2000); demora = 900; }
             }
+            const token = ++sim.tokenEspecial;
+            sim.pausaHasta = Date.now() + pausa + demora;
+            const anotar = () => {
+                if (sim !== actual) return;
+                if (cartel) { cartel.textContent = c.texto(e); cartel.style.opacity = 1; }
+                if (c.empuje && !demora) { sim.empuje[lado] = c.empuje; posicionar(true); }   // se vuelca al ataque
+                if (c.activo) {   // béisbol: el bateador recorre las bases hasta el plato
+                    ponerJugadorEnFicha(lado, 9, e.jugador || sim.jugadores[lado][9]);
+                    const el = document.getElementById(`pj-${lado}-9`);
+                    if (el) {
+                        el.style.opacity = 1;
+                        RECORRIDO_BEISBOL.forEach(([x, y], k) => setTimeout(() => {
+                            if (sim === actual) el.style.transform = `translate(${x}px, ${y}px)`;
+                        }, 200 + k * 650));
+                    }
+                    ponerBalon(250, 266);
+                } else {          // fútbol y baloncesto: el balón se queda dentro del arco / aro
+                    const [gx, gy] = c.porteria[lado];
+                    ponerBalon(gx, gy + (Math.random() - .5) * (c.alto === 390 ? 20 : 0));
+                }
+            };
+            if (demora) setTimeout(anotar, demora); else anotar();
             setTimeout(() => {
                 if (sim !== actual) return;
                 if (cartel) cartel.style.opacity = 0;
-                saque();
-            }, pausa);
+                if (sim.tokenEspecial === token) saque();   // saque de mitad (si no empezó otra jugada)
+            }, demora + pausa);
         }
 
         async function reproducirSimulacion(live) {
@@ -1869,8 +2007,12 @@
                 }
                 mostrarEvento(e, live);
                 hablarEvento(e);
-                await esperar(e.tipo === 'gol' ? 1500 : 850);
+                await esperar(e.tipo === 'gol' ? 1500 : (futbol && e.tipo === 'descanso' ? 4000 : 850));   // el entretiempo se nota: todos quietos
                 await esperarVoz(actual);
+                if (sim === actual && sim.liberarTras === e) {   // terminó de decir que saca: empieza a rodar el balón
+                    sim.liberarTras = null; sim.esperaSaque = false;
+                    sim.pausaHasta = Date.now() + 500;
+                }
             }
             if (sim !== actual) return;
 
@@ -1883,7 +2025,7 @@
         function abrirSimulacion(data) {
             const live = data.live;
             detenerVoz();
-            sim = { estado: data.state, saltar: false, empuje: { home: 0, away: 0 }, pos: null, intervaloCampo: null, campo: null, pausaHasta: 0, bateando: 'away' };
+            sim = { estado: data.state, saltar: false, empuje: { home: 0, away: 0 }, pos: null, intervaloCampo: null, campo: null, pausaHasta: 0, bateando: 'away', tokenEspecial: 0, descanso: false, preparado: null, esperaSaque: false, liberarTras: null };
 
             $('simComentarios').innerHTML = '';
             $('simSaltar').classList.remove('hidden');
