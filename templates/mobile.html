@@ -1274,72 +1274,226 @@
             fin: '🏁', inicio: '📣', info: '📣', jugada: '•'
         };
 
+        // ---------- CANCHAS: fútbol, baloncesto y béisbol ----------
+        // Fútbol 4-3-3 (el local ataca hacia la derecha y el visitante hacia la izquierda)
         const FORMACION = [[40, 195], [110, 60], [110, 150], [110, 240], [110, 330],
                            [200, 110], [200, 195], [200, 280], [290, 75], [290, 195], [290, 315]];
+        const BASE_BALONCESTO = [[120, 150], [170, 75], [170, 225], [230, 110], [230, 190]];
+        const BASE_BEISBOL = [[250, 266], [250, 374], [340, 258], [300, 206], [200, 206], [160, 258], [110, 150], [250, 100], [390, 150]];
+        const BATEADOR = { home: [232, 352], away: [268, 352] };
+        const RECORRIDO_BEISBOL = [[336, 266], [250, 182], [164, 266], [250, 352]];
+        const COLOR_EQUIPO = { home: '#C5A04A', away: '#f38ba8' };
+        const espejo = lista => lista.map(([x, y]) => [500 - x, y]);
+        const otroLado = lado => lado === 'home' ? 'away' : 'home';
 
-        function construirCampo(live) {
-            const R = 14;
+        function fichasSvg(n, R) {
             let fichas = '';
-            for (const [lado, color] of [['home', '#C5A04A'], ['away', '#f38ba8']]) {
-                FORMACION.forEach((_, i) => {
+            for (const lado of ['home', 'away']) {
+                for (let i = 0; i < n; i++) {
                     fichas += `<g id="pj-${lado}-${i}" style="transition: transform .8s ease-in-out, opacity .4s">
-                        <circle r="${R}" fill="${color}" stroke="#fff" stroke-width="2"></circle>
+                        <circle r="${R}" fill="${COLOR_EQUIPO[lado]}" stroke="#fff" stroke-width="2"></circle>
                         <text id="ini-${lado}-${i}" text-anchor="middle" y="4" font-size="11" font-weight="800" fill="#050505"></text>
                         <clipPath id="cp-${lado}-${i}"><circle r="${R - 2}"></circle></clipPath>
                         <image id="img-${lado}-${i}" x="${-(R - 2)}" y="${-(R - 2)}" width="${2 * (R - 2)}" height="${2 * (R - 2)}" clip-path="url(#cp-${lado}-${i})" preserveAspectRatio="xMidYMid slice" style="opacity:0; transition: opacity .4s"></image>
                         <text id="lbl-${lado}-${i}" text-anchor="middle" y="${R + 10}" font-size="9" font-weight="700" fill="#fff" stroke="#050505" stroke-width="2.5" paint-order="stroke"></text>
                     </g>`;
-                });
+                }
+            }
+            return fichas;
+        }
+
+        function dibujoFutbol() {
+            const red = lado => {   // arco con red, por fuera de la línea de fondo
+                const x = lado === 'izq' ? 6 : 480;
+                return `<rect x="${x}" y="163" width="14" height="64" fill="url(#redArco)" stroke="#fff" stroke-width="3"></rect>`;
+            };
+            return `<defs><pattern id="redArco" width="5" height="5" patternUnits="userSpaceOnUse"><path d="M0 0L5 5M5 0L0 5" stroke="#ffffffaa" stroke-width=".8"></path></pattern></defs>
+                <g fill="none" stroke="#fff" stroke-width="2">
+                    <rect x="20" y="20" width="460" height="350"></rect>
+                    <line x1="250" y1="20" x2="250" y2="370"></line>
+                    <circle cx="250" cy="195" r="48"></circle>
+                    <rect x="20" y="92" width="72" height="206"></rect><rect x="20" y="148" width="28" height="94"></rect>
+                    <rect x="408" y="92" width="72" height="206"></rect><rect x="452" y="148" width="28" height="94"></rect>
+                    <path d="M92 165 A32 32 0 0 1 92 225"></path><path d="M408 165 A32 32 0 0 0 408 225"></path>
+                </g>
+                <g fill="#fff"><circle cx="250" cy="195" r="3"></circle><circle cx="68" cy="195" r="2.5"></circle><circle cx="432" cy="195" r="2.5"></circle></g>
+                ${red('izq')}${red('der')}`;
+        }
+
+        function dibujoBaloncesto() {
+            return `<rect x="0" y="0" width="500" height="300" fill="#7a4a24"></rect>
+                <rect x="20" y="20" width="460" height="260" fill="#b9783a"></rect>
+                <rect x="20" y="100" width="95" height="100" fill="#9a5f2c"></rect><rect x="385" y="100" width="95" height="100" fill="#9a5f2c"></rect>
+                <g fill="none" stroke="#fff" stroke-width="2">
+                    <rect x="20" y="20" width="460" height="260"></rect>
+                    <line x1="250" y1="20" x2="250" y2="280"></line>
+                    <circle cx="250" cy="150" r="36"></circle>
+                    <rect x="20" y="100" width="95" height="100"></rect><rect x="385" y="100" width="95" height="100"></rect>
+                    <path d="M115 116 A34 34 0 0 1 115 184" ></path><path d="M385 116 A34 34 0 0 0 385 184"></path>
+                    <path d="M20 50 H129 A130 130 0 0 1 129 250 H20"></path>
+                    <path d="M480 50 H371 A130 130 0 0 0 371 250 H480"></path>
+                </g>
+                <g stroke="#fff" stroke-width="3"><line x1="32" y1="134" x2="32" y2="166"></line><line x1="468" y1="134" x2="468" y2="166"></line></g>
+                <g fill="none" stroke="#ff7a1a" stroke-width="3"><circle cx="46" cy="150" r="7"></circle><circle cx="454" cy="150" r="7"></circle></g>`;
+        }
+
+        function dibujoBeisbol() {
+            const base = ([x, y]) => `<rect x="${x - 6}" y="${y - 6}" width="12" height="12" fill="#fff" transform="rotate(45 ${x} ${y})"></rect>`;
+            return `<rect x="0" y="0" width="500" height="390" fill="#1f5a33"></rect>
+                <path d="M250 358 L36 144 A303 303 0 0 1 464 144 Z" fill="#2f7a43"></path>
+                <circle cx="250" cy="282" r="108" fill="#b98a54"></circle>
+                <polygon points="250,330 318,266 250,200 182,266" fill="#2f7a43"></polygon>
+                <g stroke="#fff" stroke-width="2" fill="none">
+                    <line x1="250" y1="350" x2="36" y2="144"></line><line x1="250" y1="350" x2="464" y2="144"></line>
+                    <polyline points="250,350 336,266 250,182 164,266 250,350"></polyline>
+                </g>
+                <circle cx="250" cy="266" r="12" fill="#c99a62" stroke="#fff" stroke-width="1.5"></circle>
+                ${base([336, 266])}${base([250, 182])}${base([164, 266])}
+                <polygon points="244,346 256,346 256,353 250,360 244,353" fill="#fff"></polygon>`;
+        }
+
+        function construirCampo(live) {
+            const dep = live.deporte;
+            let c;
+            if (dep === 'Fútbol') {
+                c = { n: 11, alto: 390, R: 14, dibujo: dibujoFutbol(), cartelY: 205,
+                      base: { home: FORMACION, away: espejo(FORMACION) }, dir: { home: 1, away: -1 },
+                      jit: [20, 20], lim: [28, 472, 28, 362], fijo: i => i === 0, empuje: 70, pausaGol: 2600, pausaSaque: 1600,
+                      porteria: { home: [488, 195], away: [12, 195] }, centro: [250, 195],
+                      nombres: lado => (live.jugaron[lado] || []).slice(0, 11).map(j => j[0]),
+                      balon: () => {
+                          const ventaja = (sim.empuje.home - sim.empuje.away) / 300;
+                          const lado = Math.random() < .5 + ventaja ? 'home' : 'away';
+                          const [bx, by] = sim.pos[lado][1 + Math.floor(Math.random() * 10)];
+                          return [bx + 8, by + 8];
+                      },
+                      texto: () => '¡GOL!' };
+            } else if (dep === 'Baloncesto') {
+                c = { n: 5, alto: 300, R: 15, dibujo: dibujoBaloncesto(), cartelY: 160,
+                      base: { home: BASE_BALONCESTO, away: espejo(BASE_BALONCESTO) }, dir: { home: 1, away: -1 },
+                      jit: [24, 24], lim: [34, 466, 34, 266], fijo: () => false, empuje: 50, pausaGol: 2000, pausaSaque: 1200,
+                      porteria: { home: [454, 150], away: [46, 150] }, centro: [250, 150],
+                      nombres: lado => (live.jugaron[lado] || []).slice(0, 5).map(j => j[0]),
+                      balon: () => {
+                          const lado = Math.random() < .5 ? 'home' : 'away';
+                          const [bx, by] = sim.pos[lado][Math.floor(Math.random() * 5)];
+                          return [bx + 8, by + 8];
+                      },
+                      texto: e => e.valor === 3 ? '¡TRIPLE!' : (e.valor === 1 ? '¡LIBRE!' : '¡CANASTA!') };
+            } else {   // Béisbol: 9 jugadores en el campo (casillas 0-8) y 1 bateador (casilla 9) por equipo
+                const nombres = lado => {
+                    const lista = live.jugaron[lado] || [];
+                    const bateadores = lista.filter(j => j[1] !== 'LAN').map(j => j[0]);
+                    const lanzador = (lista.find(j => j[1] === 'LAN') || [bateadores[0]])[0];
+                    return [lanzador, ...bateadores.slice(0, 8), bateadores[8] || bateadores[0] || lanzador];
+                };
+                c = { n: 10, alto: 390, R: 13, dibujo: dibujoBeisbol(), cartelY: 60,
+                      base: { home: [...BASE_BEISBOL, BATEADOR.home], away: [...BASE_BEISBOL, BATEADOR.away] }, dir: { home: 0, away: 0 },
+                      jit: [8, 6], lim: [20, 480, 20, 385], fijo: i => i === 9, empuje: 0, pausaGol: 3000, pausaSaque: 1200,
+                      porteria: { home: [250, 270], away: [250, 270] }, centro: [250, 270],
+                      nombres, activo: (lado, i) => lado === sim.bateando ? i === 9 : i < 9,
+                      balon: () => {
+                          const r = Math.random();
+                          if (r < .4) return [250, 266];
+                          if (r < .75) return [250, 366];
+                          const [x, y] = BASE_BEISBOL[2 + Math.floor(Math.random() * 7)];
+                          return [x + 8, y + 8];
+                      },
+                      texto: e => e.valor > 1 ? `¡${e.valor} CARRERAS!` : '¡CARRERA!' };
             }
             $('simCampo').innerHTML = `
-                <svg viewBox="0 0 500 390" class="w-full rounded-lg bg-[#1b4d3e]">
-                    <g fill="none" stroke="#fff" stroke-width="2">
-                        <rect x="20" y="20" width="460" height="350"></rect>
-                        <line x1="250" y1="20" x2="250" y2="370"></line>
-                        <circle cx="250" cy="195" r="48"></circle>
-                    </g>
-                    ${fichas}
-                    <circle id="simBalon" r="4" fill="#fff" stroke="#050505" style="transition: transform .5s ease-in-out"></circle>
-                    <text id="simGol" x="250" y="205" text-anchor="middle" font-size="40" font-weight="800" fill="#fff"
+                <svg viewBox="0 0 500 ${c.alto}" class="w-full rounded-lg bg-[#1b4d3e]">
+                    ${c.dibujo}
+                    ${fichasSvg(c.n, c.R)}
+                    <circle id="simBalon" r="5" fill="#fff" stroke="#050505" style="transition: transform .5s ease-in-out"></circle>
+                    <text id="simGol" x="250" y="${c.cartelY}" text-anchor="middle" font-size="40" font-weight="800" fill="#fff"
                           stroke="#050505" stroke-width="5" paint-order="stroke" style="opacity:0; transition: opacity .3s">¡GOL!</text>
                 </svg>`;
+            sim.campo = c;
             sim.pos = { home: [], away: [] };
             sim.jugadores = { home: [], away: [] };
-            for (const lado of ['home', 'away']) {
-                (live.jugaron[lado] || []).slice(0, 11).forEach(([nombre], i) => ponerJugadorEnFicha(lado, i, nombre));
+            sim.bateando = 'away';
+            for (const lado of ['home', 'away']) c.nombres(lado).forEach((nombre, i) => ponerJugadorEnFicha(lado, i, nombre));
+            if (dep === 'Béisbol') {
+                c.alEvento = e => {
+                    if (!e.lado) return;
+                    const bate = (e.tipo === 'gol' || !e.stat) ? e.lado : otroLado(e.lado);
+                    const actual = sim;
+                    setTimeout(() => { if (sim === actual && sim.bateando !== bate) ponerTurno(bate); },
+                               Math.max(0, sim.pausaHasta - Date.now()) + 60);
+                };
+                ponerTurno('away');
             }
-            moverCampo();
+            posicionar(true);
+            moverBalon();
             sim.intervaloCampo = setInterval(moverCampo, 800);
         }
 
-        function moverCampo() {
-            if (!sim || !sim.pos) return;
+        // Béisbol: cambia quién batea. El equipo que batea deja solo a su bateador en el plato; el otro se pone a fildear.
+        function ponerTurno(bate) {
+            if (!sim || !sim.campo) return;
+            sim.bateando = bate;
+            const lista = sim.jugadores[bate];
+            const quien = lista[1 + Math.floor(Math.random() * 8)] || lista[0];
+            ponerJugadorEnFicha(bate, 9, quien);
             for (const lado of ['home', 'away']) {
-                const direccion = lado === 'home' ? 1 : -1;
-                FORMACION.forEach(([bx, by], i) => {
-                    let x = lado === 'home' ? bx : 500 - bx;
-                    if (i > 0) x += direccion * sim.empuje[lado];
-                    x += (Math.random() - .5) * (i ? 20 : 6);
-                    const y = by + (Math.random() - .5) * (i ? 20 : 8);
-                    const px = Math.min(472, Math.max(28, x));
-                    sim.pos[lado][i] = [px, y];
+                for (let i = 0; i < sim.campo.n; i++) {
+                    const g = document.getElementById(`pj-${lado}-${i}`);
+                    if (g) g.style.opacity = sim.campo.activo(lado, i) ? 1 : 0;
+                }
+            }
+            posicionar(false);
+        }
+
+        function posicionar(jitter) {
+            const c = sim.campo;
+            for (const lado of ['home', 'away']) {
+                c.base[lado].forEach(([bx, by], i) => {
                     const el = document.getElementById(`pj-${lado}-${i}`);
-                    if (el) el.style.transform = `translate(${px}px, ${y}px)`;
+                    if (!el || (c.activo && !c.activo(lado, i))) return;
+                    const fijo = c.fijo(i);
+                    let x = bx + (fijo ? 0 : c.dir[lado] * sim.empuje[lado]), y = by;
+                    if (jitter) {
+                        x += (Math.random() - .5) * c.jit[0] * (fijo ? .3 : 1);
+                        y += (Math.random() - .5) * c.jit[1] * (fijo ? .4 : 1);
+                    }
+                    const px = Math.min(c.lim[1], Math.max(c.lim[0], x)), py = Math.min(c.lim[3], Math.max(c.lim[2], y));
+                    sim.pos[lado][i] = [px, py];
+                    el.style.transform = `translate(${px}px, ${py}px)`;
                 });
             }
-            const ventaja = (sim.empuje.home - sim.empuje.away) / 300;
-            const lado = Math.random() < .5 + ventaja ? 'home' : 'away';
-            const [bx, by] = sim.pos[lado][1 + Math.floor(Math.random() * 10)];
+        }
+
+        function ponerBalon(x, y) {
             const balon = document.getElementById('simBalon');
-            if (balon) balon.style.transform = `translate(${bx + 8}px, ${by + 8}px)`;
+            if (balon) balon.style.transform = `translate(${x}px, ${y}px)`;
+        }
+        function moverBalon() { const [x, y] = sim.campo.balon(); ponerBalon(x, y); }
+
+        function moverCampo() {
+            if (!sim || !sim.campo || Date.now() < sim.pausaHasta) return;   // durante un gol y el saque, todo queda quieto
+            posicionar(true);
+            moverBalon();
+        }
+
+        // Después del gol: todos vuelven a su sitio y el balón al centro, como en un saque de mitad.
+        function saque() {
+            if (!sim || !sim.campo) return;
+            const c = sim.campo;
+            sim.empuje = { home: 0, away: 0 };
+            posicionar(false);
+            ponerBalon(c.centro[0], c.centro[1]);
+            sim.pausaHasta = Date.now() + c.pausaSaque;
         }
 
         function construirPanelGenerico(live) {
             $('simCampo').innerHTML = `
-                <div class="h-32 bg-[#0A0A0A] rounded-lg flex flex-col items-center justify-center gap-2 p-3">
-                    <div class="text-3xl">${ICONOS[live.deporte] || '🏆'}</div>
-                    <div class="flex items-center gap-3 text-xs font-bold">
-                        <span>${esc(live.home.name)}</span> vs <span>${esc(live.away.name)}</span>
+                <div class="min-h-[14rem] h-full bg-[#0A0A0A] rounded-lg flex flex-col items-center justify-center gap-4 p-4">
+                    <div class="text-7xl">${ICONOS[live.deporte] || '🏆'}</div>
+                    <div class="flex items-center gap-6">
+                        ${escudoHtml(live.home, 'w-16 h-16')}
+                        <span class="text-gray-400 font-bold">VS</span>
+                        ${escudoHtml(live.away, 'w-16 h-16')}
                     </div>
                 </div>`;
         }
@@ -1504,6 +1658,7 @@
             });
         }
         function actualizarFichas(e) {
+            if (sim && sim.campo && sim.campo.alEvento) sim.campo.alEvento(e);
             if (!sim || !sim.jugadores || !e.lado) return;
             const lista = sim.jugadores[e.lado];
             if (e.tipo === 'cambio' && e.sale && e.entra) {
@@ -1544,16 +1699,32 @@
         }
 
         function celebrarGol(e) {
-            const actual = sim;
-            const cartel = $('simGol');
-            if (!cartel || !e.lado) return;
-            cartel.style.opacity = 1;
-            actual.empuje[e.lado] = 70;
+            const actual = sim, c = sim && sim.campo, cartel = $('simGol');
+            if (!c || !e.lado) return;
+            const lado = e.lado;
+            const pausa = e.pen ? 1400 : c.pausaGol;
+            if (cartel) { cartel.textContent = c.texto(e); cartel.style.opacity = 1; }
+            if (c.empuje) { sim.empuje[lado] = c.empuje; posicionar(true); }   // el equipo que anota se vuelca al ataque
+            sim.pausaHasta = Date.now() + pausa;
+            if (c.activo) {   // béisbol: el bateador recorre las bases hasta el plato
+                ponerJugadorEnFicha(lado, 9, e.jugador || sim.jugadores[lado][9]);
+                const el = document.getElementById(`pj-${lado}-9`);
+                if (el) {
+                    el.style.opacity = 1;
+                    RECORRIDO_BEISBOL.forEach(([x, y], k) => setTimeout(() => {
+                        if (sim === actual) el.style.transform = `translate(${x}px, ${y}px)`;
+                    }, 200 + k * 650));
+                }
+                ponerBalon(250, 266);
+            } else {          // fútbol y baloncesto: el balón se queda dentro del arco / aro
+                const [gx, gy] = c.porteria[lado];
+                ponerBalon(gx, gy + (Math.random() - .5) * (c.alto === 390 ? 20 : 0));
+            }
             setTimeout(() => {
                 if (sim !== actual) return;
-                cartel.style.opacity = 0;
-                actual.empuje[e.lado] = 0;
-            }, 1400);
+                if (cartel) cartel.style.opacity = 0;
+                saque();
+            }, pausa);
         }
 
         async function reproducirSimulacion(live) {
@@ -1588,7 +1759,7 @@
         function abrirSimulacion(data) {
             const live = data.live;
             detenerVoz();
-            sim = { estado: data.state, saltar: false, empuje: { home: 0, away: 0 }, pos: null, intervaloCampo: null };
+            sim = { estado: data.state, saltar: false, empuje: { home: 0, away: 0 }, pos: null, intervaloCampo: null, campo: null, pausaHasta: 0, bateando: 'away' };
 
             $('simComentarios').innerHTML = '';
             $('simSaltar').classList.remove('hidden');
@@ -1598,7 +1769,7 @@
 
             pintarMarcador(live, [0, 0]);
             setReloj(live.deporte === 'Fútbol' ? "Min: 0'" : 'Preparando...');
-            if (live.deporte === 'Fútbol') construirCampo(live); else construirPanelGenerico(live);
+            if (['Fútbol', 'Baloncesto', 'Béisbol'].includes(live.deporte)) construirCampo(live); else construirPanelGenerico(live);
 
             $('simModal').classList.remove('hidden');
             $('simModal').classList.add('flex');
