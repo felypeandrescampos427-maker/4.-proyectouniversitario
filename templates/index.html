@@ -1721,7 +1721,10 @@
                 return;
             }
             if (e.tipo === 'narra' && sim.esperaSaque && e.narracion && e.narracion[0]
-                && /saca desde el c[ií]rculo|Se reanuda el juego\. Saca/i.test(e.narracion[0][1])) sim.liberarTras = e;
+                && /saca desde el c[ií]rculo|Se reanuda el juego\. Saca/i.test(e.narracion[0][1])) {
+                sim.esperaSaque = false;   // en cuanto el relator dice "¡Empieza el partido!" (o "Se reanuda"), el balón empieza a rodar
+                sim.pausaHasta = Date.now() + 400;
+            }
             if (e.tipo === 'descanso') return entrarDescanso();
             if (e.tipo === 'info') {
                 if (/segundo tiempo/i.test(txt)) return salirDescanso(e);

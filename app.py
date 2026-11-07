@@ -1148,6 +1148,24 @@ _POS_ARCHIVO = {"LD": "DEF", "DFC": "DEF", "LI": "DEF", "MCD": "MED", "MC": "MED
 _ALIAS_EQUIPOS = {"Deportivo Tolima": "Deportes Tolima"}
 
 
+_RANGO_POS = {"MCD": 0, "MC": 1, "MCO": 2, "ED": 3, "EI": 3, "DC": 4}
+
+
+def _respetar_titulares(lista, n_titulares):
+    """lista = [(nombre, grupo, posición del archivo)]. Si el archivo trae 11 titulares (1 portero, 4 defensas y
+    6 jugadores de medio y ataque), el juego los usa tal cual: de esos 6, los 3 más retrasados juegan de medios
+    y los 3 más adelantados de delanteros (así un MCO como James sale de titular en vez de quedar en el banco)."""
+    titulares, suplentes = lista[:n_titulares], lista[n_titulares:]
+    if len(titulares) == 11 and titulares[0][1] == "POR":
+        defensas = [j for j in titulares if j[1] == "DEF"]
+        resto = [j for j in titulares[1:] if j[1] != "DEF"]
+        if len(defensas) == 4 and len(resto) == 6:
+            resto = sorted(resto, key=lambda j: _RANGO_POS.get(j[2], 2))   # estable: mantiene el orden del archivo
+            resto = [(n, "MED" if i < 3 else "DEL", p) for i, (n, g, p) in enumerate(resto)]
+            titulares = [titulares[0]] + defensas + resto
+    return [(n, g) for n, g, _ in titulares + suplentes]
+
+
 def cargar_plantillas():
     """Lee plantillas.json. Acepta el formato por liga {"Equipo": {"titulares": [{"nombre","posicion"}],
     "suplentes": [...]}} (aunque el archivo traiga varios bloques JSON seguidos) y el formato corto
@@ -1170,7 +1188,8 @@ def cargar_plantillas():
         for j in list(datos.get("titulares", [])) + list(datos.get("suplentes", [])):
             if isinstance(j, dict) and j.get("nombre"):
                 pos = str(j.get("posicion", ""))
-                lista.append((str(j["nombre"]), _POS_ARCHIVO.get(pos, pos)))
+                lista.append((str(j["nombre"]), _POS_ARCHIVO.get(pos, pos), pos))
+        lista = _respetar_titulares(lista, len(datos.get("titulares", [])))
         if lista:
             plantillas[_ALIAS_EQUIPOS.get(m.group(1), m.group(1))] = lista
     if plantillas:
