@@ -39,6 +39,9 @@ BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "").strip()
 EMAIL_REMITENTE = os.environ.get("EMAIL_REMITENTE", "").strip()
 # Opcional: a este correo te llega un aviso cuando alguien crea una cuenta o inicia sesión.
 EMAIL_AVISOS = os.environ.get("EMAIL_AVISOS", "").strip()
+# Correo del administrador: con este correo se desbloquea el panel de administración (🛡️).
+# Si no pones ADMIN_EMAIL en Render, se usa EMAIL_AVISOS (el mismo que recibe los avisos).
+ADMIN_EMAIL = (os.environ.get("ADMIN_EMAIL", "").strip() or EMAIL_AVISOS).strip().lower()
 SESION_SEGUNDOS = 7 * 24 * 3600      # la sesión dura 7 días en cada dispositivo
 CODIGO_VENCE_SEGUNDOS = 600          # el código de verificación vale 10 minutos
 CODIGO_MAX_INTENTOS = 5
@@ -62,6 +65,7 @@ LIGAS_DISPONIBLES = {
         {"bandera": "🇨🇴", "nombre": "Liga BetPlay Dimayor (Colombia)", "codigo": "CO_LIGA"},
         {"bandera": "🇪🇸", "nombre": "Liga Española (LaLiga)", "codigo": "PD"},
         {"bandera": "🇬🇧", "nombre": "Premier League (Inglaterra)", "codigo": "PL"},
+        {"bandera": "🌎", "nombre": "Mundial de Selecciones", "codigo": "MUNDIAL"},
     ],
     "Baloncesto": [
         {"bandera": "🇺🇸", "nombre": "NBA - Liga General", "codigo": "NBA"},
@@ -131,6 +135,13 @@ NIVELES = {
     "G2 Esports": 7, "Fnatic": 5, "Team Vitality": 5, "MAD Lions KOI": 5, "Cloud9": 5,
     "Team Liquid": 5, "FlyQuest": 5, "100 Thieves": 4, "PSG Talon": 5, "CTBC Flying Oyster": 4,
 }
+# Mundial de Selecciones (nivel de cada selección; los jugadores de cada una son inventados)
+NIVELES.update({
+    "Argentina": 10, "Francia": 10, "España": 10, "Brasil": 9, "Inglaterra": 9, "Portugal": 9,
+    "Alemania": 8, "Países Bajos": 8, "Colombia": 8, "Italia": 7, "Bélgica": 7, "Croacia": 7,
+    "Uruguay": 7, "Marruecos": 7, "México": 6, "Estados Unidos": 6, "Japón": 6,
+    "Senegal": 5, "Corea del Sur": 5, "Ecuador": 5,
+})
 VENTAJA_LOCAL = {"Fútbol": 0.6, "Baloncesto": 0.5, "Béisbol": 0.3, "eSports": 0.0}
 
 
@@ -322,6 +333,20 @@ EQUIPOS_POR_LIGA = {
         ("CTBC Flying Oyster", "ctbc_flying_oyster.png"),
     ]),
 }
+
+def _selecciones(id_inicial, lista):
+    """Selecciones nacionales: no llevan escudo de archivo, se muestran con su bandera."""
+    return [{"id": id_inicial + i, "name": nombre, "group": None, "flag": bandera, "escudo": ""}
+            for i, (nombre, bandera) in enumerate(lista)]
+
+
+EQUIPOS_POR_LIGA["MUNDIAL"] = _selecciones(601, [
+    ("Argentina", "🇦🇷"), ("Brasil", "🇧🇷"), ("Francia", "🇫🇷"), ("España", "🇪🇸"),
+    ("Inglaterra", "🇬🇧"), ("Alemania", "🇩🇪"), ("Portugal", "🇵🇹"), ("Países Bajos", "🇳🇱"),
+    ("Italia", "🇮🇹"), ("Bélgica", "🇧🇪"), ("Croacia", "🇭🇷"), ("Uruguay", "🇺🇾"),
+    ("Colombia", "🇨🇴"), ("México", "🇲🇽"), ("Estados Unidos", "🇺🇸"), ("Japón", "🇯🇵"),
+    ("Marruecos", "🇲🇦"), ("Senegal", "🇸🇳"), ("Corea del Sur", "🇰🇷"), ("Ecuador", "🇪🇨"),
+])
 
 DEFAULT_STATE = {
     "balance_cop": SALDO_INICIAL,
@@ -774,7 +799,25 @@ def comprobar_codigo(correo, proposito, introducido):
     return False
 
 
+INDICE_USUARIOS = "arena:usuarios"
+MAX_USUARIOS_INDICE = 5000
+
+
+def indexar_usuario(correo):
+    """Apunta la cuenta en la lista que lee el panel de administración (sin repetir correos)."""
+    try:
+        lista = json.loads(kv_get(INDICE_USUARIOS) or "[]")
+        if not isinstance(lista, list):
+            lista = []
+        if correo not in lista:
+            lista.append(correo)
+            kv_set(INDICE_USUARIOS, json.dumps(lista[-MAX_USUARIOS_INDICE:]))
+    except (ValueError, ErrorAlmacenamiento):
+        pass   # el índice es solo para el panel: nunca debe impedir que alguien entre
+
+
 def crear_sesion(correo):
+    indexar_usuario(correo)
     token = secrets.token_urlsafe(32)
     kv_set("arena:ses:" + _h(token)[:40], json.dumps({"cuenta": id_cuenta(correo), "correo": correo}),
            ex=SESION_SEGUNDOS)
@@ -822,6 +865,7 @@ def abrir(req):
 
 def responder(codigo, data, **extra):
     """Guarda el progreso y responde con el estado nuevo."""
+    actualizar_logros(data)
     guardar_estado(codigo, data)
     return ok(data, **extra)
 
@@ -1031,6 +1075,11 @@ def ok(data, **extra):
               "recarga_hoy": (data.get("recarga_dia") or {}).get("total", 0)
               if (data.get("recarga_dia") or {}).get("fecha") == ahora_co().date().isoformat() else 0,
               "limite_recarga_dia": LIMITE_RECARGA_DIA}
+    logros, rachas = calcular_logros(data)
+    estado["logros"] = logros
+    estado["rachas"] = rachas
+    estado.pop("logros_ok", None)
+    estado.pop("res_n", None)
     estado.pop("estadisticas", None)   # las estadísticas crudas no viajan: solo el resumen en "premios"
     return jsonify({"status": "success", "state": estado, **extra})
 
@@ -1081,6 +1130,22 @@ def generar_marcador_para(deporte, probs):
     minimo, maximo = RANGOS_MARCADOR.get(deporte, (0, 5))
     return {"local": (minimo + 1, minimo), "visita": (minimo, minimo + 1),
             "empate": (minimo, minimo)}[resultado]
+
+
+PROB_ROJA = 0.12        # probabilidad de que haya una expulsión en un partido de fútbol
+PESO_ROJA = 0.12        # cuánta probabilidad de ganar pierde el equipo que se queda con diez
+
+
+def ajustar_por_roja(probs, lado_expulsado):
+    """Un equipo con diez jugadores gana menos: le quita probabilidad y se la pasa al rival
+    (casi toda) y al empate (un poco). Se usa antes de sortear el resultado."""
+    mio, rival = ("local", "visita") if lado_expulsado == "home" else ("visita", "local")
+    p = dict(probs)
+    d = min(PESO_ROJA, p[mio] * 0.5)
+    p[mio] -= d
+    p[rival] += d * 0.7
+    p["empate"] += d * 0.3
+    return p
 
 
 def generar_marcador(deporte):
@@ -1297,7 +1362,7 @@ def _elegir(jugadores, pos, rango, pesos):
     return random.choices(jugadores, w)[0]
 
 
-def _eventos_futbol(local, visitante, goles_local, goles_visitante):
+def _eventos_futbol(local, visitante, goles_local, goles_visitante, roja=None):
     nombres = {"home": local["name"], "away": visitante["name"]}
     rival = {"home": visitante["name"], "away": local["name"]}
     planteles = {lado: plantel_de(nombres[lado], "Fútbol")[0] for lado in nombres}
@@ -1321,8 +1386,8 @@ def _eventos_futbol(local, visitante, goles_local, goles_visitante):
         cambios += list(zip(minutos, [lado] * cantidad, salen, entran))
 
     expulsados = {}  # jugador -> (minuto, lado)
-    if random.random() < 0.12:
-        lado = random.choice(list(nombres))
+    if roja in nombres:   # la expulsión ya se decidió antes del resultado (ver jugar_siguiente)
+        lado = roja
         ya_cambiados = {c[2] for c in cambios}
         candidatos = [j for j in titulares[lado][1:] if j not in ya_cambiados]
         expulsados[random.choice(candidatos)] = (random.randint(20, 85), lado)
@@ -1518,10 +1583,10 @@ def _eventos_penales(local, visitante, penales):
     return eventos
 
 
-def construir_transmision(deporte, local, visitante, puntos_local, puntos_visitante, penales=None):
+def construir_transmision(deporte, local, visitante, puntos_local, puntos_visitante, penales=None, roja=None):
     porteros = None
     if deporte == "Fútbol":
-        eventos, jugaron, porteros = _eventos_futbol(local, visitante, puntos_local, puntos_visitante)
+        eventos, jugaron, porteros = _eventos_futbol(local, visitante, puntos_local, puntos_visitante, roja)
         if penales:
             for e in _eventos_penales(local, visitante, penales):
                 e["marcador"] = [puntos_local, puntos_visitante]
@@ -1969,6 +2034,72 @@ def registrar_movimiento(data, tipo, monto, detalle):
     del lista[MAX_MOVIMIENTOS:]
 
 
+LOGROS_DEF = [
+    # (id, icono, título, descripción, meta numérica o None)
+    ("primera_prediccion", "🎯", "Primera predicción", "Haz tu primera predicción.", None),
+    ("primer_acierto", "✅", "Ojo clínico", "Acierta tu primera predicción.", None),
+    ("racha_3", "🔥", "En racha", "Acierta 3 predicciones seguidas.", 3),
+    ("racha_5", "⚡", "Imparable", "Acierta 5 predicciones seguidas.", 5),
+    ("diez_aciertos", "🏅", "Analista", "Acierta 10 predicciones en total.", 10),
+    ("cuota_alta", "💎", "Sorpresa", "Acierta una predicción con cuota de 3,0 o más.", None),
+    ("primera_recarga", "💳", "Primera recarga", "Recarga tu saldo por primera vez.", None),
+    ("saldo_millon", "💰", "Millonario", "Llega a $ 1.000.000 de saldo.", None),
+    ("vio_final", "🏆", "Gran final", "Juega una final de un torneo.", None),
+    ("mundialista", "🌎", "Mundialista", "Juega un partido del Mundial de Selecciones.", None),
+]
+
+
+def _orden_resolucion(p):
+    return p.get("res_n", p.get("id", 0))
+
+
+def _mejor_racha(predicciones):
+    """Más aciertos seguidos y racha actual, contando solo las predicciones ya resueltas (en orden)."""
+    resueltas = sorted((p for p in predicciones if p.get("estado") in ("ganada", "perdida")),
+                       key=_orden_resolucion)
+    mejor = actual = 0
+    for p in resueltas:
+        actual = actual + 1 if p["estado"] == "ganada" else 0
+        mejor = max(mejor, actual)
+    return mejor, actual
+
+
+def calcular_logros(data):
+    """Lista de logros con su avance. Un logro conseguido queda guardado (data['logros_ok'])."""
+    preds = data.get("predictions") or []
+    ganadas = [p for p in preds if p.get("estado") == "ganada"]
+    mejor, actual = _mejor_racha(preds)
+    movs = data.get("movimientos") or []
+    cumplidos = {
+        "primera_prediccion": bool(preds),
+        "primer_acierto": bool(ganadas),
+        "racha_3": mejor >= 3,
+        "racha_5": mejor >= 5,
+        "diez_aciertos": len(ganadas) >= 10,
+        "cuota_alta": any(p.get("cuota", 0) >= 3.0 for p in ganadas),
+        "primera_recarga": any(m.get("tipo") == "recarga" for m in movs) or bool((data.get("recarga_dia") or {}).get("total")),
+        "saldo_millon": data.get("balance_cop", 0) >= 1_000_000,
+        "vio_final": any(m.get("fase") == "final" for m in data.get("matches") or []),
+        "mundialista": any(m.get("liga") == "MUNDIAL" for m in data.get("matches") or []),
+    }
+    previos = set(data.get("logros_ok") or [])
+    avance = {"racha_3": mejor, "racha_5": mejor, "diez_aciertos": len(ganadas)}
+    lista = []
+    for id_, icono, titulo, desc, meta in LOGROS_DEF:
+        hecho = cumplidos[id_] or id_ in previos
+        item = {"id": id_, "icono": icono, "titulo": titulo, "desc": desc, "ok": hecho}
+        if meta:
+            item["progreso"] = [min(avance.get(id_, 0), meta), meta]
+        lista.append(item)
+    return lista, {"racha_actual": actual, "mejor_racha": mejor}
+
+
+def actualizar_logros(data):
+    """Guarda en el progreso los logros ya conseguidos (para que no se pierdan)."""
+    lista, _ = calcular_logros(data)
+    data["logros_ok"] = [x["id"] for x in lista if x["ok"]]
+
+
 def resolver_predicciones(data, partido):
     """Cierra las predicciones pendientes de este partido, guarda el resultado
     y paga las acertadas."""
@@ -1998,6 +2129,8 @@ def resolver_predicciones(data, partido):
         else:
             resultado = "empate"
 
+        data["res_n"] = data.get("res_n", 0) + 1
+        p["res_n"] = data["res_n"]
         p["marcador"] = [goles_home, goles_away]
         p["resultado"] = resultado
         if p["eleccion"] == resultado:
@@ -2025,7 +2158,8 @@ def health():
         funciona = leer_crudo("arena:ping") == "ok"
     except ErrorAlmacenamiento:
         funciona = False
-    return jsonify({"almacenamiento": "upstash" if usa_upstash() else "archivo local",
+    return jsonify({"admin_configurado": bool(ADMIN_EMAIL),
+                    "almacenamiento": "upstash" if usa_upstash() else "archivo local",
                     "funciona": funciona,
                     "correo_configurado": bool(BREVO_API_KEY and EMAIL_REMITENTE),
                     "avisos_configurados": bool(EMAIL_AVISOS)})
@@ -2039,14 +2173,8 @@ def load_state():
     return responder(codigo, data)
 
 
-@app.route("/api/reset", methods=["POST"])
-def reset_state():
-    """Reinicia SOLO la liga que está abierta: borra sus grupos, partidos y predicciones.
-    Conserva el saldo y devuelve lo apostado en predicciones que aún no se habían jugado.
-    Las demás ligas no se tocan."""
-    req = request.get_json(silent=True) or {}
-    codigo, data = abrir(req)
-    liga = data["liga_activa"]
+def reiniciar_liga(data, liga):
+    """Borra grupos, partidos y predicciones de una liga; devuelve lo apostado en lo que seguía pendiente."""
     reembolso = sum(p["monto"] for p in data["predictions"]
                     if p["estado"] == "pendiente" and p["liga"] == liga)
     data["balance_cop"] = round(data["balance_cop"] + reembolso, 2)
@@ -2058,6 +2186,16 @@ def reset_state():
     data["matches"] = [m for m in data["matches"] if m["liga"] != liga]
     data["predictions"] = [p for p in data["predictions"] if p["liga"] != liga]
     data.get("estadisticas", {}).pop(liga, None)
+
+
+@app.route("/api/reset", methods=["POST"])
+def reset_state():
+    """Reinicia SOLO la liga que está abierta: borra sus grupos, partidos y predicciones.
+    Conserva el saldo y devuelve lo apostado en predicciones que aún no se habían jugado.
+    Las demás ligas no se tocan."""
+    req = request.get_json(silent=True) or {}
+    codigo, data = abrir(req)
+    reiniciar_liga(data, data["liga_activa"])
     return responder(codigo, data)
 
 
@@ -2286,8 +2424,12 @@ def jugar_siguiente(data, narracion=False):
         fase, grupo = siguiente["fase"], None
         local = next(t for t in equipos if t["name"] == siguiente["home"])
         visitante = next(t for t in equipos if t["name"] == siguiente["away"])
-    goles_local, goles_visitante = generar_marcador_para(
-        deporte, componentes_partido(deporte, liga, local["name"], visitante["name"], fase))
+    probs = componentes_partido(deporte, liga, local["name"], visitante["name"], fase)
+    roja = None
+    if deporte == "Fútbol" and random.random() < PROB_ROJA:
+        roja = random.choice(["home", "away"])     # el equipo con diez gana menos veces
+        probs = ajustar_por_roja(probs, roja)
+    goles_local, goles_visitante = generar_marcador_para(deporte, probs)
     penales = None
     if fase != "grupos" and goles_local == goles_visitante:
         # Empate en una fase final: se define por penales (50 / 50).
@@ -2310,10 +2452,11 @@ def jugar_siguiente(data, narracion=False):
         "home_score": goles_local,
         "away_score": goles_visitante,
         "penales": penales,
+        "roja": roja,
         "played": True,
     })
     resolver_predicciones(data, data["matches"][0])
-    transmision = construir_transmision(deporte, local, visitante, goles_local, goles_visitante, penales)
+    transmision = construir_transmision(deporte, local, visitante, goles_local, goles_visitante, penales, roja)
     if narracion:
         narrar_transmision(transmision, local, visitante)
     actualizar_estadisticas(data, data["matches"][0], transmision)
@@ -2579,7 +2722,8 @@ def auth_yo():
     """Nombre de la cuenta con la sesión abierta (para mostrarlo en la cabecera)."""
     req = request.get_json(silent=True) or {}
     codigo_de_sesion(req.get("sesion"))  # lanza 401 si la sesión no sirve
-    return jsonify({"status": "success", "nombre": nombre_de(correo_de_sesion(req.get("sesion")))})
+    correo = correo_de_sesion(req.get("sesion"))
+    return jsonify({"status": "success", "nombre": nombre_de(correo), "admin": es_admin(correo)})
 
 
 @app.route("/api/auth/logout", methods=["POST"])
@@ -2589,6 +2733,157 @@ def auth_logout():
     if isinstance(token, str) and 20 <= len(token) <= 100:
         kv_del("arena:ses:" + _h(token)[:40])
     return jsonify({"status": "success"})
+
+
+# ---------------------------------------------------------------------------
+# Panel de administración: solo la cuenta cuyo correo es ADMIN_EMAIL
+# ---------------------------------------------------------------------------
+def es_admin(correo):
+    return bool(ADMIN_EMAIL) and str(correo or "").strip().lower() == ADMIN_EMAIL
+
+
+def exigir_admin(req):
+    """Comprueba que la sesión es la del administrador. Si no, responde 403 (sin dar pistas)."""
+    limite("admin:" + _ip(), 120, 60)
+    codigo_de_sesion(req.get("sesion"))          # 401 si la sesión venció
+    if not es_admin(correo_de_sesion(req.get("sesion"))):
+        return error("Esta sección es solo para el administrador.", "Sin permiso", "aviso", 403)
+    return None
+
+
+def _codigo_de_correo(correo):
+    return "u" + id_cuenta(correo)[:30]
+
+
+def _resumen_usuario(correo):
+    cuenta = _cuenta(correo) or {}
+    estado = leer_estado(_codigo_de_correo(correo))
+    estado = estado if isinstance(estado, dict) else {}
+    preds = [p for p in estado.get("predictions", []) if isinstance(p, dict)]
+    return {"correo": correo,
+            "nombre": f"{cuenta.get('nombre') or ''} {cuenta.get('apellido') or ''}".strip() or "—",
+            "creada": cuenta.get("creada") or "",
+            "verificada": bool(cuenta.get("verificada")),
+            "saldo": round(float(estado.get("balance_cop", 0) or 0), 2),
+            "partidos": len([m for m in estado.get("matches", []) if isinstance(m, dict)]),
+            "predicciones": len(preds),
+            "ganadas": sum(p.get("estado") == "ganada" for p in preds),
+            "logros": len(estado.get("logros_ok") or [])}
+
+
+@app.route("/api/admin/usuarios", methods=["POST"])
+def admin_usuarios():
+    req = request.get_json(silent=True) or {}
+    negado = exigir_admin(req)
+    if negado:
+        return negado
+    try:
+        correos = json.loads(kv_get(INDICE_USUARIOS) or "[]")
+    except ValueError:
+        correos = []
+    usuarios = [_resumen_usuario(c) for c in correos[-300:] if isinstance(c, str)]
+    resumen = {"usuarios": len(usuarios),
+               "saldo_total": round(sum(u["saldo"] for u in usuarios), 2),
+               "partidos": sum(u["partidos"] for u in usuarios),
+               "predicciones": sum(u["predicciones"] for u in usuarios)}
+    return jsonify({"status": "success", "usuarios": usuarios[::-1], "resumen": resumen})
+
+
+@app.route("/api/admin/usuario", methods=["POST"])
+def admin_usuario():
+    req = request.get_json(silent=True) or {}
+    negado = exigir_admin(req)
+    if negado:
+        return negado
+    correo = correo_valido(req.get("correo"))
+    if not correo or not _cuenta(correo):
+        return error("No existe una cuenta con ese correo.", "Usuario no encontrado", "aviso", 404)
+    estado = leer_estado(_codigo_de_correo(correo))
+    estado = estado if isinstance(estado, dict) else {}
+    ligas = {}
+    for m in estado.get("matches", []):
+        if isinstance(m, dict) and m.get("liga"):
+            ligas[m["liga"]] = ligas.get(m["liga"], 0) + 1
+    return jsonify({"status": "success", "usuario": _resumen_usuario(correo),
+                    "movimientos": (estado.get("movimientos") or [])[:50],
+                    "predicciones": [{k: p.get(k) for k in ("home", "away", "eleccion", "cuota", "monto", "estado", "premio", "liga")}
+                                     for p in (estado.get("predictions") or [])[-30:][::-1] if isinstance(p, dict)],
+                    "partidos_por_liga": ligas})
+
+
+@app.route("/api/admin/reiniciar", methods=["POST"])
+def admin_reiniciar():
+    """Reinicia el torneo de una cuenta: una liga o todas. Conserva el saldo y devuelve lo apostado."""
+    req = request.get_json(silent=True) or {}
+    negado = exigir_admin(req)
+    if negado:
+        return negado
+    correo = correo_valido(req.get("correo"))
+    if not correo or not _cuenta(correo):
+        return error("No existe una cuenta con ese correo.", "Usuario no encontrado", "aviso", 404)
+    alcance = req.get("alcance")
+    liga = req.get("liga")
+    if alcance not in ("liga", "todo") or (alcance == "liga" and liga not in EQUIPOS_POR_LIGA):
+        return error("Elige qué reiniciar.", "Datos incompletos", "aviso")
+    codigo = _codigo_de_correo(correo)
+    _tomar_candado(clave_de(codigo))            # nadie más cambia esa cuenta mientras se reinicia
+    guardado = leer_estado(codigo)
+    try:
+        data = normalizar(guardado) if isinstance(guardado, dict) else estado_inicial()
+    except (KeyError, TypeError, ValueError, AttributeError):
+        data = estado_inicial()
+    for l in (EQUIPOS_POR_LIGA if alcance == "todo" else [liga]):
+        reiniciar_liga(data, l)
+    actualizar_logros(data)
+    guardar_estado(codigo, data)
+    print(f"[admin] Reinicio ({alcance}{'' if alcance == 'todo' else ' ' + liga}) de {correo}")
+    return jsonify({"status": "success", "usuario": _resumen_usuario(correo)})
+
+
+# ---------------------------------------------------------------------------
+# App instalable (PWA): manifiesto, service worker e iconos
+# ---------------------------------------------------------------------------
+@app.route("/manifest.webmanifest")
+def manifiesto():
+    resp = jsonify({
+        "name": "Arena Legends", "short_name": "Arena", "lang": "es",
+        "description": "Torneos y predicciones con dinero virtual.",
+        "start_url": "/", "scope": "/", "display": "standalone",
+        "background_color": "#0A0A0A", "theme_color": "#0A0A0A",
+        "icons": [
+            {"src": "/static/pwa/icon-192.png", "sizes": "192x192", "type": "image/png"},
+            {"src": "/static/pwa/icon-512.png", "sizes": "512x512", "type": "image/png"},
+            {"src": "/static/pwa/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"},
+        ]})
+    resp.headers["Content-Type"] = "application/manifest+json"
+    return resp
+
+
+SERVICE_WORKER = """
+// Arena Legends: guarda lo básico para abrir la app más rápido. NUNCA toca /api (saldo y partidos siempre en vivo).
+const CACHE = 'arena-legends-v1';
+self.addEventListener('install', e => { self.skipWaiting(); });
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+});
+self.addEventListener('fetch', e => {
+  const r = e.request, u = new URL(r.url);
+  if (r.method !== 'GET' || u.origin !== location.origin || u.pathname.startsWith('/api/')) return;
+  if (u.pathname.startsWith('/static/')) {            // imágenes: primero lo guardado
+    e.respondWith(caches.match(r).then(c => c || fetch(r).then(n => { const k = n.clone(); caches.open(CACHE).then(x => x.put(r, k)); return n; })));
+  } else if (r.mode === 'navigate') {                 // la página: primero internet, y si no hay, la última copia
+    e.respondWith(fetch(r).then(n => { const k = n.clone(); caches.open(CACHE).then(x => x.put('/', k)); return n; }).catch(() => caches.match('/')));
+  }
+});
+"""
+
+
+@app.route("/sw.js")
+def service_worker():
+    resp = app.response_class(SERVICE_WORKER, mimetype="application/javascript")
+    resp.headers["Cache-Control"] = "no-cache"
+    resp.headers["Service-Worker-Allowed"] = "/"
+    return resp
 
 
 if __name__ == "__main__":

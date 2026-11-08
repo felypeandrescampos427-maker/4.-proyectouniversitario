@@ -34,6 +34,86 @@
         @media (prefers-reduced-motion: reduce) { .splash-flash, .splash-logo, .splash-logo::after, .splash-sub { animation: none; } .splash-flash { opacity: .15; } }
         @media (prefers-reduced-motion: reduce) { .pop { animation: none; } }
     </style>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0A0A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Arena Legends">
+<link rel="apple-touch-icon" sizes="192x192" href="/static/pwa/icon-192.png">
+<style id="mejoras-css">
+    /* ---- Accesibilidad y temas ---- */
+    html { font-size: calc(16px * var(--al-fs, 1)); }
+    :focus-visible { outline: 3px solid #E5C579; outline-offset: 2px; }
+    /* Tema claro: se invierte toda la página y se vuelven a invertir las imágenes y la cancha, para que no cambien de color */
+    html.tema-claro { filter: invert(1) hue-rotate(180deg); background: #fff; }
+    html.tema-claro img, html.tema-claro video, html.tema-claro .logo-img, html.tema-claro #simCampo svg,
+    html.tema-claro #splash, html.tema-claro .al-noinvertir { filter: invert(1) hue-rotate(180deg); }
+    html.alto-contraste .text-gray-500, html.alto-contraste .text-gray-400, html.alto-contraste .text-gray-300 { color: #ffffff !important; }
+    html.alto-contraste [class*="border-[#2B2B2B]"], html.alto-contraste [class*="border-[#3D3D3D]"] { border-color: #bdbdbd !important; }
+    html.alto-contraste [class*="text-[#C5A04A]"] { color: #FFD866 !important; }
+    html.sin-animaciones *:not(#simCampo *), html.sin-animaciones *:not(#simCampo *)::after, html.sin-animaciones *:not(#simCampo *)::before { animation: none !important; transition: none !important; }
+    /* ---- Ventanas nuevas (ajustes, logros, administrador) ---- */
+    .al-modal { position: fixed; inset: 0; z-index: 45; display: none; align-items: center; justify-content: center; padding: 12px; background: rgba(0,0,0,.75); backdrop-filter: blur(4px); }
+    .al-modal.abierto { display: flex; }
+    .al-card { background: #141414; border: 1px solid #2B2B2B; border-radius: 16px; width: 100%; max-width: 520px; max-height: 92vh; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,.6); animation: pop .18s ease-out; }
+    .al-card.ancha { max-width: 920px; }
+    .al-cab { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px 8px; }
+    .al-cab h3 { font-size: .9rem; font-weight: 700; color: #C5A04A; margin: 0; }
+    .al-x { background: none; border: 0; color: #9ca3af; font-weight: 700; font-size: 1rem; cursor: pointer; padding: 4px 8px; }
+    .al-x:hover { color: #fff; }
+    .al-cuerpo { padding: 6px 18px 18px; overflow-y: auto; }
+    .al-fila { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid #2B2B2B; }
+    .al-fila:last-child { border-bottom: 0; }
+    .al-fila b { display: block; font-size: .8rem; color: #F2F2F2; font-weight: 700; }
+    .al-fila small { display: block; font-size: .68rem; color: #9ca3af; margin-top: 2px; }
+    .al-grupo { display: inline-flex; background: #050505; border: 1px solid #2B2B2B; border-radius: 10px; padding: 3px; gap: 2px; flex-wrap: wrap; }
+    .al-op { background: none; border: 0; color: #9ca3af; font-size: .72rem; font-weight: 700; padding: 6px 10px; border-radius: 8px; cursor: pointer; }
+    .al-op.on { background: #C5A04A; color: #050505; }
+    .al-btn { background: #050505; border: 1px solid #2B2B2B; color: #d1d5db; font-size: .75rem; font-weight: 700; padding: 8px 12px; border-radius: 10px; cursor: pointer; }
+    .al-btn:hover { color: #fff; border-color: #C5A04A; }
+    .al-btn.oro { background: #C5A04A; color: #050505; border-color: #C5A04A; }
+    .al-btn.rojo { border-color: #f38ba8; color: #f38ba8; }
+    .al-btn[disabled] { opacity: .45; cursor: not-allowed; }
+    .al-chip { background: #050505; border: 1px solid #2B2B2B; border-radius: 12px; padding: 8px 10px; text-align: center; min-width: 0; }
+    .al-chip span { display: block; font-size: .62rem; color: #9ca3af; }
+    .al-chip b { font-size: .95rem; color: #E5C579; }
+    .al-rejilla { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @media (min-width: 640px) { .al-rejilla.cuatro { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    .al-logro { display: flex; gap: 12px; align-items: center; background: #050505; border: 1px solid #2B2B2B; border-radius: 12px; padding: 10px 12px; }
+    .al-logro.bloq { opacity: .55; }
+    .al-logro.bloq .al-ico { filter: grayscale(1); }
+    .al-ico { font-size: 1.6rem; width: 2.4rem; text-align: center; flex: none; }
+    .al-logro b { font-size: .8rem; color: #F2F2F2; display: block; }
+    .al-logro small { font-size: .68rem; color: #9ca3af; display: block; }
+    .al-barra { height: 5px; background: #2B2B2B; border-radius: 4px; margin-top: 5px; overflow: hidden; }
+    .al-barra i { display: block; height: 100%; background: #C5A04A; }
+    .al-tabla { width: 100%; border-collapse: collapse; font-size: .72rem; }
+    .al-tabla th { text-align: left; color: #9ca3af; font-weight: 600; padding: 6px 8px; border-bottom: 1px solid #2B2B2B; position: sticky; top: 0; background: #141414; }
+    .al-tabla td { padding: 7px 8px; border-bottom: 1px solid #1f1f1f; color: #e5e7eb; }
+    .al-tabla tr.sel td { background: #1d1a10; }
+    .al-tabla tbody tr { cursor: pointer; }
+    .al-tabla tbody tr:hover td { background: #1a1a1a; }
+    .al-scroll { max-height: 34vh; overflow: auto; border: 1px solid #2B2B2B; border-radius: 10px; }
+    .al-input { background: #050505; border: 1px solid #2B2B2B; color: #fff; font-size: .8rem; padding: 8px 10px; border-radius: 10px; outline: none; width: 100%; }
+    .al-input:focus { border-color: #C5A04A; }
+    .al-select { background: #050505; border: 1px solid #2B2B2B; color: #fff; font-size: .75rem; padding: 7px 8px; border-radius: 10px; }
+    #alVolumen { accent-color: #C5A04A; }
+    .al-pos { color: #a6e3a1; } .al-neg { color: #f38ba8; }
+    /* ---- Simulación: subtítulos, sonido y resumen ---- */
+    #alSubtitulos { display: none; background: #000; border: 1px solid #3D3D3D; border-radius: 12px; padding: 10px 14px; font-size: 1.05rem; line-height: 1.35; color: #fff; text-align: center; min-height: 3.2em; }
+    #alSubtitulos.on { display: block; }
+    #alSubtitulos small { display: block; color: #E5C579; font-size: .7em; margin-bottom: 2px; }
+    #alResumen { display: none; background: rgba(43,43,43,.6); border: 1px solid #C5A04A55; border-radius: 12px; padding: 14px; }
+    #alResumen.on { display: block; animation: pop .25s ease-out; }
+    #alResumen h4 { margin: 0 0 8px; font-size: .85rem; color: #C5A04A; }
+    .al-momento { display: flex; gap: 8px; align-items: baseline; font-size: .8rem; padding: 5px 0; border-bottom: 1px dashed #3D3D3D; color: #e5e7eb; }
+    .al-momento:last-child { border-bottom: 0; }
+    .al-momento time { color: #9ca3af; min-width: 2.6rem; font-variant-numeric: tabular-nums; }
+    .al-momento em { margin-left: auto; font-style: normal; color: #E5C579; font-weight: 700; white-space: nowrap; }
+    #alSonidoBtn { background: #050505; border: 1px solid #2B2B2B; color: #d1d5db; border-radius: 10px; padding: 6px 10px; font-size: .9rem; cursor: pointer; flex: none; }
+    .al-roja-ficha { pointer-events: none; }
+</style>
 </head>
 <body class="bg-[#0A0A0A] text-[#F2F2F2] font-sans antialiased min-h-screen p-3 flex flex-col">
 
@@ -69,6 +149,9 @@
                 <button id="btn-usuario" onclick="cerrarSesion()" title="Cerrar sesión" class="mt-1 text-[9px] text-gray-400 underline max-w-[8rem] truncate">👤 —</button>
                 <button onclick="abrirAyuda()" class="mt-1 ml-2 text-[9px] text-gray-400 underline">❓ Ayuda</button>
                 <button onclick="abrirMovimientos()" class="mt-1 ml-2 text-[9px] text-gray-400 underline">🧾 Movimientos</button>
+                <button id="alBtnLogros" onclick="AL.abrir('alLogros')" class="mt-1 ml-2 text-[9px] text-gray-400 underline">🏅 Logros</button>
+                <button onclick="AL.abrir('alAjustes')" class="mt-1 ml-2 text-[9px] text-gray-400 underline">⚙️ Ajustes</button>
+                <button onclick="AL.abrir('alAdmin')" class="al-solo-admin mt-1 ml-2 text-[9px] text-[#C5A04A] underline" style="display:none">🛡️ Admin</button>
             </div>
             <div class="flex items-center gap-2">
                 <div class="bg-[#050505] border border-[#2B2B2B] px-2.5 py-1 rounded-xl text-right">
@@ -350,13 +433,15 @@
         <div class="pop bg-[#141414] border border-[#2B2B2B] w-full max-w-md max-h-full overflow-y-auto rounded-2xl shadow-2xl p-3 space-y-3">
             <div class="bg-[#2B2B2B]/60 rounded-xl px-3 py-2 space-y-0.5">
                 <div id="simMarcador" class="flex items-center justify-center gap-2 text-xs font-bold text-[#C5A04A] min-w-0"></div>
-                <div id="simReloj" class="text-[11px] font-bold text-[#a6e3a1] text-center">⏱️ Min: 0'</div>
+                <div style="display:flex;justify-content:center;align-items:center;gap:8px"><button id="alSonidoBtn" onclick="AL.alternarSonido()" aria-label="Activar o quitar el sonido del estadio" title="Sonido del estadio">🔊</button><div id="simReloj" class="text-[11px] font-bold text-[#a6e3a1] text-center">⏱️ Min: 0'</div></div>
             </div>
             <div id="simCampo"></div>
+            <div id="alSubtitulos" role="status" aria-live="polite"><small>🎙️ Transmisión</small>Listos para empezar…</div>
             <div class="bg-[#2B2B2B]/60 rounded-xl p-2.5 space-y-1.5">
                 <h4 class="text-[11px] font-bold text-[#C5A04A]">💬 Comentarios en vivo</h4>
-                <div id="simComentarios" class="h-36 overflow-y-auto bg-[#0A0A0A] rounded-lg p-2 font-mono text-[10px] space-y-1"></div>
+                <div id="simComentarios" role="log" aria-live="polite" aria-label="Comentarios del partido" class="h-36 overflow-y-auto bg-[#0A0A0A] rounded-lg p-2 font-mono text-[10px] space-y-1"></div>
             </div>
+            <div id="alResumen" aria-live="polite"></div>
             <div class="flex gap-2">
                 <button id="simSaltar" onclick="saltarSimulacion()" class="bg-[#050505] border border-[#2B2B2B] text-gray-300 font-bold px-3 py-2.5 rounded-xl text-xs">⏩ Saltar</button>
                 <button id="simContinuar" onclick="continuarTorneo()" disabled class="flex-1 bg-[#C5A04A] active:bg-[#E5C579] text-[#050505] font-bold py-2.5 rounded-xl text-xs disabled:opacity-40">Simulando...</button>
@@ -1455,7 +1540,7 @@
             for (const lado of ['home', 'away']) {
                 c.base[lado].forEach(([bx, by], i) => {
                     const el = document.getElementById(`pj-${lado}-${i}`);
-                    if (!el || (c.activo && !c.activo(lado, i))) return;
+                    if (!el || (c.activo && !c.activo(lado, i)) || (sim.fuera && sim.fuera[lado] && sim.fuera[lado][i])) return;
                     const fijo = c.fijo(i);
                     let x = bx + (fijo ? 0 : c.dir[lado] * sim.empuje[lado]), y = by;
                     if (jitter) {
@@ -1797,7 +1882,7 @@
             } else if (e.tipo === 'roja' && e.jugador) {
                 const i = lista.indexOf(e.jugador);
                 const g = i >= 0 ? document.getElementById(`pj-${e.lado}-${i}`) : null;
-                if (g) g.style.opacity = 0.25;
+                if (g) { if (window.AL) AL.expulsar(e, i); else g.style.opacity = 0.25; }
             }
         }
 
@@ -1825,6 +1910,7 @@
             if (e.tipo === 'descanso') caja.appendChild(separador());
             caja.scrollTop = caja.scrollHeight;
             pintarMarcador(live, e.marcador, e.pen);
+            if (window.AL) AL.alEvento(e, live);
             if (e.tipo === 'gol') celebrarGol(e);
         }
 
@@ -1896,6 +1982,7 @@
             if (sim !== actual) return;
 
             setReloj('Final');
+            if (window.AL) AL.alFin(live);
             $('simSaltar').classList.add('hidden');
             $('simContinuar').disabled = false;
             $('simContinuar').textContent = 'Continuar torneo';
@@ -1918,6 +2005,7 @@
 
             $('simModal').classList.remove('hidden');
             $('simModal').classList.add('flex');
+            if (window.AL) AL.alAbrir(live);
             reproducirSimulacion(live);
         }
 
@@ -2872,5 +2960,441 @@
 
         iniciar();
     </script>
+    <!-- AJUSTES: tema, tamaño de letra, contraste, sonido y subtítulos -->
+    <div id="alAjustes" class="al-modal" role="dialog" aria-modal="true" aria-labelledby="alAjustesT">
+        <div class="al-card">
+            <div class="al-cab"><h3 id="alAjustesT">⚙️ Ajustes y accesibilidad</h3><button class="al-x" onclick="AL.cerrar('alAjustes')" aria-label="Cerrar">✕</button></div>
+            <div class="al-cuerpo">
+                <div class="al-fila"><div><b>Tema</b><small>Automático sigue el modo de tu dispositivo.</small></div>
+                    <div class="al-grupo" id="alTema" role="group" aria-label="Tema">
+                        <button class="al-op" data-v="auto" onclick="AL.fijar('tema','auto')">Auto</button>
+                        <button class="al-op" data-v="oscuro" onclick="AL.fijar('tema','oscuro')">🌙 Oscuro</button>
+                        <button class="al-op" data-v="claro" onclick="AL.fijar('tema','claro')">☀️ Claro</button></div></div>
+                <div class="al-fila"><div><b>Tamaño de letra</b><small>Agranda todo el texto de la aplicación.</small></div>
+                    <div class="al-grupo" id="alLetra" role="group" aria-label="Tamaño de letra">
+                        <button class="al-op" data-v="1" onclick="AL.fijar('letra',1)" aria-label="Letra normal">A</button>
+                        <button class="al-op" data-v="1.15" onclick="AL.fijar('letra',1.15)" aria-label="Letra grande" style="font-size:.85rem">A+</button>
+                        <button class="al-op" data-v="1.3" onclick="AL.fijar('letra',1.3)" aria-label="Letra muy grande" style="font-size:.95rem">A++</button></div></div>
+                <div class="al-fila"><div><b>Alto contraste</b><small>Textos más claros y bordes más marcados.</small></div>
+                    <div class="al-grupo" id="alContraste"><button class="al-op" data-v="0" onclick="AL.fijar('contraste',0)">No</button><button class="al-op" data-v="1" onclick="AL.fijar('contraste',1)">Sí</button></div></div>
+                <div class="al-fila"><div><b>Reducir animaciones</b><small>Quita destellos y movimientos de la interfaz.</small></div>
+                    <div class="al-grupo" id="alMovimiento"><button class="al-op" data-v="0" onclick="AL.fijar('quieto',0)">No</button><button class="al-op" data-v="1" onclick="AL.fijar('quieto',1)">Sí</button></div></div>
+                <div class="al-fila"><div><b>Subtítulos de la transmisión</b><small>Muestra en grande lo que dicen los narradores.</small></div>
+                    <div class="al-grupo" id="alSubs"><button class="al-op" data-v="0" onclick="AL.fijar('subs',0)">No</button><button class="al-op" data-v="1" onclick="AL.fijar('subs',1)">Sí</button></div></div>
+                <div class="al-fila"><div><b>Sonidos de estadio</b><small>Ambiente, pitos y grito de gol durante el partido.</small></div>
+                    <div class="al-grupo" id="alSonido"><button class="al-op" data-v="0" onclick="AL.fijar('sonido',0)">No</button><button class="al-op" data-v="1" onclick="AL.fijar('sonido',1)">Sí</button></div></div>
+                <div class="al-fila"><div><b>Volumen del estadio</b></div>
+                    <input id="alVolumen" type="range" min="0" max="100" step="5" aria-label="Volumen del estadio" style="width:9rem" oninput="AL.fijar('volumen', this.value/100)"></div>
+                <div class="al-fila" id="alFilaInstalar"><div><b>Instalar como aplicación</b><small id="alInstalarTxt">Ponla en la pantalla de inicio de tu celular o computador.</small></div>
+                    <button class="al-btn oro" id="alInstalarBtn" onclick="AL.instalar()">📲 Instalar</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGROS -->
+    <div id="alLogros" class="al-modal" role="dialog" aria-modal="true" aria-labelledby="alLogrosT">
+        <div class="al-card">
+            <div class="al-cab"><h3 id="alLogrosT">🏅 Mis logros</h3><button class="al-x" onclick="AL.cerrar('alLogros')" aria-label="Cerrar">✕</button></div>
+            <div class="al-cuerpo">
+                <div id="alLogrosResumen" class="al-rejilla" style="margin-bottom:10px"></div>
+                <div id="alLogrosLista" style="display:grid;gap:8px"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANEL DE ADMINISTRACIÓN (solo con el correo de administrador) -->
+    <div id="alAdmin" class="al-modal" role="dialog" aria-modal="true" aria-labelledby="alAdminT">
+        <div class="al-card ancha">
+            <div class="al-cab"><h3 id="alAdminT">🛡️ Panel de administración</h3>
+                <div><button class="al-btn" onclick="AL.adminCargar()" aria-label="Actualizar lista">🔄 Actualizar</button> <button class="al-x" onclick="AL.cerrar('alAdmin')" aria-label="Cerrar">✕</button></div></div>
+            <div class="al-cuerpo">
+                <div id="alAdminResumen" class="al-rejilla cuatro" style="margin-bottom:10px"></div>
+                <input id="alAdminBuscar" class="al-input" type="search" placeholder="Buscar por nombre o correo…" aria-label="Buscar usuario" oninput="AL.adminPintar()">
+                <div class="al-scroll" style="margin-top:8px"><table class="al-tabla"><thead><tr><th>Nombre</th><th>Correo</th><th>Saldo</th><th>Partidos</th><th>Aciertos</th><th>Logros</th></tr></thead><tbody id="alAdminTabla"></tbody></table></div>
+                <div id="alAdminDetalle" style="margin-top:12px"></div>
+            </div>
+        </div>
+    </div>
+
+    <script id="mejoras-js">
+    /* ===== Arena Legends: mejoras (sonidos, resumen del partido, roja en cancha, logros, ajustes, administrador, app instalable) ===== */
+    (function () {
+        const MOVIL = true;
+        const CLAVE_AJUSTES = 'arena_legends_ajustes';
+        const CLAVE_LOGROS = 'arena_legends_logros_vistos';
+        const POR_DEFECTO = { tema: 'oscuro', letra: 1, contraste: 0, quieto: 0, subs: 0, sonido: 1, volumen: 0.6 };
+        let aj = { ...POR_DEFECTO };
+        try { aj = { ...POR_DEFECTO, ...(JSON.parse(localStorage.getItem(CLAVE_AJUSTES) || '{}') || {}) }; } catch (e) { /* sin almacenamiento */ }
+        const guardarAj = () => { try { localStorage.setItem(CLAVE_AJUSTES, JSON.stringify(aj)); } catch (e) { /* sin almacenamiento */ } };
+        const el = id => document.getElementById(id);
+        const html = (s) => (typeof esc === 'function' ? esc(s) : String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])));
+        const mql = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+
+        // ---------- Ajustes: tema, letra, contraste, animaciones ----------
+        function aplicar() {
+            const r = document.documentElement;
+            const claro = aj.tema === 'claro' || (aj.tema === 'auto' && mql && mql.matches);
+            r.classList.toggle('tema-claro', !!claro);
+            r.classList.toggle('alto-contraste', !!aj.contraste);
+            r.classList.toggle('sin-animaciones', !!aj.quieto);
+            r.style.setProperty('--al-fs', String(aj.letra));
+            const meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', claro ? '#ffffff' : '#0A0A0A');
+            const marca = (id, v) => { const g = el(id); if (g) g.querySelectorAll('.al-op').forEach(b => b.classList.toggle('on', String(b.dataset.v) === String(v))); };
+            marca('alTema', aj.tema); marca('alLetra', aj.letra); marca('alContraste', aj.contraste ? 1 : 0);
+            marca('alMovimiento', aj.quieto ? 1 : 0); marca('alSubs', aj.subs ? 1 : 0); marca('alSonido', aj.sonido ? 1 : 0);
+            const v = el('alVolumen'); if (v) v.value = Math.round(aj.volumen * 100);
+            const sb = el('alSonidoBtn'); if (sb) { sb.textContent = aj.sonido ? '🔊' : '🔇'; sb.setAttribute('aria-pressed', aj.sonido ? 'true' : 'false'); }
+            const subs = el('alSubtitulos'); if (subs) subs.classList.toggle('on', !!aj.subs);
+            if (S.master) S.master.gain.value = aj.sonido ? aj.volumen : 0;
+        }
+        if (mql && mql.addEventListener) mql.addEventListener('change', () => { if (aj.tema === 'auto') aplicar(); });
+
+        // ---------- Sonidos de estadio (se sintetizan con WebAudio: no hay archivos que descargar) ----------
+        const S = { ctx: null, master: null, amb: null, ambGain: null, lfo: null };
+        function ctx() {
+            if (!S.ctx) {
+                try {
+                    const C = window.AudioContext || window.webkitAudioContext;
+                    if (!C) return null;
+                    S.ctx = new C();
+                    S.master = S.ctx.createGain();
+                    S.master.gain.value = aj.sonido ? aj.volumen : 0;
+                    S.master.connect(S.ctx.destination);
+                } catch (e) { return null; }
+            }
+            if (S.ctx.state === 'suspended') S.ctx.resume().catch(() => {});
+            return S.ctx;
+        }
+        // el navegador solo deja sonar tras un toque: se desbloquea con el primero
+        ['pointerdown', 'keydown', 'touchstart'].forEach(ev => document.addEventListener(ev, () => { ctx(); }, { once: true, capture: true }));
+        function ruido(c, seg) {
+            const b = c.createBuffer(1, Math.floor(c.sampleRate * seg), c.sampleRate), d = b.getChannelData(0);
+            let ult = 0;
+            for (let i = 0; i < d.length; i++) { ult = (ult + 0.04 * (Math.random() * 2 - 1)) / 1.04; d[i] = ult * 3.2; }   // ruido "marrón": suena a multitud lejana
+            return b;
+        }
+        const sonando = () => aj.sonido && !(typeof sim !== 'undefined' && sim && sim.saltar);
+        function ambienteIniciar() {
+            const c = ctx(); if (!c || S.amb || !aj.sonido) return;
+            const src = c.createBufferSource(); src.buffer = ruido(c, 4); src.loop = true;
+            const f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 1100;
+            const g = c.createGain(); g.gain.value = 0.0001;
+            src.connect(f); f.connect(g); g.connect(S.master); src.start();
+            g.gain.linearRampToValueAtTime(0.16, c.currentTime + 2.5);
+            S.amb = src; S.ambGain = g;
+            // la multitud "respira": sube y baja despacio
+            S.lfo = setInterval(() => { if (S.ambGain) S.ambGain.gain.setTargetAtTime(0.11 + Math.random() * 0.09, S.ctx.currentTime, 1.2); }, 2200);
+        }
+        function ambienteParar() {
+            clearInterval(S.lfo); S.lfo = null;
+            if (S.amb && S.ctx) {
+                const src = S.amb, g = S.ambGain;
+                try { g.gain.setTargetAtTime(0.0001, S.ctx.currentTime, 0.3); setTimeout(() => { try { src.stop(); } catch (e) { /* ya parado */ } }, 1200); } catch (e) { /* ya parado */ }
+            }
+            S.amb = null; S.ambGain = null;
+        }
+        function pito(n, largo) {   // n silbatazos seguidos
+            const c = sonando() && ctx(); if (!c) return;
+            for (let k = 0; k < n; k++) {
+                const t0 = c.currentTime + k * (largo + 0.14) + 0.02;
+                const o = c.createOscillator(), o2 = c.createOscillator(), vib = c.createOscillator(), vg = c.createGain(), g = c.createGain();
+                o.type = 'sine'; o2.type = 'triangle'; o.frequency.value = 2850; o2.frequency.value = 3050;
+                vib.frequency.value = 38; vg.gain.value = 70; vib.connect(vg); vg.connect(o.frequency); vg.connect(o2.frequency);
+                g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.38, t0 + 0.03);
+                g.gain.setValueAtTime(0.38, t0 + largo - 0.05); g.gain.exponentialRampToValueAtTime(0.0001, t0 + largo);
+                o.connect(g); o2.connect(g); g.connect(S.master);
+                [o, o2, vib].forEach(x => { x.start(t0); x.stop(t0 + largo + 0.05); });
+            }
+        }
+        function rugido(largo, fuerza) {   // grito de gol: la multitud explota y se apaga
+            const c = sonando() && ctx(); if (!c) return;
+            const t0 = c.currentTime;
+            const src = c.createBufferSource(); src.buffer = ruido(c, largo + 0.5);
+            const f = c.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 0.7;
+            f.frequency.setValueAtTime(500, t0); f.frequency.linearRampToValueAtTime(1500, t0 + largo * 0.4); f.frequency.linearRampToValueAtTime(700, t0 + largo);
+            const g = c.createGain();
+            g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(0.9 * fuerza, t0 + 0.35);
+            g.gain.setValueAtTime(0.9 * fuerza, t0 + largo * 0.55); g.gain.exponentialRampToValueAtTime(0.0001, t0 + largo);
+            src.connect(f); f.connect(g); g.connect(S.master); src.start(t0); src.stop(t0 + largo + 0.5);
+            if (S.ambGain) {   // el ambiente también se levanta un momento
+                S.ambGain.gain.cancelScheduledValues(t0); S.ambGain.gain.setTargetAtTime(0.32 * fuerza + 0.1, t0, 0.2);
+                S.ambGain.gain.setTargetAtTime(0.14, t0 + largo * 0.7, 0.8);
+            }
+        }
+        function abucheo() {
+            const c = sonando() && ctx(); if (!c) return;
+            const t0 = c.currentTime;
+            const src = c.createBufferSource(); src.buffer = ruido(c, 2.2);
+            const f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 380;
+            const g = c.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(0.8, t0 + 0.4); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 2.1);
+            src.connect(f); f.connect(g); g.connect(S.master); src.start(t0); src.stop(t0 + 2.2);
+        }
+        function sonidoDeEvento(e, live) {
+            if (!aj.sonido) return;
+            const futbol = live && live.deporte === 'Fútbol';
+            switch (e.tipo) {
+                case 'inicio': pito(1, 0.7); break;
+                case 'info': if (futbol) pito(1, 0.7); break;
+                case 'descanso': pito(2, 0.55); break;
+                case 'fin': pito(3, 0.6); break;
+                case 'amarilla': pito(1, 0.28); break;
+                case 'roja': pito(1, 1.0); abucheo(); break;
+                case 'gol': if (e.pen) { if (e.lado) rugido(1.6, 0.7); } else if (futbol) rugido(3.4, 1); else rugido(1.4, 0.55); break;
+                default: break;
+            }
+        }
+
+        // ---------- Subtítulos de la transmisión ----------
+        function subtitular(e) {
+            const caja = el('alSubtitulos'); if (!caja) return;
+            let linea = '';
+            if (e.narracion && e.narracion.length) {
+                const [quien, frase] = e.narracion[0];
+                linea = `<small>🎙️ ${html(quien)}</small>${html(frase)}`;
+            } else if (e.texto) linea = `<small>${html(e.corto || '')}</small>${html(e.texto)}`;
+            if (linea) caja.innerHTML = linea;
+        }
+
+        // ---------- Resumen del partido ----------
+        function equipoDe(live, lado) { return lado === 'home' ? live.home.name : live.away.name; }
+        function construirResumen(live) {
+            const ev = live.eventos || [];
+            const futbol = live.deporte === 'Fútbol';
+            const goles = ev.filter(e => e.tipo === 'gol' && !e.pen);
+            const cuenta = t => ev.filter(e => e.tipo === t).length;
+            const final = [...ev].reverse().find(e => e.marcador && !e.pen) || ev[ev.length - 1] || {};
+            const marc = final.marcador || [0, 0];
+            const tanda = [...ev].reverse().find(e => e.pen);
+            // figuras: quien más anotó
+            const puntos = {};
+            goles.forEach(e => { if (e.jugador) puntos[e.jugador + '|' + e.lado] = (puntos[e.jugador + '|' + e.lado] || 0) + (e.valor || 1); });
+            const unidad = futbol ? ['gol', 'goles'] : (live.deporte === 'Baloncesto' ? ['pt', 'pts'] : (live.deporte === 'Béisbol' ? ['carrera', 'carreras'] : ['punto', 'puntos']));
+            const figuras = Object.entries(puntos).sort((a, b) => b[1] - a[1]).slice(0, 3)
+                .map(([k, v]) => `${html(k.split('|')[0])} (${v} ${v === 1 ? unidad[0] : unidad[1]})`);
+            // momentos clave
+            let clave = ev.filter(e => (e.tipo === 'gol' && !e.pen) || e.tipo === 'roja');
+            if (!futbol && clave.length > 8) clave = clave.filter(e => e.tipo === 'roja' || (e.valor || 1) >= 3).slice(0, 8);
+            if (!futbol && !clave.length) clave = goles.slice(0, 8);
+            const filas = clave.map(e => {
+                const eq = html(equipoDe(live, e.lado));
+                let txt;
+                if (e.tipo === 'roja') txt = `🟥 Roja para <b>${html(e.jugador || '')}</b> (${eq})`;
+                else if (futbol) txt = `⚽ ${e.penal ? 'Penal: ' : 'Gol de '}<b>${html(e.jugador || eq)}</b> (${eq})${e.asist ? `, asistencia de ${html(e.asist)}` : ''}`;
+                else txt = `${e.valor >= 3 ? '🔥' : '⭐'} <b>${html(e.jugador || eq)}</b> (${eq})${e.valor ? ` +${e.valor}` : ''}`;
+                return `<div class="al-momento"><time>${html(e.corto || '')}</time><span>${txt}</span><em>${e.marcador ? e.marcador[0] + '-' + e.marcador[1] : ''}</em></div>`;
+            }).join('') || '<div class="al-momento"><span>Partido sin goles.</span></div>';
+            const chips = futbol
+                ? [['⚽', 'Goles', marc[0] + marc[1]], ['🟨', 'Amarillas', cuenta('amarilla')], ['🟥', 'Rojas', cuenta('roja')], ['🔄', 'Cambios', cuenta('cambio')]]
+                : [['🏟️', 'Anotaciones', goles.length], ['🔢', 'Marcador total', marc[0] + marc[1]]];
+            return `<h4>📋 Resumen del partido</h4>
+                <div style="text-align:center;font-weight:800;color:#fff;margin-bottom:8px;font-size:1rem">${html(live.home.name)} <span style="color:#E5C579">${marc[0]} - ${marc[1]}</span> ${html(live.away.name)}${tanda ? `<small style="display:block;color:#E5C579;font-weight:600">Definición por penales: ${tanda.pen[0]} - ${tanda.pen[1]}</small>` : ''}</div>
+                <div class="al-rejilla ${chips.length > 2 ? 'cuatro' : ''}" style="margin-bottom:8px">${chips.map(([i, t, n]) => `<div class="al-chip"><span>${i} ${t}</span><b>${n}</b></div>`).join('')}</div>
+                ${figuras.length ? `<div style="font-size:.8rem;color:#e5e7eb;margin-bottom:6px">⭐ <b>Figuras:</b> ${figuras.join(' · ')}</div>` : ''}
+                <div style="font-size:.7rem;color:#9ca3af;margin:6px 0 2px">Momentos clave</div>${filas}`;
+        }
+
+        // ---------- Expulsado en la cancha ----------
+        function expulsar(e, i) {
+            if (typeof sim === 'undefined' || !sim || i < 0) return;
+            const actual = sim, lado = e.lado;
+            const g = document.getElementById(`pj-${lado}-${i}`); if (!g) return;
+            sim.fuera = sim.fuera || { home: {}, away: {} };
+            sim.fuera[lado][i] = true;                      // deja de moverse con el equipo: se queda con diez
+            const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            [['x', -5], ['y', -35], ['width', 10], ['height', 14], ['rx', 1.5], ['fill', '#e11d2e'], ['stroke', '#ffffff'], ['stroke-width', 1.5]].forEach(([k, v]) => r.setAttribute(k, v));
+            r.setAttribute('class', 'al-roja-ficha');
+            g.appendChild(r);
+            const cartel = el('simGol');
+            if (cartel) {
+                const f0 = cartel.getAttribute('fill');
+                cartel.textContent = '🟥 ' + (typeof apellidoCorto === 'function' ? apellidoCorto(e.jugador) : e.jugador).toUpperCase();
+                cartel.setAttribute('fill', '#f38ba8'); cartel.style.opacity = 1;
+                setTimeout(() => {
+                    if (sim !== actual || !cartel.textContent.startsWith('🟥')) return;   // si ya salió otro cartel (un gol), no se toca
+                    cartel.style.opacity = 0; cartel.setAttribute('fill', f0 || '#fff');
+                }, 2300);
+            }
+            setTimeout(() => {                              // camina hasta la línea de banda y sale
+                if (sim !== actual || !sim.campo) return;
+                const c = sim.campo, p = (sim.pos && sim.pos[lado] && sim.pos[lado][i]) || [250, c.alto / 2];
+                g.style.transform = `translate(${p[0]}px, ${p[1] < c.alto / 2 ? 6 : c.alto - 6}px)`;
+                setTimeout(() => { g.style.opacity = 0; g.style.visibility = 'hidden'; }, 1300);
+            }, 1700);
+        }
+
+        // ---------- Logros ----------
+        let colaToast = Promise.resolve();
+        function toastLogro(l) {
+            colaToast = colaToast.then(() => new Promise(res => {
+                if (typeof mostrarToast === 'function') mostrarToast(`🏅 ¡Logro desbloqueado! ${l.icono} ${l.titulo}`);
+                setTimeout(res, 3200);
+            }));
+        }
+        function revisarLogros() {
+            if (typeof state === 'undefined' || !state || !state.logros) return;
+            const ok = state.logros.filter(l => l.ok).map(l => l.id);
+            const llave = CLAVE_LOGROS + '_' + (typeof nombreUsuario !== 'undefined' ? nombreUsuario : '');
+            let vistos = null;
+            try { const g = localStorage.getItem(llave); vistos = g === null ? null : JSON.parse(g); } catch (e) { vistos = null; }
+            if (!Array.isArray(vistos)) { try { localStorage.setItem(llave, JSON.stringify(ok)); } catch (e) { /* sin almacenamiento */ } return; }   // primera vez: no se avisa de lo viejo
+            const nuevos = state.logros.filter(l => l.ok && !vistos.includes(l.id));
+            if (!nuevos.length) return;
+            nuevos.forEach(toastLogro);
+            try { localStorage.setItem(llave, JSON.stringify(ok)); } catch (e) { /* sin almacenamiento */ }
+            const btn = el('alBtnLogros'); if (btn) btn.classList.add('al-noinvertir');
+        }
+        function pintarLogros() {
+            const L = (typeof state !== 'undefined' && state && state.logros) || [];
+            const R = (typeof state !== 'undefined' && state && state.rachas) || { racha_actual: 0, mejor_racha: 0 };
+            const hechos = L.filter(l => l.ok).length;
+            el('alLogrosResumen').innerHTML =
+                `<div class="al-chip"><span>Conseguidos</span><b>${hechos} / ${L.length}</b></div><div class="al-chip"><span>Racha de aciertos</span><b>🔥 ${R.racha_actual} <small style="color:#9ca3af;font-weight:400">(mejor ${R.mejor_racha})</small></b></div>`;
+            el('alLogrosLista').innerHTML = L.map(l => {
+                const pr = l.progreso && !l.ok ? `<div class="al-barra"><i style="width:${Math.round(l.progreso[0] / l.progreso[1] * 100)}%"></i></div><small>${l.progreso[0]} de ${l.progreso[1]}</small>` : '';
+                return `<div class="al-logro ${l.ok ? '' : 'bloq'}"><div class="al-ico">${l.ok ? l.icono : '🔒'}</div><div style="flex:1;min-width:0"><b>${html(l.titulo)}${l.ok ? ' ✓' : ''}</b><small>${html(l.desc)}</small>${pr}</div></div>`;
+            }).join('');
+        }
+
+        // ---------- Panel de administración ----------
+        const A = { lista: [], sel: null };
+        const mon = n => (typeof formatearMoneda === 'function' ? formatearMoneda(n) : '$ ' + Math.round(n));
+        async function adminCargar() {
+            const d = await api('/api/admin/usuarios');
+            if (!d) return;
+            A.lista = d.usuarios || [];
+            const r = d.resumen || {};
+            el('alAdminResumen').innerHTML = [['Usuarios', r.usuarios], ['Saldo virtual total', mon(r.saldo_total || 0)], ['Partidos jugados', r.partidos], ['Predicciones', r.predicciones]]
+                .map(([t, v]) => `<div class="al-chip"><span>${t}</span><b>${v ?? 0}</b></div>`).join('');
+            adminPintar();
+        }
+        function adminPintar() {
+            const q = (el('alAdminBuscar').value || '').trim().toLowerCase();
+            const lista = A.lista.filter(u => !q || (u.nombre + ' ' + u.correo).toLowerCase().includes(q));
+            el('alAdminTabla').innerHTML = lista.map(u =>
+                `<tr data-c="${html(u.correo)}" class="${A.sel === u.correo ? 'sel' : ''}" tabindex="0"><td>${html(u.nombre)}</td><td>${html(u.correo)}</td><td>${mon(u.saldo)}</td><td>${u.partidos}</td><td>${u.ganadas}/${u.predicciones}</td><td>${u.logros}</td></tr>`).join('')
+                || '<tr><td colspan="6" style="color:#9ca3af">No hay usuarios que coincidan.</td></tr>';
+            el('alAdminTabla').querySelectorAll('tr[data-c]').forEach(tr => {
+                const ir = () => adminVer(tr.dataset.c);
+                tr.addEventListener('click', ir);
+                tr.addEventListener('keydown', ev => { if (ev.key === 'Enter') ir(); });
+            });
+        }
+        async function adminVer(correo) {
+            A.sel = correo; adminPintar();
+            const d = await api('/api/admin/usuario', { correo });
+            if (!d) return;
+            const u = d.usuario;
+            const ligas = [];
+            Object.values((state && state.ligas) || {}).forEach(ls => ls.forEach(l => ligas.push(l)));
+            const opciones = ligas.map(l => `<option value="${html(l.codigo)}">${html(l.nombre)} (${(d.partidos_por_liga || {})[l.codigo] || 0} partidos)</option>`).join('');
+            const movs = (d.movimientos || []).slice(0, 12).map(m => `<tr><td>${html(m.t)}</td><td>${html(m.tipo)}</td><td class="${m.monto >= 0 ? 'al-pos' : 'al-neg'}">${m.monto >= 0 ? '+' : ''}${mon(m.monto)}</td><td>${html(m.detalle)}</td></tr>`).join('') || '<tr><td colspan="4" style="color:#9ca3af">Sin movimientos.</td></tr>';
+            const preds = (d.predicciones || []).slice(0, 10).map(p => `<tr><td>${html(p.home)} vs ${html(p.away)}</td><td>${html(p.eleccion)} · x${p.cuota}</td><td>${mon(p.monto)}</td><td>${html(p.estado)}</td></tr>`).join('') || '<tr><td colspan="4" style="color:#9ca3af">Sin predicciones.</td></tr>';
+            el('alAdminDetalle').innerHTML = `
+                <div style="border:1px solid #2B2B2B;border-radius:12px;padding:12px">
+                    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px"><div><b style="color:#fff">${html(u.nombre)}</b><br><small style="color:#9ca3af">${html(u.correo)} · cuenta desde ${html(u.creada || '—')}</small></div>
+                    <div class="al-rejilla" style="min-width:12rem"><div class="al-chip"><span>Saldo</span><b>${mon(u.saldo)}</b></div><div class="al-chip"><span>Logros</span><b>${u.logros}</b></div></div></div>
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;align-items:center">
+                        <select id="alAdminLiga" class="al-select" aria-label="Liga a reiniciar">${opciones}</select>
+                        <button class="al-btn rojo" id="alAdminRL">↺ Reiniciar esa liga</button>
+                        <button class="al-btn rojo" id="alAdminRT">⚠️ Reiniciar todo el torneo</button>
+                    </div>
+                    <small style="color:#9ca3af">Reiniciar conserva el saldo y devuelve lo apostado en predicciones que seguían pendientes.</small>
+                    <h4 style="color:#C5A04A;font-size:.8rem;margin:12px 0 6px">Últimos movimientos</h4>
+                    <div class="al-scroll"><table class="al-tabla"><thead><tr><th>Fecha</th><th>Tipo</th><th>Monto</th><th>Detalle</th></tr></thead><tbody>${movs}</tbody></table></div>
+                    <h4 style="color:#C5A04A;font-size:.8rem;margin:12px 0 6px">Predicciones recientes</h4>
+                    <div class="al-scroll"><table class="al-tabla"><thead><tr><th>Partido</th><th>Elección</th><th>Monto</th><th>Estado</th></tr></thead><tbody>${preds}</tbody></table></div>
+                </div>`;
+            el('alAdminRL').onclick = () => adminReiniciar(correo, 'liga', el('alAdminLiga').value);
+            el('alAdminRT').onclick = () => adminReiniciar(correo, 'todo');
+            el('alAdminDetalle').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        async function adminReiniciar(correo, alcance, liga) {
+            const que = alcance === 'todo' ? 'TODOS los torneos' : 'esa liga';
+            const ok = await mostrarMensaje('confirmar', '¿Reiniciar?', `Se borrarán los grupos, partidos y predicciones de ${que} de ${correo}. Su saldo se conserva. Esto no se puede deshacer.`, { confirmar: true, textoOk: 'Sí, reiniciar' });
+            if (!ok) return;
+            const d = await api('/api/admin/reiniciar', { correo, alcance, liga });
+            if (!d) return;
+            if (typeof mostrarToast === 'function') mostrarToast('Torneo reiniciado para ' + correo);
+            await adminCargar(); adminVer(correo);
+        }
+        async function verificarAdmin() {
+            try {
+                const yo = await api('/api/auth/yo');
+                const visible = !!(yo && yo.admin);
+                document.querySelectorAll('.al-solo-admin').forEach(b => { b.style.display = visible ? '' : 'none'; });
+            } catch (e) { /* sin conexión */ }
+        }
+
+        // ---------- App instalable ----------
+        let instalador = null;
+        window.addEventListener('beforeinstallprompt', ev => { ev.preventDefault(); instalador = ev; actualizarInstalar(); });
+        window.addEventListener('appinstalled', () => { instalador = null; actualizarInstalar(); });
+        const instalada = () => (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+        function actualizarInstalar() {
+            const fila = el('alFilaInstalar'), txt = el('alInstalarTxt'), btn = el('alInstalarBtn');
+            if (!fila) return;
+            if (instalada()) { fila.style.display = 'none'; return; }
+            const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+            if (ios && !instalador) { txt.textContent = 'En iPhone: toca Compartir y luego "Añadir a pantalla de inicio".'; btn.style.display = 'none'; }
+            else if (!instalador) { txt.textContent = 'Desde el menú del navegador elige "Instalar aplicación" o "Añadir a pantalla de inicio".'; btn.style.display = 'none'; }
+            else { btn.style.display = ''; }
+        }
+        if ('serviceWorker' in navigator) window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => { /* sin PWA, la app sigue igual */ }); });
+
+        // ---------- Interfaz pública ----------
+        function abrir(id) {
+            const m = el(id); if (!m) return;
+            if (id === 'alLogros') pintarLogros();
+            if (id === 'alAdmin') { adminCargar(); }
+            if (id === 'alAjustes') { aplicar(); actualizarInstalar(); }
+            m.classList.add('abierto');
+            const x = m.querySelector('.al-x'); if (x) x.focus();
+        }
+        const cerrar = id => { const m = el(id); if (m) m.classList.remove('abierto'); };
+        document.addEventListener('keydown', ev => { if (ev.key === 'Escape') document.querySelectorAll('.al-modal.abierto').forEach(m => m.classList.remove('abierto')); });
+
+        window.AL = {
+            abrir, cerrar, adminCargar, adminPintar, adminVer,
+            fijar(clave, valor) { aj[clave] = valor; guardarAj(); aplicar(); if (clave === 'sonido') { if (valor) { ctx(); if (typeof sim !== 'undefined' && sim) ambienteIniciar(); } else ambienteParar(); } },
+            alternarSonido() { this.fijar('sonido', aj.sonido ? 0 : 1); },
+            instalar() { if (instalador) { instalador.prompt(); instalador.userChoice.finally(() => { instalador = null; actualizarInstalar(); }); } },
+            expulsar, revisarLogros, verificarAdmin,
+            alAbrir(live) {
+                const r = el('alResumen'); if (r) { r.classList.remove('on'); r.innerHTML = ''; }
+                const s = el('alSubtitulos'); if (s) s.innerHTML = '<small>🎙️ Transmisión</small>Listos para empezar…';
+                aplicar(); ambienteIniciar();
+            },
+            alEvento(e, live) { sonidoDeEvento(e, live); subtitular(e); },
+            alFin(live) {
+                ambienteParar();
+                const r = el('alResumen'); if (!r) return;
+                r.innerHTML = construirResumen(live); r.classList.add('on');
+                setTimeout(() => { try { r.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) { /* sin scroll */ } }, 150);
+            },
+            alCerrar() { ambienteParar(); },
+        };
+
+        // ---------- Se engancha a lo que ya existía (sin reescribirlo) ----------
+        function envolver(nombre, antes, despues) {
+            const original = window[nombre];
+            if (typeof original !== 'function') return;
+            window[nombre] = function (...args) {
+                if (antes) antes(...args);
+                const r = original.apply(this, args);
+                if (despues) { if (r && typeof r.then === 'function') return r.then(v => { despues(v); return v; }); despues(r); }
+                return r;
+            };
+        }
+        envolver('renderSaldo', null, () => setTimeout(revisarLogros, 50));
+        envolver('continuarTorneo', () => ambienteParar(), () => setTimeout(revisarLogros, 400));
+        envolver('saltarSimulacion', () => ambienteParar());
+        envolver('cargarProgreso', null, ok => { if (ok) verificarAdmin(); });
+
+        aplicar();
+        setTimeout(() => { if (typeof sesion !== 'undefined' && sesion) { verificarAdmin(); revisarLogros(); } }, 1800);
+    })();
+    </script>
+
 </body>
 </html>
