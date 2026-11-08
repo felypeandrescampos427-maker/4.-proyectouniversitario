@@ -42,6 +42,14 @@
 <meta name="apple-mobile-web-app-title" content="Arena Legends">
 <link rel="apple-touch-icon" sizes="192x192" href="/static/pwa/icon-192.png">
 <style id="mejoras-css">
+    /* ---- Banderas en Windows: Windows no trae dibujos de banderas y muestra solo letras (CO, ES...). Esta fuente las dibuja; en celulares no se usa ---- */
+    @font-face { font-family: 'Twemoji Country Flags'; font-display: swap;
+        src: url('https://cdn.jsdelivr.net/npm/country-flag-emoji-polyfill@0.1/dist/TwemojiCountryFlags.woff2') format('woff2');
+        unicode-range: U+1F1E6-1F1FF, U+1F3F4, U+E0062-E0063, U+E0065, U+E0067, U+E006C, U+E006E, U+E0073-E0074, U+E0077, U+E007F; }
+    @font-face { font-family: 'Rajdhani'; font-display: swap; src: url('https://cdn.jsdelivr.net/npm/country-flag-emoji-polyfill@0.1/dist/TwemojiCountryFlags.woff2') format('woff2'); unicode-range: U+1F1E6-1F1FF, U+1F3F4, U+E0062-E0063, U+E0065, U+E0067, U+E006C, U+E006E, U+E0073-E0074, U+E0077, U+E007F; }
+    @font-face { font-family: 'Orbitron'; font-display: swap; src: url('https://cdn.jsdelivr.net/npm/country-flag-emoji-polyfill@0.1/dist/TwemojiCountryFlags.woff2') format('woff2'); unicode-range: U+1F1E6-1F1FF, U+1F3F4, U+E0062-E0063, U+E0065, U+E0067, U+E006C, U+E006E, U+E0073-E0074, U+E0077, U+E007F; }
+    html, body, .font-sans { font-family: 'Twemoji Country Flags', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; }
+    .font-mono { font-family: 'Twemoji Country Flags', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; }
     /* ---- Accesibilidad y temas ---- */
     html { font-size: calc(16px * var(--al-fs, 1)); }
     :focus-visible { outline: 3px solid #E5C579; outline-offset: 2px; }
