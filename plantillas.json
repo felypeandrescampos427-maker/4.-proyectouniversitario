@@ -7012,6 +7012,1268 @@
           }
         ]
       }
+    },
+    "Mundial de Selecciones": {
+      "Argentina": {
+        "titulares": [
+          {
+            "nombre": "Emiliano Martínez",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Nahuel Molina",
+            "posicion": "LD"
+          },
+          {
+            "nombre": "Cristian Romero",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Nicolás Otamendi",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Nicolás Tagliafico",
+            "posicion": "LI"
+          },
+          {
+            "nombre": "Rodrigo De Paul",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Enzo Fernández",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Alexis Mac Allister",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Lionel Messi",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Julián Álvarez",
+            "posicion": "DC"
+          },
+          {
+            "nombre": "Ángel Di María",
+            "posicion": "EI"
+          }
+        ],
+        "suplentes": [
+          {
+            "nombre": "Franco Armani",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Lisandro Martínez",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Leandro Paredes",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Giovani Lo Celso",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Lautaro Martínez",
+            "posicion": "DC"
+          }
+        ]
+      },
+      "Brasil": {
+        "titulares": [
+          {
+            "nombre": "Alisson Becker",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Danilo",
+            "posicion": "LD"
+          },
+          {
+            "nombre": "Marquinhos",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Gabriel Magalhães",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Wendell",
+            "posicion": "LI"
+          },
+          {
+            "nombre": "Bruno Guimarães",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "João Gomes",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Lucas Paquetá",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Raphinha",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Vinícius Júnior",
+            "posicion": "EI"
+          },
+          {
+            "nombre": "Rodrygo",
+            "posicion": "DC"
+          }
+        ],
+        "suplentes": [
+          {
+            "nombre": "Bento",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Eder Militão",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Douglas Luiz",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Andreas Pereira",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Endrick",
+            "posicion": "DC"
+          }
+        ]
+      },
+      "Francia": {
+        "titulares": [
+          {
+            "nombre": "Mike Maignan",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Jules Koundé",
+            "posicion": "LD"
+          },
+          {
+            "nombre": "Dayot Upamecano",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "William Saliba",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Théo Hernandez",
+            "posicion": "LI"
+          },
+          {
+            "nombre": "Aurélien Tchouaméni",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "N'Golo Kanté",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Adrien Rabiot",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Ousmane Dembélé",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Kylian Mbappé",
+            "posicion": "EI"
+          },
+          {
+            "nombre": "Antoine Griezmann",
+            "posicion": "MCO"
+          }
+        ],
+        "suplentes": [
+          {
+            "nombre": "Brice Samba",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Ibrahima Konaté",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Eduardo Camavinga",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Marcus Thuram",
+            "posicion": "DC"
+          },
+          {
+            "nombre": "Randal Kolo Muani",
+            "posicion": "DC"
+          }
+        ]
+      },
+      "España": {
+        "titulares": [
+          {
+            "nombre": "Unai Simón",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Dani Carvajal",
+            "posicion": "LD"
+          },
+          {
+            "nombre": "Robin Le Normand",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Aymeric Laporte",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Marc Cucurella",
+            "posicion": "LI"
+          },
+          {
+            "nombre": "Rodri",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Fabián Ruiz",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Dani Olmo",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Lamine Yamal",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Nico Williams",
+            "posicion": "EI"
+          },
+          {
+            "nombre": "Álvaro Morata",
+            "posicion": "DC"
+          }
+        ],
+        "suplentes": [
+          {
+            "nombre": "David Raya",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Dani Vivian",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Martín Zubimendi",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Mikel Merino",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Mikel Oyarzabal",
+            "posicion": "DC"
+          }
+        ]
+      },
+      "Inglaterra": {
+        "titulares": [
+          {
+            "nombre": "Jordan Pickford",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Kyle Walker",
+            "posicion": "LD"
+          },
+          {
+            "nombre": "John Stones",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Marc Guéhi",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Kieran Trippier",
+            "posicion": "LI"
+          },
+          {
+            "nombre": "Declan Rice",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Kobbie Mainoo",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Jude Bellingham",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Bukayo Saka",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Phil Foden",
+            "posicion": "EI"
+          },
+          {
+            "nombre": "Harry Kane",
+            "posicion": "DC"
+          }
+        ],
+        "suplentes": [
+          {
+            "nombre": "Aaron Ramsdale",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Ezri Konsa",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Conor Gallagher",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Cole Palmer",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Ollie Watkins",
+            "posicion": "DC"
+          }
+        ]
+      },
+      "Alemania": {
+        "titulares": [
+          {
+            "nombre": "Manuel Neuer",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Joshua Kimmich",
+            "posicion": "LD"
+          },
+          {
+            "nombre": "Antonio Rüdiger",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Jonathan Tah",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Maximilian Mittelstädt",
+            "posicion": "LI"
+          },
+          {
+            "nombre": "Toni Kroos",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Robert Andrich",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "İlkay Gündoğan",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Jamal Musiala",
+            "posicion": "EI"
+          },
+          {
+            "nombre": "Florian Wirtz",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Kai Havertz",
+            "posicion": "DC"
+          }
+        ],
+        "suplentes": [
+          {
+            "nombre": "Marc-André ter Stegen",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Nico Schlotterbeck",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Pascal Groß",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Leroy Sané",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Niclas Füllkrug",
+            "posicion": "DC"
+          }
+        ]
+      },
+      "Portugal": {
+        "titulares": [
+          {
+            "nombre": "Diogo Costa",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "João Cancelo",
+            "posicion": "LD"
+          },
+          {
+            "nombre": "Rúben Dias",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Pepe",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Nuno Mendes",
+            "posicion": "LI"
+          },
+          {
+            "nombre": "João Palhinha",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Vitinha",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Bruno Fernandes",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Bernardo Silva",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Rafael Leão",
+            "posicion": "EI"
+          },
+          {
+            "nombre": "Cristiano Ronaldo",
+            "posicion": "DC"
+          }
+        ],
+        "suplentes": [
+          {
+            "nombre": "José Sá",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Gonçalo Inácio",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Rúben Neves",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Diogo Jota",
+            "posicion": "EI"
+          },
+          {
+            "nombre": "Gonçalo Ramos",
+            "posicion": "DC"
+          }
+        ]
+      },
+      "Países Bajos": {
+        "titulares": [
+          {
+            "nombre": "Bart Verbruggen",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Denzel Dumfries",
+            "posicion": "LD"
+          },
+          {
+            "nombre": "Stefan de Vrij",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Virgil van Dijk",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Nathan Aké",
+            "posicion": "LI"
+          },
+          {
+            "nombre": "Jerdy Schouten",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Tijjani Reijnders",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Xavi Simons",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Jeremie Frimpong",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Cody Gakpo",
+            "posicion": "EI"
+          },
+          {
+            "nombre": "Memphis Depay",
+            "posicion": "DC"
+          }
+        ],
+        "suplentes": [
+          {
+            "nombre": "Justin Bijlow",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Matthijs de Ligt",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Joey Veerman",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Donyell Malen",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Wout Weghorst",
+            "posicion": "DC"
+          }
+        ]
+      },
+      "Italia": {
+        "titulares": [
+          {
+            "nombre": "Gianluigi Donnarumma",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Giovanni Di Lorenzo",
+            "posicion": "LD"
+          },
+          {
+            "nombre": "Alessandro Bastoni",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Riccardo Calafiori",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Federico Dimarco",
+            "posicion": "LI"
+          },
+          {
+            "nombre": "Jorginho",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Nicolò Barella",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Davide Frattesi",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Federico Chiesa",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Lorenzo Pellegrini",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Gianluca Scamacca",
+            "posicion": "DC"
+          }
+        ],
+        "suplentes": [
+          {
+            "nombre": "Guglielmo Vicario",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Gianluca Mancini",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Bryan Cristante",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Mattia Zaccagni",
+            "posicion": "EI"
+          },
+          {
+            "nombre": "Mateo Retegui",
+            "posicion": "DC"
+          }
+        ]
+      },
+      "Bélgica": {
+        "titulares": [
+          {
+            "nombre": "Koen Casteels",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Timothy Castagne",
+            "posicion": "LD"
+          },
+          {
+            "nombre": "Wout Faes",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Jan Vertonghen",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Arthur Theate",
+            "posicion": "LI"
+          },
+          {
+            "nombre": "Amadou Onana",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Youri Tielemans",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Kevin De Bruyne",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Jérémy Doku",
+            "posicion": "EI"
+          },
+          {
+            "nombre": "Yannick Carrasco",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Romelu Lukaku",
+            "posicion": "DC"
+          }
+        ],
+        "suplentes": [
+          {
+            "nombre": "Matz Sels",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Zeno Debast",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Orel Mangala",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Leandro Trossard",
+            "posicion": "EI"
+          },
+          {
+            "nombre": "Dodi Lukebakio",
+            "posicion": "ED"
+          }
+        ]
+      },
+      "Croacia": {
+        "titulares": [
+          {
+            "nombre": "Dominik Livaković",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Josip Stanišić",
+            "posicion": "LD"
+          },
+          {
+            "nombre": "Josip Šutalo",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Joško Gvardiol",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Borna Sosa",
+            "posicion": "LI"
+          },
+          {
+            "nombre": "Marcelo Brozović",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Luka Modrić",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Mateo Kovačić",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Lovro Majer",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Andrej Kramarić",
+            "posicion": "EI"
+          },
+          {
+            "nombre": "Bruno Petković",
+            "posicion": "DC"
+          }
+        ],
+        "suplentes": [
+          {
+            "nombre": "Nediljko Labrović",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Martin Erlić",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Mario Pašalić",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Luka Sučić",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Ante Budimir",
+            "posicion": "DC"
+          }
+        ]
+      },
+      "Uruguay": {
+        "titulares": [
+          {
+            "nombre": "Sergio Rochet",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Nahitan Nández",
+            "posicion": "LD"
+          },
+          {
+            "nombre": "Ronald Araújo",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Mathias Olivera",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Matías Viña",
+            "posicion": "LI"
+          },
+          {
+            "nombre": "Manuel Ugarte",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Federico Valverde",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Nicolás de la Cruz",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Facundo Pellistri",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Maximiliano Araújo",
+            "posicion": "EI"
+          },
+          {
+            "nombre": "Darwin Núñez",
+            "posicion": "DC"
+          }
+        ],
+        "suplentes": [
+          {
+            "nombre": "Franco Israel",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "José María Giménez",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Rodrigo Bentancur",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Giorgian de Arrascaeta",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Luis Suárez",
+            "posicion": "DC"
+          }
+        ]
+      },
+      "Colombia": {
+        "titulares": [
+          {
+            "nombre": "Camilo Vargas",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Daniel Muñoz",
+            "posicion": "LD"
+          },
+          {
+            "nombre": "Davinson Sánchez",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Carlos Cuesta",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Johan Mojica",
+            "posicion": "LI"
+          },
+          {
+            "nombre": "Jefferson Lerma",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Richard Ríos",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Jhon Arias",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "James Rodríguez",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Luis Díaz",
+            "posicion": "EI"
+          },
+          {
+            "nombre": "Jhon Córdoba",
+            "posicion": "DC"
+          }
+        ],
+        "suplentes": [
+          {
+            "nombre": "David Ospina",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Yerry Mina",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Mateus Uribe",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Juan Fernando Quintero",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Jhon Durán",
+            "posicion": "DC"
+          }
+        ]
+      },
+      "México": {
+        "titulares": [
+          {
+            "nombre": "Luis Malagón",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Jorge Sánchez",
+            "posicion": "LD"
+          },
+          {
+            "nombre": "César Montes",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Johan Vásquez",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Gerardo Arteaga",
+            "posicion": "LI"
+          },
+          {
+            "nombre": "Edson Álvarez",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Luis Chávez",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Erich Sánchez",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Uriel Antuna",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Julián Quiñones",
+            "posicion": "EI"
+          },
+          {
+            "nombre": "Santiago Giménez",
+            "posicion": "DC"
+          }
+        ],
+        "suplentes": [
+          {
+            "nombre": "Raúl Rangel",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Israel Reyes",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Luis Romo",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Orbelín Pineda",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Guillermo Martínez",
+            "posicion": "DC"
+          }
+        ]
+      },
+      "Estados Unidos": {
+        "titulares": [
+          {
+            "nombre": "Matt Turner",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Joe Scally",
+            "posicion": "LD"
+          },
+          {
+            "nombre": "Chris Richards",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Tim Ream",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Antonee Robinson",
+            "posicion": "LI"
+          },
+          {
+            "nombre": "Tyler Adams",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Weston McKennie",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Yunus Musah",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Christian Pulisic",
+            "posicion": "EI"
+          },
+          {
+            "nombre": "Timothy Weah",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Folarin Balogun",
+            "posicion": "DC"
+          }
+        ],
+        "suplentes": [
+          {
+            "nombre": "Ethan Horvath",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Cameron Carter-Vickers",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Johnny Cardoso",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Giovanni Reyna",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Ricardo Pepi",
+            "posicion": "DC"
+          }
+        ]
+      },
+      "Japón": {
+        "titulares": [
+          {
+            "nombre": "Zion Suzuki",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Yukinari Sugawara",
+            "posicion": "LD"
+          },
+          {
+            "nombre": "Ko Itakura",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Takehiro Tomiyasu",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Hiroki Ito",
+            "posicion": "LI"
+          },
+          {
+            "nombre": "Wataru Endo",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Hidemasa Morita",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Takefusa Kubo",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Takumi Minamino",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Kaoru Mitoma",
+            "posicion": "EI"
+          },
+          {
+            "nombre": "Ayase Ueda",
+            "posicion": "DC"
+          }
+        ],
+        "suplentes": [
+          {
+            "nombre": "Keisuke Osako",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Koki Machida",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Ao Tanaka",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Ritsu Doan",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Daizen Maeda",
+            "posicion": "DC"
+          }
+        ]
+      },
+      "Marruecos": {
+        "titulares": [
+          {
+            "nombre": "Yassine Bounou",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Achraf Hakimi",
+            "posicion": "LD"
+          },
+          {
+            "nombre": "Nayef Aguerd",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Romain Saïss",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Noussair Mazraoui",
+            "posicion": "LI"
+          },
+          {
+            "nombre": "Sofyan Amrabat",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Azzedine Ounahi",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Bilal El Khannouss",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Hakim Ziyech",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Brahim Díaz",
+            "posicion": "EI"
+          },
+          {
+            "nombre": "Youssef En-Nesyri",
+            "posicion": "DC"
+          }
+        ],
+        "suplentes": [
+          {
+            "nombre": "Munir El Kajoui",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Chadi Riad",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Amir Richardson",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Amine Harit",
+            "posicion": "MCO"
+          },
+          {
+            "nombre": "Ayoub El Kaabi",
+            "posicion": "DC"
+          }
+        ]
+      },
+      "Senegal": {
+        "titulares": [
+          {
+            "nombre": "Édouard Mendy",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Kalidou Koulibaly",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Abdou Diallo",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Formose Mendy",
+            "posicion": "LD"
+          },
+          {
+            "nombre": "Ismail Jakobs",
+            "posicion": "LI"
+          },
+          {
+            "nombre": "Idrissa Gueye",
+            "posicion": "MCD"
+          },
+          {
+            "nombre": "Nampalys Mendy",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Pape Matar Sarr",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Ismaïla Sarr",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Sadio Mané",
+            "posicion": "EI"
+          },
+          {
+            "nombre": "Nicolas Jackson",
+            "posicion": "DC"
+          }
+        ],
+        "suplentes": [
+          {
+            "nombre": "Mory Diaw",
+            "posicion": "POR"
+          },
+          {
+            "nombre": "Moussa Niakhaté",
+            "posicion": "DFC"
+          },
+          {
+            "nombre": "Lamine Camara",
+            "posicion": "MC"
+          },
+          {
+            "nombre": "Krépin Diatta",
+            "posicion": "ED"
+          },
+          {
+            "nombre": "Habib Diallo",
+            "posicion": "DC"
+          }
+        ]
+      }
     }
   }
 }
