@@ -135,7 +135,7 @@ NIVELES = {
     "G2 Esports": 7, "Fnatic": 5, "Team Vitality": 5, "MAD Lions KOI": 5, "Cloud9": 5,
     "Team Liquid": 5, "FlyQuest": 5, "100 Thieves": 4, "PSG Talon": 5, "CTBC Flying Oyster": 4,
 }
-# Mundial de Selecciones (nivel de cada selección; los jugadores de cada una son inventados)
+# Mundial de Selecciones (nivel de cada selección; 18 tienen plantilla real en plantillas.json, Corea del Sur y Ecuador usan jugadores inventados)
 NIVELES.update({
     "Argentina": 10, "Francia": 10, "España": 10, "Brasil": 9, "Inglaterra": 9, "Portugal": 9,
     "Alemania": 8, "Países Bajos": 8, "Colombia": 8, "Italia": 7, "Bélgica": 7, "Croacia": 7,
@@ -1079,6 +1079,7 @@ def ok(data, **extra):
     estado["logros"] = logros
     estado["rachas"] = rachas
     estado.pop("logros_ok", None)
+    estado.pop("logros_pagados", None)
     estado.pop("res_n", None)
     estado.pop("estadisticas", None)   # las estadísticas crudas no viajan: solo el resumen en "premios"
     return jsonify({"status": "success", "state": estado, **extra})
@@ -2049,6 +2050,14 @@ LOGROS_DEF = [
 ]
 
 
+# Premio en dinero virtual por cada logro (COP). Se paga UNA sola vez por cuenta y queda en Movimientos.
+PREMIOS_LOGRO = {
+    "primera_prediccion": 2_000, "primer_acierto": 5_000, "racha_3": 10_000, "racha_5": 20_000,
+    "diez_aciertos": 20_000, "cuota_alta": 10_000, "primera_recarga": 2_000, "saldo_millon": 50_000,
+    "vio_final": 5_000, "mundialista": 5_000,
+}
+
+
 def _orden_resolucion(p):
     return p.get("res_n", p.get("id", 0))
 
@@ -2083,11 +2092,13 @@ def calcular_logros(data):
         "mundialista": any(m.get("liga") == "MUNDIAL" for m in data.get("matches") or []),
     }
     previos = set(data.get("logros_ok") or [])
+    cobrados = set(data.get("logros_pagados") or [])
     avance = {"racha_3": mejor, "racha_5": mejor, "diez_aciertos": len(ganadas)}
     lista = []
     for id_, icono, titulo, desc, meta in LOGROS_DEF:
         hecho = cumplidos[id_] or id_ in previos
-        item = {"id": id_, "icono": icono, "titulo": titulo, "desc": desc, "ok": hecho}
+        item = {"id": id_, "icono": icono, "titulo": titulo, "desc": desc, "ok": hecho,
+                "premio": PREMIOS_LOGRO[id_], "cobrado": id_ in cobrados}
         if meta:
             item["progreso"] = [min(avance.get(id_, 0), meta), meta]
         lista.append(item)
@@ -2095,9 +2106,16 @@ def calcular_logros(data):
 
 
 def actualizar_logros(data):
-    """Guarda en el progreso los logros ya conseguidos (para que no se pierdan)."""
+    """Guarda los logros ya conseguidos (para que no se pierdan) y paga el premio de cada logro NUEVO.
+    Cada premio se paga una sola vez por cuenta: 'logros_pagados' lo recuerda aunque se reinicie el torneo."""
     lista, _ = calcular_logros(data)
     data["logros_ok"] = [x["id"] for x in lista if x["ok"]]
+    pagados = data.setdefault("logros_pagados", [])
+    for x in lista:
+        if x["ok"] and x["id"] not in pagados:
+            pagados.append(x["id"])
+            data["balance_cop"] = round(data["balance_cop"] + x["premio"], 2)
+            registrar_movimiento(data, "premio", x["premio"], f"Logro: {x['titulo']}")
 
 
 def resolver_predicciones(data, partido):

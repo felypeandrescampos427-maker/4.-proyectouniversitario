@@ -3358,7 +3358,7 @@
         let colaToast = Promise.resolve();
         function toastLogro(l) {
             colaToast = colaToast.then(() => new Promise(res => {
-                if (typeof mostrarToast === 'function') mostrarToast(`🏅 ¡Logro desbloqueado! ${l.icono} ${l.titulo}`);
+                if (typeof mostrarToast === 'function') mostrarToast(`🏅 ¡Logro desbloqueado! ${l.icono} ${l.titulo}${l.premio ? ' · +' + mon(l.premio) : ''}`);
                 setTimeout(res, 3200);
             }));
         }
@@ -3379,11 +3379,14 @@
             const L = (typeof state !== 'undefined' && state && state.logros) || [];
             const R = (typeof state !== 'undefined' && state && state.rachas) || { racha_actual: 0, mejor_racha: 0 };
             const hechos = L.filter(l => l.ok).length;
+            const cobrado = L.filter(l => l.cobrado).reduce((t, l) => t + (l.premio || 0), 0);
+            const porCobrar = L.filter(l => !l.ok).reduce((t, l) => t + (l.premio || 0), 0);
             el('alLogrosResumen').innerHTML =
-                `<div class="al-chip"><span>Conseguidos</span><b>${hechos} / ${L.length}</b></div><div class="al-chip"><span>Racha de aciertos</span><b>🔥 ${R.racha_actual} <small style="color:#9ca3af;font-weight:400">(mejor ${R.mejor_racha})</small></b></div>`;
+                `<div class="al-chip"><span>Conseguidos</span><b>${hechos} / ${L.length}</b></div><div class="al-chip"><span>Racha de aciertos</span><b>🔥 ${R.racha_actual} <small style="color:#9ca3af;font-weight:400">(mejor ${R.mejor_racha})</small></b></div>
+                 <div class="al-chip"><span>Premios cobrados</span><b>${mon(cobrado)}</b></div><div class="al-chip"><span>Premios por ganar</span><b>${mon(porCobrar)}</b></div>`;
             el('alLogrosLista').innerHTML = L.map(l => {
                 const pr = l.progreso && !l.ok ? `<div class="al-barra"><i style="width:${Math.round(l.progreso[0] / l.progreso[1] * 100)}%"></i></div><small>${l.progreso[0]} de ${l.progreso[1]}</small>` : '';
-                return `<div class="al-logro ${l.ok ? '' : 'bloq'}"><div class="al-ico">${l.ok ? l.icono : '🔒'}</div><div style="flex:1;min-width:0"><b>${html(l.titulo)}${l.ok ? ' ✓' : ''}</b><small>${html(l.desc)}</small>${pr}</div></div>`;
+                return `<div class="al-logro ${l.ok ? '' : 'bloq'}"><div class="al-ico">${l.ok ? l.icono : '🔒'}</div><div style="flex:1;min-width:0"><b>${html(l.titulo)}${l.ok ? ' ✓' : ''}</b><small>${html(l.desc)}</small><small style="color:${l.ok ? '#a6e3a1' : '#E5C579'}">${l.ok ? '💰 Premio cobrado: ' : '💰 Premio: '}${mon(l.premio || 0)}</small>${pr}</div></div>`;
             }).join('');
         }
 

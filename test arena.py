@@ -48,7 +48,7 @@ def test_prediccion_descuenta_y_rechaza_saldo_insuficiente(m, jugador):
     estado = jugador("/api/load", liga="PD")["state"]
     a, b = [t for t in estado["equipos_por_liga"]["PD"] if t["group"] == "A"][:2]
     r = jugador("/api/predict", liga="PD", home=a["name"], away=b["name"], eleccion="local", monto=10_000)
-    assert r["status"] == "success" and r["state"]["balance_cop"] == m.SALDO_INICIAL - 10_000
+    assert r["status"] == "success" and r["state"]["balance_cop"] == m.SALDO_INICIAL - 10_000 + m.PREMIOS_LOGRO["primera_prediccion"]   # la primera predicción da un logro con premio
     r = jugador("/api/predict", liga="PD", home=a["name"], away=b["name"], eleccion="local", monto=m.SALDO_INICIAL * 10)
     assert r["status"] == "error"
 
@@ -156,3 +156,27 @@ def test_pwa_manifiesto_y_service_worker(cliente):
 
 def test_sin_sesion_valida_no_se_entra(cliente):
     assert cliente.post("/api/load", json={"sesion": "no-sirve"}).status_code == 401
+
+
+# ---------------------------------------------------------------- premio por logro
+def test_cada_logro_paga_su_premio_una_sola_vez(m):
+    data = m.estado_inicial()
+    data["predictions"] = [_pred(1, "ganada")]
+    saldo = data["balance_cop"]
+    m.actualizar_logros(data)
+    esperado = m.PREMIOS_LOGRO["primera_prediccion"] + m.PREMIOS_LOGRO["primer_acierto"]
+    assert data["balance_cop"] == saldo + esperado
+    assert [x["detalle"] for x in data["movimientos"] if x["tipo"] == "premio"] == ["Logro: Ojo clínico", "Logro: Primera predicción"]
+    m.actualizar_logros(data)           # volver a calcular NO vuelve a pagar
+    assert data["balance_cop"] == saldo + esperado
+
+
+def test_el_premio_no_se_repite_al_perder_el_progreso_de_la_liga(m):
+    data = m.estado_inicial()
+    data["predictions"] = [_pred(1, "ganada")]
+    m.actualizar_logros(data)
+    saldo = data["balance_cop"]
+    m.reiniciar_liga(data, "PD")        # reiniciar el torneo borra predicciones, pero el logro ya se cobró
+    data["predictions"] = [_pred(2, "ganada")]
+    m.actualizar_logros(data)
+    assert data["balance_cop"] == saldo

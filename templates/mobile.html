@@ -193,12 +193,13 @@
             </div>
 
             <!-- PESTAÑAS MÓVIL DENTRO DE LA LIGA -->
-            <div class="grid grid-cols-5 gap-1 bg-[#141414] p-1 rounded-xl text-center">
+            <div class="grid grid-cols-6 gap-1 bg-[#141414] p-1 rounded-xl text-center">
                 <button onclick="cambiarPestanaM(1)" id="mtab-1" class="bg-[#C5A04A] text-[#050505] text-[10px] font-bold py-1.5 rounded-lg">1. Grupos</button>
                 <button onclick="cambiarPestanaM(2)" id="mtab-2" class="text-gray-400 text-[10px] font-bold py-1.5 rounded-lg">2. Calendario</button>
                 <button onclick="cambiarPestanaM(3)" id="mtab-3" class="text-gray-400 text-[10px] font-bold py-1.5 rounded-lg">3. Posiciones</button>
                 <button onclick="cambiarPestanaM(4)" id="mtab-4" class="text-gray-400 text-[10px] font-bold py-1.5 rounded-lg">4. Final</button>
                 <button onclick="cambiarPestanaM(5)" id="mtab-5" class="text-gray-400 text-[10px] font-bold py-1.5 rounded-lg">5. Premios</button>
+                <button onclick="cambiarPestanaM(6)" id="mtab-6" class="text-gray-400 text-[10px] font-bold py-1.5 rounded-lg">6. 🎯</button>
             </div>
 
             <!-- PESTAÑA 1: GRUPOS Y EQUIPOS -->
@@ -267,6 +268,17 @@
                     <div id="plantillaDetalle" class="space-y-3"></div>
                 </div>
             </div>
+            <!-- PESTAÑA 6: PREDICCIONES -->
+            <div id="mseccion-6" class="flex-1 flex flex-col gap-3 hidden">
+                <div class="bg-[#141414] border border-[#2B2B2B] p-3 rounded-xl space-y-3">
+                    <button onclick="abrirPrediccion()" class="w-full bg-[#C5A04A] active:bg-[#E5C579] text-[#050505] font-bold py-3 rounded-xl text-sm shadow">🎯 Hacer predicción</button>
+                    <div id="resumen-predicciones" class="grid grid-cols-4 gap-2"></div>
+                </div>
+                <div class="flex-1 bg-[#141414] border border-[#2B2B2B] p-3 rounded-xl space-y-2">
+                    <h3 class="text-xs font-semibold text-[#C5A04A]">📋 Mis predicciones</h3>
+                    <div id="contenedor-mis-predicciones" class="space-y-1.5"></div>
+                </div>
+            </div>
         </section>
     </div>
 
@@ -282,11 +294,12 @@
                 <button id="btn-simular" onclick="simularPartido()" class="w-full bg-[#C5A04A] active:bg-[#E5C579] text-[#050505] font-bold py-3 rounded-xl transition text-xs shadow-lg disabled:opacity-40 disabled:cursor-not-allowed">⚽ Simular Partido</button>
                 <button id="btn-simular-torneo" onclick="simularTorneo()" class="w-full bg-[#141414] active:bg-[#2B2B2B] border border-[#C5A04A] text-[#E5C579] font-bold py-3 rounded-xl transition text-xs shadow-lg disabled:opacity-40 disabled:cursor-not-allowed">🏁 Simular Torneo</button>
             </div>
+            <button onclick="abrirPrediccion()" class="w-full bg-[#141414] active:bg-[#2B2B2B] border border-[#C5A04A] text-[#E5C579] font-bold py-2.5 rounded-xl transition text-[11px] shadow">🎯 Hacer predicción</button>
             <button id="btn-narracion" onclick="alternarNarracion()" class="w-full bg-[#141414] active:bg-[#2B2B2B] border border-[#3D3D3D] text-gray-200 font-bold py-2.5 rounded-xl transition text-[11px] shadow" title="Activa o desactiva a los narradores de la transmisión">🎙️ Narradores: <span id="narracion-estado">Sí</span></button>
         </div>
     </div>
 
-    <footer class="text-center text-[10px] text-gray-500 leading-relaxed py-4 mb-16">🔞 Solo mayores de 18 años · Todo el dinero de Arena Legends es virtual y no tiene valor real · Juega con responsabilidad</footer>
+    <footer class="text-center text-[10px] text-gray-500 leading-relaxed py-4 mb-28">🔞 Solo mayores de 18 años · Todo el dinero de Arena Legends es virtual y no tiene valor real · Juega con responsabilidad</footer>
 
     <!-- MODALES -->
     <!-- MOVIMIENTOS DE SALDO -->
@@ -629,7 +642,7 @@
         }
 
         function cambiarPestanaM(num) {
-            for (let i = 1; i <= 5; i++) {
+            for (let i = 1; i <= 6; i++) {
                 $(`mseccion-${i}`).classList.add('hidden');
                 $(`mtab-${i}`).className = "text-gray-400 text-[10px] font-bold py-1.5 rounded-lg";
             }
@@ -639,6 +652,7 @@
             if (num === 3) { renderPosicionesM(); renderHistorial(); }
             if (num === 4) renderFinalM();
             if (num === 5) renderEstadisticas();
+            if (num === 6) renderPredicciones();
         }
 
         // ---------- NUEVA PANTALLA DE GRAN CAMPEÓN (MÓVIL) ----------
@@ -3235,7 +3249,7 @@
         let colaToast = Promise.resolve();
         function toastLogro(l) {
             colaToast = colaToast.then(() => new Promise(res => {
-                if (typeof mostrarToast === 'function') mostrarToast(`🏅 ¡Logro desbloqueado! ${l.icono} ${l.titulo}`);
+                if (typeof mostrarToast === 'function') mostrarToast(`🏅 ¡Logro desbloqueado! ${l.icono} ${l.titulo}${l.premio ? ' · +' + mon(l.premio) : ''}`);
                 setTimeout(res, 3200);
             }));
         }
@@ -3256,11 +3270,14 @@
             const L = (typeof state !== 'undefined' && state && state.logros) || [];
             const R = (typeof state !== 'undefined' && state && state.rachas) || { racha_actual: 0, mejor_racha: 0 };
             const hechos = L.filter(l => l.ok).length;
+            const cobrado = L.filter(l => l.cobrado).reduce((t, l) => t + (l.premio || 0), 0);
+            const porCobrar = L.filter(l => !l.ok).reduce((t, l) => t + (l.premio || 0), 0);
             el('alLogrosResumen').innerHTML =
-                `<div class="al-chip"><span>Conseguidos</span><b>${hechos} / ${L.length}</b></div><div class="al-chip"><span>Racha de aciertos</span><b>🔥 ${R.racha_actual} <small style="color:#9ca3af;font-weight:400">(mejor ${R.mejor_racha})</small></b></div>`;
+                `<div class="al-chip"><span>Conseguidos</span><b>${hechos} / ${L.length}</b></div><div class="al-chip"><span>Racha de aciertos</span><b>🔥 ${R.racha_actual} <small style="color:#9ca3af;font-weight:400">(mejor ${R.mejor_racha})</small></b></div>
+                 <div class="al-chip"><span>Premios cobrados</span><b>${mon(cobrado)}</b></div><div class="al-chip"><span>Premios por ganar</span><b>${mon(porCobrar)}</b></div>`;
             el('alLogrosLista').innerHTML = L.map(l => {
                 const pr = l.progreso && !l.ok ? `<div class="al-barra"><i style="width:${Math.round(l.progreso[0] / l.progreso[1] * 100)}%"></i></div><small>${l.progreso[0]} de ${l.progreso[1]}</small>` : '';
-                return `<div class="al-logro ${l.ok ? '' : 'bloq'}"><div class="al-ico">${l.ok ? l.icono : '🔒'}</div><div style="flex:1;min-width:0"><b>${html(l.titulo)}${l.ok ? ' ✓' : ''}</b><small>${html(l.desc)}</small>${pr}</div></div>`;
+                return `<div class="al-logro ${l.ok ? '' : 'bloq'}"><div class="al-ico">${l.ok ? l.icono : '🔒'}</div><div style="flex:1;min-width:0"><b>${html(l.titulo)}${l.ok ? ' ✓' : ''}</b><small>${html(l.desc)}</small><small style="color:${l.ok ? '#a6e3a1' : '#E5C579'}">${l.ok ? '💰 Premio cobrado: ' : '💰 Premio: '}${mon(l.premio || 0)}</small>${pr}</div></div>`;
             }).join('');
         }
 
