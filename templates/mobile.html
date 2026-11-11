@@ -122,6 +122,52 @@
     #alSonidoBtn { background: #050505; border: 1px solid #2B2B2B; color: #d1d5db; border-radius: 10px; padding: 6px 10px; font-size: .9rem; cursor: pointer; flex: none; }
     .al-roja-ficha { pointer-events: none; }
 </style>
+<style id="otp-css">
+/* ===== Código de verificación: tarjeta de vidrio con casillas que brillan ===== */
+.otp-vidrio { position: relative; overflow: hidden; overflow: clip; padding: 22px 14px 14px; border-radius: 22px;
+  background: linear-gradient(145deg, rgba(255,255,255,.10), rgba(255,255,255,.025));
+  border: 1px solid rgba(229,197,121,.30);
+  -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%);
+  box-shadow: 0 18px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.14); }
+.otp-vidrio::before { content: ""; position: absolute; top: -40%; right: -30%; width: 70%; height: 140%; pointer-events: none;
+  background: linear-gradient(120deg, transparent, rgba(229,197,121,.16), transparent); transform: rotate(12deg);
+  animation: otpBrillo 6s ease-in-out infinite; }
+.otp-vidrio > * { position: relative; }
+.otp-llave { width: 52px; height: 52px; margin: 0 auto 8px; border-radius: 16px; display: grid; place-items: center; font-size: 24px;
+  background: rgba(197,160,74,.10); border: 1px solid rgba(229,197,121,.5); box-shadow: 0 0 18px rgba(197,160,74,.35); }
+.otp-titulo { margin: 0 0 6px; font-size: 1.25rem; font-weight: 800; color: #fff; letter-spacing: .01em; }
+.otp-titulo span { color: #E5C579; }
+.otp-campo { position: relative; margin: 14px 0 12px; }
+.otp-celdas { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.otp-caja { height: 54px; display: grid; place-items: center; border-radius: 14px; font-size: 1.5rem; font-weight: 800; color: #fff;
+  background: rgba(5,5,5,.55); border: 1.5px solid rgba(255,255,255,.14); transition: border-color .2s, box-shadow .2s, background .2s; }
+.otp-caja.llena { border-color: rgba(197,160,74,.75); background: rgba(197,160,74,.08); }
+.otp-caja.activa { border-color: #E5C579; box-shadow: 0 0 0 3px rgba(197,160,74,.18), 0 0 18px rgba(229,197,121,.55);
+  animation: otpLatido 1.4s ease-in-out infinite; }
+.otp-caja.activa span:empty::after { content: ""; display: block; width: 2px; height: 22px; border-radius: 2px; background: #E5C579; animation: otpCursor 1s steps(1) infinite; }
+.otp-caja.pop span { animation: otpPop .22s ease-out; }
+.otp-input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; outline: 0; background: transparent;
+  color: transparent; caret-color: transparent; font-size: 16px; text-align: center; letter-spacing: 0; text-indent: 0; cursor: text; }
+.otp-reenvio { font-size: 11px; color: #9ca3af; }
+.otp-vidrio.otp-error .otp-caja { border-color: #f38ba8; box-shadow: 0 0 14px rgba(243,139,168,.5); animation: none; }
+.otp-vidrio.otp-ok .otp-caja { border-color: #a6e3a1; box-shadow: 0 0 14px rgba(166,227,161,.5); animation: none; }
+.otp-vidrio.sacudir .otp-celdas { animation: otpSacudir .4s; }
+.otp-vidrio.verificando .otp-caja { animation: otpOnda 1s ease-in-out infinite; }
+.otp-vidrio.verificando .otp-caja:nth-child(2) { animation-delay: .08s; } .otp-vidrio.verificando .otp-caja:nth-child(3) { animation-delay: .16s; }
+.otp-vidrio.verificando .otp-caja:nth-child(4) { animation-delay: .24s; } .otp-vidrio.verificando .otp-caja:nth-child(5) { animation-delay: .32s; }
+.otp-vidrio.verificando .otp-caja:nth-child(6) { animation-delay: .40s; }
+#btnEntrar.otp-cargando { display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: progress; }
+#btnEntrar.otp-cargando::before { content: ""; width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(5,5,5,.3); border-top-color: #050505; animation: otpGira .7s linear infinite; }
+@keyframes otpBrillo { 0%, 100% { transform: translateX(0) rotate(12deg); opacity: .6; } 50% { transform: translateX(-30%) rotate(12deg); opacity: 1; } }
+@keyframes otpLatido { 0%, 100% { box-shadow: 0 0 0 3px rgba(197,160,74,.18), 0 0 14px rgba(229,197,121,.4); } 50% { box-shadow: 0 0 0 4px rgba(197,160,74,.28), 0 0 24px rgba(229,197,121,.75); } }
+@keyframes otpCursor { 50% { opacity: 0; } }
+@keyframes otpPop { 0% { transform: scale(.4); opacity: 0; } 70% { transform: scale(1.18); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes otpSacudir { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+@keyframes otpOnda { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes otpGira { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .otp-vidrio::before, .otp-caja, .otp-caja span, .otp-celdas, #btnEntrar.otp-cargando::before { animation: none !important; } }
+@media (max-width: 360px) { .otp-celdas { gap: 5px; } .otp-caja { height: 48px; font-size: 1.3rem; } }
+</style>
 </head>
 <body class="bg-[#0A0A0A] text-[#F2F2F2] font-sans antialiased min-h-screen p-3 flex flex-col">
 
@@ -492,11 +538,18 @@
             </div>
 
             <div id="authCodigo" class="hidden space-y-3">
-                <p id="authCodigoTexto" class="text-xs text-gray-400 leading-relaxed"></p>
-                <input id="authCodigoInput" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000"
-                       onkeydown="if (event.key === 'Enter') authContinuar()"
-                       class="w-full bg-[#050505] border border-[#C5A04A] text-white text-2xl font-bold tracking-[0.5em] px-3 py-3 rounded-xl outline-none text-center">
-                <button id="authReenviar" onclick="authReenviar()" class="text-[11px] text-[#C5A04A] underline disabled:opacity-50 disabled:no-underline">Reenviar código</button>
+                <div id="otpVidrio" class="otp-vidrio">
+                    <div class="otp-llave" aria-hidden="true">🔑</div>
+                    <h3 class="otp-titulo">Verifica tu <span>código</span></h3>
+                    <p id="authCodigoTexto" class="text-xs text-gray-400 leading-relaxed"></p>
+                    <div id="otpCajas" class="otp-campo">
+                        <div class="otp-celdas" aria-hidden="true"><div class="otp-caja"><span></span></div><div class="otp-caja"><span></span></div><div class="otp-caja"><span></span></div><div class="otp-caja"><span></span></div><div class="otp-caja"><span></span></div><div class="otp-caja"><span></span></div></div>
+                        <input id="authCodigoInput" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="" aria-label="Código de verificación de 6 números"
+                               onkeydown="if (event.key === 'Enter') authContinuar()"
+                               class="otp-input">
+                    </div>
+                    <div class="otp-reenvio"><span>¿No recibiste el código?</span> <button id="authReenviar" onclick="authReenviar()" class="text-[11px] text-[#C5A04A] underline disabled:opacity-50 disabled:no-underline">Reenviar código</button></div>
+                </div>
                 <div><button onclick="authVolver()" class="text-[11px] text-gray-400 underline">← Cambiar el correo</button></div>
             </div>
 
@@ -607,16 +660,16 @@
         function escudoHtml(equipo, tam = 'w-6 h-6') {
             if (!equipo) return '';
             const nombre = esc(equipo.name || '');
-            const bandera = equipo.flag || '⚽';
+            const bandera = esc(equipo.flag || '⚽');
             const escudoVal = equipo.escudo || '';
 
             if (!escudoVal) {
                 return `<span class="text-base shrink-0">${bandera}</span>`;
             }
 
-            const srcFinal = (escudoVal.startsWith('http://') || escudoVal.startsWith('https://'))
+            const srcFinal = esc((escudoVal.startsWith('http://') || escudoVal.startsWith('https://'))
                 ? escudoVal
-                : `/static/escudos/${esc(escudoVal)}`;
+                : `/static/escudos/${escudoVal}`);
 
             return `
                 <img src="${srcFinal}"
@@ -1799,7 +1852,7 @@
             ['relator', 'comentarista'].forEach(rol => {
                 const sel = document.getElementById('voz-' + rol);
                 if (!sel) return;
-                sel.innerHTML = '<option value="">Automática</option>' + voces.map(v => `<option value="${v.name.replace(/"/g, '&quot;')}">${nombreVoz(v)}</option>`).join('');
+                sel.innerHTML = '<option value="">Automática</option>' + voces.map(v => `<option value="${esc(v.name)}">${esc(nombreVoz(v))}</option>`).join('');
                 sel.value = voces.some(v => v.name === vocesElegidas[rol]) ? vocesElegidas[rol] : '';
             });
         }
@@ -2849,7 +2902,7 @@
             const boton = $(authPaso === 'recuperar' ? 'authRecReenviar' : 'authReenviar');
             let faltan = segundos;
             boton.disabled = true;
-            const pintar = () => { boton.textContent = faltan > 0 ? `Reenviar código (${faltan} s)` : 'Reenviar código'; };
+            const pintar = () => { boton.textContent = faltan > 0 ? `Reenviar en 00:${String(faltan).padStart(2, '0')}` : 'Reenviar código'; };
             pintar();
             authReloj = setInterval(() => {
                 faltan--;
@@ -3421,5 +3474,75 @@
     })();
     </script>
 
+<script id="otp-js">
+/* Casillas del código de verificación: pintan lo que se escribe en #authCodigoInput (que sigue siendo el campo real,
+   así funciona el autocompletado del código del SMS/correo, pegar y la tecla Enter). Solo usa textContent. */
+(function () {
+    const input = document.getElementById('authCodigoInput');
+    const vidrio = document.getElementById('otpVidrio');
+    const panel = document.getElementById('authCodigo');
+    if (!input || !vidrio || !panel) return;
+    const celdas = Array.prototype.slice.call(vidrio.querySelectorAll('.otp-caja'));
+    const N = celdas.length;
+
+    function limpiarEstado() { vidrio.classList.remove('otp-error', 'otp-ok', 'sacudir'); }
+    function pintar() {
+        const v = input.value.replace(/\D/g, '').slice(0, N);
+        if (input.value !== v) input.value = v;
+        const enfocado = document.activeElement === input;
+        celdas.forEach(function (c, i) {
+            const t = v.charAt(i);
+            const span = c.querySelector('span');
+            if (span.textContent !== t) {
+                span.textContent = t;
+                if (t) { c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop'); }
+            }
+            c.classList.toggle('llena', !!t);
+            c.classList.toggle('activa', enfocado && i === Math.min(v.length, N - 1));
+        });
+    }
+    function alFinal() { const l = input.value.length; try { input.setSelectionRange(l, l); } catch (e) { /* sin selección */ } }
+
+    input.addEventListener('input', function () { limpiarEstado(); pintar(); });
+    input.addEventListener('focus', function () { alFinal(); pintar(); });
+    input.addEventListener('click', alFinal);
+    input.addEventListener('blur', pintar);
+    // El código se vacía por programa al abrir este paso: se repinta cuando el panel deja de estar oculto.
+    new MutationObserver(function () { if (!panel.classList.contains('hidden')) { limpiarEstado(); pintar(); } })
+        .observe(panel, { attributes: true, attributeFilter: ['class'] });
+    pintar();
+
+    if (typeof authVerificar === 'function') {
+        const original = authVerificar;
+        authVerificar = async function () {
+            const boton = document.getElementById('btnEntrar');
+            const aviso = document.getElementById('loginError');
+            if (input.value.replace(/\D/g, '').length !== N) {       // incompleto: el mensaje lo pone la función original
+                const r = original.apply(this, arguments);
+                vidrio.classList.remove('sacudir'); void vidrio.offsetWidth; vidrio.classList.add('sacudir');
+                return r;
+            }
+            const textoBoton = boton.textContent;
+            limpiarEstado();
+            vidrio.classList.add('verificando');
+            boton.classList.add('otp-cargando');
+            boton.textContent = 'Verificando código…';
+            try {
+                return await original.apply(this, arguments);
+            } finally {
+                vidrio.classList.remove('verificando');
+                boton.classList.remove('otp-cargando');
+                boton.textContent = (typeof authPaso !== 'undefined' && authPaso === 'codigo') ? 'Verificar' : textoBoton;
+                if (aviso && aviso.textContent) {
+                    vidrio.classList.add('otp-error');
+                    void vidrio.offsetWidth; vidrio.classList.add('sacudir');
+                } else {
+                    vidrio.classList.add('otp-ok');
+                }
+            }
+        };
+    }
+})();
+</script>
 </body>
 </html>

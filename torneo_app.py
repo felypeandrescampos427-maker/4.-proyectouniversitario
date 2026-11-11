@@ -26,9 +26,11 @@ from datetime import date, datetime, timedelta, timezone
 
 import requests
 from flask import Flask, g, jsonify, render_template, request
+from werkzeug.exceptions import HTTPException
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
+app.config["MAX_CONTENT_LENGTH"] = 64 * 1024   # ninguna petición legítima pesa más de 64 KB
 
 PLANTILLA = "index.html"
 PUERTO = 5000
@@ -42,7 +44,14 @@ EMAIL_AVISOS = os.environ.get("EMAIL_AVISOS", "").strip()
 # Correo del administrador: con este correo se desbloquea el panel de administración (🛡️).
 # Si no pones ADMIN_EMAIL en Render, se usa EMAIL_AVISOS (el mismo que recibe los avisos).
 ADMIN_EMAIL = (os.environ.get("ADMIN_EMAIL", "").strip() or EMAIL_AVISOS).strip().lower()
-SESION_SEGUNDOS = 7 * 24 * 3600      # la sesión dura 7 días en cada dispositivo
+SESION_SEGUNDOS = int(os.environ.get("SESION_DIAS", "7")) * 24 * 3600   # duración de la sesión (por defecto 7 días)
+MAX_SESIONES_POR_CUENTA = 10         # al abrir la número 11 se cierra la más vieja
+# Cuántos proxies de confianza hay delante de la app (Render = 1). Sirve para leer la IP real
+# de X-Forwarded-For sin que el cliente pueda falsificarla. En tu PC (sin proxy) pon 0.
+PROXIES_CONFIABLES = int(os.environ.get("PROXIES_CONFIABLES", "1"))
+LIMITE_IP_POR_MIN = int(os.environ.get("LIMITE_IP_POR_MIN", "300"))        # peticiones /api por IP y minuto
+LIMITE_USUARIO_POR_MIN = int(os.environ.get("LIMITE_USUARIO_POR_MIN", "120"))  # peticiones /api por cuenta y minuto
+HEALTH_TOKEN = os.environ.get("HEALTH_TOKEN", "").strip()   # con este token /api/health da el detalle completo
 CODIGO_VENCE_SEGUNDOS = 600          # el código de verificación vale 10 minutos
 CODIGO_MAX_INTENTOS = 5
 CARPETA_LOCAL = os.path.join(os.path.dirname(os.path.abspath(__file__)), "progreso_local")
@@ -662,8 +671,24 @@ def limite(clave, maximo, ventana, mensaje="Demasiados intentos. Espera un rato 
 
 
 def _ip():
-    return (request.headers.get("X-Forwarded-For", "").split(",")[0].strip()
-            or request.remote_addr or "?")
+    """IP del cliente. X-Forwarded-For lo escribe cada proxy al final, así que solo se confía en las
+    últimas PROXIES_CONFIABLES entradas: lo que el cliente ponga al principio no sirve para engañar el límite."""
+    if PROXIES_CONFIABLES > 0:
+        partes = [x.strip() for x in request.headers.get("X-Forwarded-For", "").split(",") if x.strip()]
+        if partes:
+            return partes[-min(PROXIES_CONFIABLES, len(partes))][:64]
+    return request.remote_addr or "?"
+
+
+def _json_req():
+    """Cuerpo JSON de la petición, siempre como diccionario (si llega una lista, un texto o basura, queda vacío)."""
+    d = request.get_json(silent=True)
+    return d if isinstance(d, dict) else {}
+
+
+def _texto(valor):
+    """El valor solo si es un texto; si es otra cosa (lista, objeto, número) devuelve None."""
+    return valor if isinstance(valor, str) else None
 
 
 def _h(texto):
@@ -816,12 +841,38 @@ def indexar_usuario(correo):
         pass   # el índice es solo para el panel: nunca debe impedir que alguien entre
 
 
+def _clave_sesiones(correo):
+    return "arena:sesiones:" + id_cuenta(correo)
+
+
+def _sesiones_de(correo):
+    try:
+        lista = json.loads(kv_get(_clave_sesiones(correo)) or "[]")
+    except ValueError:
+        lista = []
+    return [x for x in lista if isinstance(x, str)] if isinstance(lista, list) else []
+
+
 def crear_sesion(correo):
     indexar_usuario(correo)
     token = secrets.token_urlsafe(32)
-    kv_set("arena:ses:" + _h(token)[:40], json.dumps({"cuenta": id_cuenta(correo), "correo": correo}),
-           ex=SESION_SEGUNDOS)
+    clave = "arena:ses:" + _h(token)[:40]
+    kv_set(clave, json.dumps({"cuenta": id_cuenta(correo), "correo": correo}), ex=SESION_SEGUNDOS)
+    try:   # se apunta la sesión para poder cerrarlas todas (y limitar cuántas hay abiertas)
+        lista = [x for x in _sesiones_de(correo) if x != clave] + [clave]
+        for vieja in lista[:-MAX_SESIONES_POR_CUENTA]:
+            kv_del(vieja)
+        kv_set(_clave_sesiones(correo), json.dumps(lista[-MAX_SESIONES_POR_CUENTA:]), ex=SESION_SEGUNDOS)
+    except ErrorAlmacenamiento:
+        pass   # el índice solo sirve para cerrar sesiones en bloque: no debe impedir entrar
     return token
+
+
+def cerrar_todas_las_sesiones(correo):
+    """Cierra todas las sesiones abiertas de la cuenta (por ejemplo al cambiar la contraseña)."""
+    for clave in _sesiones_de(correo):
+        kv_del(clave)
+    kv_del(_clave_sesiones(correo))
 
 
 def codigo_de_sesion(token):
@@ -835,6 +886,8 @@ def codigo_de_sesion(token):
         cuenta = None
     if not cuenta:
         raise SesionInvalida()
+    limite(f"arena:rl:user:{cuenta[:30]}", LIMITE_USUARIO_POR_MIN, 60,
+           "Vas muy rápido. Espera un momento e intenta de nuevo.")
     return "u" + cuenta[:30]
 
 
@@ -856,7 +909,7 @@ def abrir(req):
     if data is None:
         data = estado_inicial()
 
-    liga = req.get("liga")
+    liga = _texto(req.get("liga"))
     if liga in DEPORTE_DE_LIGA:
         data["liga_activa"] = liga
         data["deporte_activo"] = DEPORTE_DE_LIGA[liga]
@@ -1088,6 +1141,56 @@ def ok(data, **extra):
 def error(mensaje, titulo="Ups, algo salió mal", tipo="error", codigo=400):
     """tipo: 'error' o 'aviso'. El navegador lo usa para elegir el color del mensaje."""
     return jsonify({"status": "error", "tipo": tipo, "titulo": titulo, "message": mensaje}), codigo
+
+
+@app.errorhandler(HTTPException)
+def _error_http(e):
+    if request.path.startswith("/api/"):
+        textos = {413: "La petición es demasiado grande.", 404: "No existe esa ruta.", 405: "Método no permitido.",
+                  400: "Petición no válida.", 415: "Formato no válido."}
+        return error(textos.get(e.code, "No se pudo atender la petición."), "Petición rechazada", "aviso", e.code or 400)
+    return e
+
+
+@app.errorhandler(Exception)
+def _error_inesperado(e):
+    """Último recurso: el detalle va al registro del servidor y la persona solo ve un mensaje genérico."""
+    app.logger.exception("Error no controlado en %s", request.path)
+    return error("Algo falló de nuestro lado. Intenta de nuevo en unos segundos.", "Error del servidor", "error", 500)
+
+
+@app.before_request
+def _limite_por_ip():
+    """Tope general por IP para toda la API (las rutas de cuentas además tienen sus propios límites)."""
+    if request.path.startswith("/api/"):
+        try:
+            limite("arena:rl:ip:" + _h(_ip())[:20], LIMITE_IP_POR_MIN, 60,
+                   "Demasiadas solicitudes desde tu red. Espera un momento.")
+        except ErrorAlmacenamiento:
+            pass   # si el contador no responde, este tope general no debe tumbar toda la API
+
+
+# Content-Security-Policy: por defecto solo AVISA (Report-Only) para no romper la app sin probarla en el
+# navegador. Cuando confirmes en la consola que no marca nada, pon CSP_ENFORZAR=1 en Render para que bloquee.
+CSP = ("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+       "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https:; "
+       "connect-src 'self' https://*.wikipedia.org; manifest-src 'self'; worker-src 'self'; object-src 'none'; "
+       "base-uri 'self'; form-action 'self'; frame-ancestors 'none'")
+
+
+@app.after_request
+def _cabeceras_seguridad(resp):
+    resp.headers.setdefault("X-Content-Type-Options", "nosniff")
+    resp.headers.setdefault("X-Frame-Options", "DENY")
+    resp.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    resp.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+    nombre = "Content-Security-Policy" if os.environ.get("CSP_ENFORZAR") == "1" else "Content-Security-Policy-Report-Only"
+    resp.headers.setdefault(nombre, CSP)
+    if request.is_secure or request.headers.get("X-Forwarded-Proto", "").split(",")[0].strip() == "https":
+        resp.headers.setdefault("Strict-Transport-Security", "max-age=31536000")
+    if request.path.startswith("/api/"):
+        resp.headers["Cache-Control"] = "no-store"
+    return resp
 
 
 @app.errorhandler(SesionInvalida)
@@ -2170,12 +2273,20 @@ def index():
 
 @app.route("/api/health", methods=["GET"])
 def health():
-    """Sirve para comprobar dónde se está guardando el progreso (no muestra secretos)."""
+    """Público: solo dice si el almacenamiento responde. El detalle (dónde guarda, qué está configurado)
+    solo sale con el encabezado X-Health-Token igual a la variable HEALTH_TOKEN."""
+    detalle = bool(HEALTH_TOKEN) and hmac.compare_digest(request.headers.get("X-Health-Token", ""), HEALTH_TOKEN)
     try:
-        guardar_crudo("arena:ping", "ok")
-        funciona = leer_crudo("arena:ping") == "ok"
+        if detalle:
+            guardar_crudo("arena:ping", "ok")
+            funciona = leer_crudo("arena:ping") == "ok"
+        else:
+            leer_crudo("arena:ping")
+            funciona = True
     except ErrorAlmacenamiento:
         funciona = False
+    if not detalle:
+        return jsonify({"funciona": funciona})
     return jsonify({"admin_configurado": bool(ADMIN_EMAIL),
                     "almacenamiento": "upstash" if usa_upstash() else "archivo local",
                     "funciona": funciona,
@@ -2186,7 +2297,7 @@ def health():
 @app.route("/api/load", methods=["POST"])
 def load_state():
     """Entrega el progreso guardado con este código (o crea uno nuevo)."""
-    req = request.get_json(silent=True) or {}
+    req = _json_req()
     codigo, data = abrir(req)
     return responder(codigo, data)
 
@@ -2211,7 +2322,7 @@ def reset_state():
     """Reinicia SOLO la liga que está abierta: borra sus grupos, partidos y predicciones.
     Conserva el saldo y devuelve lo apostado en predicciones que aún no se habían jugado.
     Las demás ligas no se tocan."""
-    req = request.get_json(silent=True) or {}
+    req = _json_req()
     codigo, data = abrir(req)
     reiniciar_liga(data, data["liga_activa"])
     return responder(codigo, data)
@@ -2219,7 +2330,7 @@ def reset_state():
 
 @app.route("/api/deposit", methods=["POST"])
 def deposit():
-    req = request.get_json(silent=True) or {}
+    req = _json_req()
     try:
         monto = float(req.get("monto"))
     except (TypeError, ValueError):
@@ -2232,6 +2343,7 @@ def deposit():
                      "Monto demasiado alto", "aviso")
 
     codigo, data = abrir(req)
+    limite(f"arena:rl:dep:{codigo}", 30, 3600, "Demasiadas recargas seguidas. Intenta más tarde.")
 
     # Juego responsable: tope de recarga por día (el día cambia a medianoche, hora de Colombia).
     hoy = ahora_co().date().isoformat()
@@ -2266,9 +2378,9 @@ def deposit():
 @app.route("/api/plantillas", methods=["POST"])
 def plantillas_liga():
     """Titulares y suplentes de cada equipo de la liga abierta (datos fijos del archivo plantillas.json)."""
-    req = request.get_json(silent=True) or {}
+    req = _json_req()
     codigo_de_sesion(req.get("sesion"))
-    liga = req.get("liga")
+    liga = _texto(req.get("liga"))
     if liga not in DEPORTE_DE_LIGA:
         return error("Esa liga no existe.", "Liga no válida", "aviso")
     deporte = DEPORTE_DE_LIGA[liga]
@@ -2286,9 +2398,11 @@ def plantillas_liga():
 
 @app.route("/api/set_active_league", methods=["POST"])
 def set_active_league():
-    req = request.get_json(silent=True) or {}
-    deporte = req.get("deporte")
-    codigo_liga = req.get("codigo_liga")
+    req = _json_req()
+    deporte = _texto(req.get("deporte"))
+    codigo_liga = _texto(req.get("codigo_liga"))
+    if deporte is None or codigo_liga is None:
+        return error("Esa liga no existe para el deporte elegido.", "Liga no encontrada")
 
     codigos_validos = {liga["codigo"] for liga in LIGAS_DISPONIBLES.get(deporte, [])}
     if codigo_liga not in codigos_validos:
@@ -2302,7 +2416,7 @@ def set_active_league():
 
 @app.route("/api/assign_group", methods=["POST"])
 def assign_group():
-    req = request.get_json(silent=True) or {}
+    req = _json_req()
     team_id = req.get("team_id")
     grupo = req.get("group")
 
@@ -2310,7 +2424,7 @@ def assign_group():
     liga = data["liga_activa"]
     equipos = data["equipos_por_liga"].get(liga, [])
 
-    if grupo is not None and grupo not in data["groups"]:   # None = quitar al equipo de su grupo
+    if grupo is not None and (not isinstance(grupo, str) or grupo not in data["groups"]):   # None = quitar al equipo de su grupo
         return error("Elige un grupo entre A y E.", "Grupo no válido")
 
     equipo = next((t for t in equipos if t["id"] == team_id), None)
@@ -2332,9 +2446,11 @@ def assign_group():
 
 @app.route("/api/predict", methods=["POST"])
 def predict():
-    req = request.get_json(silent=True) or {}
-    home, away, eleccion = req.get("home"), req.get("away"), req.get("eleccion")
-    fase = req.get("fase") or "grupos"
+    req = _json_req()
+    home, away, eleccion = _texto(req.get("home")), _texto(req.get("away")), _texto(req.get("eleccion"))
+    fase = _texto(req.get("fase") or "grupos")
+    if None in (home, away, eleccion, fase):
+        return error("Los datos de la predicción no son válidos.", "Datos no válidos", "aviso")
     try:
         monto = float(req.get("monto"))
     except (TypeError, ValueError):
@@ -2347,6 +2463,7 @@ def predict():
 
     if eleccion not in cuotas_para(deporte):
         return error("Elige un resultado válido para este deporte.", "Resultado no válido", "aviso")
+    monto = round(monto, 2)
     if not math.isfinite(monto) or monto < MONTO_MIN_PREDICCION:
         return error(f"El monto mínimo es $ {MONTO_MIN_PREDICCION:,.0f}.".replace(",", "."),
                      "Monto no válido", "aviso")
@@ -2483,7 +2600,7 @@ def jugar_siguiente(data, narracion=False):
 
 @app.route("/api/simulate_match", methods=["POST"])
 def simulate_match():
-    req = request.get_json(silent=True) or {}
+    req = _json_req()
     codigo, data = abrir(req)
     partido, transmision, problema = jugar_siguiente(data, bool(req.get("narracion")))
     if problema:
@@ -2494,7 +2611,7 @@ def simulate_match():
 @app.route("/api/simulate_all", methods=["POST"])
 def simulate_all():
     """Simula de una vez todos los partidos que faltan (grupos y fases finales) y guarda el resultado."""
-    req = request.get_json(silent=True) or {}
+    req = _json_req()
     codigo, data = abrir(req)
     jugados = 0
     while jugados < 500:   # tope de seguridad: ninguna liga tiene tantos partidos
@@ -2592,7 +2709,8 @@ def _datos_cuenta(req):
 
 @app.route("/api/auth/registro", methods=["POST"])
 def auth_registro():
-    req = request.get_json(silent=True) or {}
+    req = _json_req()
+    limite(f"arena:rl:registroip:{_h(_ip())[:20]}", 10, 3600, "Demasiados registros desde tu red. Intenta más tarde.")
     correo, clave = _datos_cuenta(req)
     if not correo:
         return error("Escribe un correo válido.", "Correo no válido", "aviso")
@@ -2620,7 +2738,8 @@ def auth_registro():
 
 @app.route("/api/auth/verificar_registro", methods=["POST"])
 def auth_verificar_registro():
-    req = request.get_json(silent=True) or {}
+    req = _json_req()
+    limite(f"arena:rl:verifip:{_h(_ip())[:20]}", 60, 900, "Demasiados intentos desde tu red. Intenta más tarde.")
     correo = correo_de_req(req)
     cuenta = _cuenta(correo) if correo else None
     if not cuenta or cuenta.get("verificada"):
@@ -2638,7 +2757,7 @@ def auth_verificar_registro():
 
 @app.route("/api/auth/login", methods=["POST"])
 def auth_login():
-    req = request.get_json(silent=True) or {}
+    req = _json_req()
     ident = str(req.get("identificador") or req.get("correo") or "").strip()
     clave = str(req.get("clave") or "")
     if len(ident) < 3 or len(ident) > 254:
@@ -2659,7 +2778,8 @@ def auth_login():
 
 @app.route("/api/auth/verificar_login", methods=["POST"])
 def auth_verificar_login():
-    req = request.get_json(silent=True) or {}
+    req = _json_req()
+    limite(f"arena:rl:verifip:{_h(_ip())[:20]}", 60, 900, "Demasiados intentos desde tu red. Intenta más tarde.")
     correo = correo_de_req(req)
     if not correo or not comprobar_codigo(correo, "login", req.get("codigo")):
         return error("Ese código no es correcto o ya venció. Revisa tu correo o pide uno nuevo.",
@@ -2672,7 +2792,7 @@ def auth_verificar_login():
 @app.route("/api/auth/reenviar", methods=["POST"])
 def auth_reenviar():
     """Solo reenvía si hay un paso pendiente (registro empezado o contraseña ya aceptada)."""
-    req = request.get_json(silent=True) or {}
+    req = _json_req()
     correo = correo_de_req(req)
     proposito = req.get("proposito")
     if proposito == "recuperar":
@@ -2696,7 +2816,7 @@ def _clave_fuerte(clave):
 def auth_olvide():
     """Paso 1 de "olvidé mi contraseña": manda un código al correo de la cuenta.
     Responde igual exista o no la cuenta, para no revelar quién está registrado."""
-    req = request.get_json(silent=True) or {}
+    req = _json_req()
     ident = str(req.get("identificador") or req.get("correo") or "").strip()
     if len(ident) < 3 or len(ident) > 254:
         return error("Escribe tu nombre completo o tu correo.", "Faltan datos", "aviso")
@@ -2715,7 +2835,7 @@ def auth_olvide():
 @app.route("/api/auth/restablecer", methods=["POST"])
 def auth_restablecer():
     """Paso 2: con el código recibido se guarda la contraseña nueva. Después hay que iniciar sesión."""
-    req = request.get_json(silent=True) or {}
+    req = _json_req()
     ident = str(req.get("identificador") or req.get("correo") or "").strip()
     nueva = str(req.get("clave") or "")
     limite(f"arena:rl:restab:{_h(_norm_nombre(ident))[:30]}", 10, 900, "Demasiados intentos. Espera 15 minutos e intenta de nuevo.")
@@ -2730,6 +2850,7 @@ def auth_restablecer():
                      "Código incorrecto", "aviso")
     cuenta["clave"] = generate_password_hash(nueva)
     _guardar_cuenta(correo, cuenta)
+    cerrar_todas_las_sesiones(correo)   # quien tuviera la sesión abierta con la clave vieja queda fuera
     avisar_admin("Contraseña restablecida en Arena Legends",
                  f"Una persona cambió su contraseña con el código del correo.\nNombre: {nombre_de(correo) or '—'}\nCorreo: {correo}")
     return jsonify({"status": "success"})
@@ -2738,7 +2859,7 @@ def auth_restablecer():
 @app.route("/api/auth/yo", methods=["POST"])
 def auth_yo():
     """Nombre de la cuenta con la sesión abierta (para mostrarlo en la cabecera)."""
-    req = request.get_json(silent=True) or {}
+    req = _json_req()
     codigo_de_sesion(req.get("sesion"))  # lanza 401 si la sesión no sirve
     correo = correo_de_sesion(req.get("sesion"))
     return jsonify({"status": "success", "nombre": nombre_de(correo), "admin": es_admin(correo)})
@@ -2746,7 +2867,7 @@ def auth_yo():
 
 @app.route("/api/auth/logout", methods=["POST"])
 def auth_logout():
-    req = request.get_json(silent=True) or {}
+    req = _json_req()
     token = req.get("sesion")
     if isinstance(token, str) and 20 <= len(token) <= 100:
         kv_del("arena:ses:" + _h(token)[:40])
@@ -2791,7 +2912,7 @@ def _resumen_usuario(correo):
 
 @app.route("/api/admin/usuarios", methods=["POST"])
 def admin_usuarios():
-    req = request.get_json(silent=True) or {}
+    req = _json_req()
     negado = exigir_admin(req)
     if negado:
         return negado
@@ -2809,7 +2930,7 @@ def admin_usuarios():
 
 @app.route("/api/admin/usuario", methods=["POST"])
 def admin_usuario():
-    req = request.get_json(silent=True) or {}
+    req = _json_req()
     negado = exigir_admin(req)
     if negado:
         return negado
@@ -2832,7 +2953,7 @@ def admin_usuario():
 @app.route("/api/admin/reiniciar", methods=["POST"])
 def admin_reiniciar():
     """Reinicia el torneo de una cuenta: una liga o todas. Conserva el saldo y devuelve lo apostado."""
-    req = request.get_json(silent=True) or {}
+    req = _json_req()
     negado = exigir_admin(req)
     if negado:
         return negado
@@ -2841,7 +2962,7 @@ def admin_reiniciar():
         return error("No existe una cuenta con ese correo.", "Usuario no encontrado", "aviso", 404)
     alcance = req.get("alcance")
     liga = req.get("liga")
-    if alcance not in ("liga", "todo") or (alcance == "liga" and liga not in EQUIPOS_POR_LIGA):
+    if alcance not in ("liga", "todo") or (alcance == "liga" and (not isinstance(liga, str) or liga not in EQUIPOS_POR_LIGA)):
         return error("Elige qué reiniciar.", "Datos incompletos", "aviso")
     codigo = _codigo_de_correo(correo)
     _tomar_candado(clave_de(codigo))            # nadie más cambia esa cuenta mientras se reinicia
@@ -2905,4 +3026,5 @@ def service_worker():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=PUERTO, debug=True)
+    # El modo debug (con consola remota del depurador) solo se enciende si lo pides: FLASK_DEBUG=1.
+    app.run(host="0.0.0.0", port=PUERTO, debug=os.environ.get("FLASK_DEBUG") == "1")

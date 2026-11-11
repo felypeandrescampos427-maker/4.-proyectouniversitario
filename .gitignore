@@ -1,5 +1,7 @@
 .venv/
 __pycache__/
 *.pyc
+.env
+.env.*
 progreso_torneo.json
- progreso_local/
+progreso_local/
