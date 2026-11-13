@@ -176,7 +176,7 @@
     <aside id="nav-lateral" aria-label="Navegación principal">
         <div class="nav-logo"><div class="logo-img w-10 h-10" role="img" aria-label="Arena Legends"></div></div>
         <button type="button" class="nav-it " data-nav="inicio" onclick="navIr('inicio')" title="Inicio" aria-label="Inicio"><span class="nav-ico">🏠</span><span class="nav-txt">Inicio</span></button>
-        <button type="button" class="nav-it " data-nav="ligas" onclick="navIr('ligas')" title="Ligas" aria-label="Ligas"><span class="nav-ico">🏆</span><span class="nav-txt">Ligas</span></button>
+        <div id="nav-deportes" class="nav-grupo"><span class="nav-sep">Deportes</span></div>
         <div id="nav-torneo" class="nav-grupo" style="display:none"><span class="nav-sep">Liga activa</span>
         <button type="button" class="nav-it " data-nav="t1" onclick="navIr('t1')" title="Grupos" aria-label="Grupos"><span class="nav-ico">📋</span><span class="nav-txt">Grupos</span></button>
         <button type="button" class="nav-it " data-nav="t2" onclick="navIr('t2')" title="Calendario" aria-label="Calendario"><span class="nav-ico">📅</span><span class="nav-txt">Calendario</span></button>
@@ -270,8 +270,17 @@
                 <div class="dash-card p-4 sm:p-5"><h3 class="text-sm font-bold text-[#C5A04A] mb-3">Rendimiento</h3><div id="dash-rend" class="space-y-3 text-xs"></div></div>
             </div>
         </section>
-            <h2 class="text-xl font-semibold text-[#C5A04A] text-center">Elige un deporte</h2>
-            <div id="contenedor-deportes" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6"></div>
+        </section>
+
+        <!-- VISTA: LOGROS -->
+        <section id="vista-logros" class="space-y-4 sm:space-y-6 hidden">
+            <div class="flex justify-between items-center">
+                <button onclick="mostrarDeportes()" class="bg-[#141414] border border-[#2B2B2B] text-gray-300 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition">← Volver</button>
+                <h2 class="text-xl font-semibold text-[#C5A04A]">🏅 Mis logros</h2>
+                <span class="w-20"></span>
+            </div>
+            <div id="alLogrosResumen" class="al-rejilla"></div>
+            <div id="alLogrosLista" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px"></div>
         </section>
 
         <!-- VISTA 2: LIGAS -->
@@ -912,25 +921,28 @@
         }
 
         function mostrarVista(nombre) {
-            ['deportes', 'ligas', 'torneo'].forEach(v => $(`vista-${v}`).classList.toggle('hidden', v !== nombre));
+            ['deportes', 'ligas', 'torneo', 'logros'].forEach(v => $(`vista-${v}`).classList.toggle('hidden', v !== nombre));
             const g = $('nav-torneo'); if (g) g.style.display = nombre === 'torneo' ? '' : 'none';
-            if (typeof navMarcar === 'function') navMarcar(nombre === 'deportes' ? 'inicio' : nombre === 'ligas' ? 'ligas' : '');
+            renderNavDeportes();
+            if (typeof navMarcar === 'function') navMarcar(nombre === 'deportes' ? 'inicio' : nombre === 'ligas' ? 'dep-' + deporteActual : nombre === 'logros' ? 'logros' : '');
         }
 
         // ---------- Barra lateral ----------
         function navMarcar(id) {
             document.querySelectorAll('#nav-lateral [data-nav]').forEach(b => b.classList.toggle('activo', b.dataset.nav === id));
         }
+        // Tras un clic con el mouse se quita el foco del botón para que la barra se contraiga y no tape el contenido
+        document.addEventListener('click', ev => { const b = ev.target.closest && ev.target.closest('#nav-lateral .nav-it'); if (b && ev.detail > 0) b.blur(); });
         // La barra lateral marca la "página" abierta (Logros, Movimientos, Ajustes, Admin)
         document.addEventListener('DOMContentLoaded', function () {
-            const mapa = { alLogros: 'logros', movModal: 'mov', alAjustes: 'ajustes', alAdmin: 'admin' };
+            const mapa = { movModal: 'mov', alAjustes: 'ajustes', alAdmin: 'admin' };
             const abierto = id => { const m = $(id); return !!m && (id === 'movModal' ? !m.classList.contains('hidden') : m.classList.contains('abierto')); };
             function sincronizar() {
                 const id = Object.keys(mapa).find(abierto);
                 if (id) { navMarcar(mapa[id]); return; }
-                const v = ['deportes', 'ligas', 'torneo'].find(n => !$('vista-' + n).classList.contains('hidden'));
+                const v = ['deportes', 'ligas', 'torneo', 'logros'].find(n => !$('vista-' + n).classList.contains('hidden'));
                 if (v === 'torneo') { const t = [1, 2, 3, 4, 5, 6, 7].find(n => !$('seccion-' + n).classList.contains('hidden')); navMarcar(t ? 't' + t : ''); }
-                else navMarcar(v === 'deportes' ? 'inicio' : v === 'ligas' ? 'ligas' : '');
+                else navMarcar(v === 'deportes' ? 'inicio' : v === 'ligas' ? 'dep-' + deporteActual : v === 'logros' ? 'logros' : '');
             }
             const obs = new MutationObserver(sincronizar);
             Object.keys(mapa).forEach(id => { const m = $(id); if (m) obs.observe(m, { attributes: true, attributeFilter: ['class'] }); });
@@ -971,7 +983,7 @@
             $('dash-barras-tot').textContent = P.length ? `${P.length} en total` : '';
             $('dash-barras').innerHTML = ult.map(p => `<div class="dash-bar" title="${esc(p.home)} vs ${esc(p.away)} · ${esc(p.estado)}"><span>${formatearMoneda(p.monto || 0)}</span><i style="height:${Math.max(8, Math.round((p.monto || 0) / maxM * 80))}%;background:${col[p.estado] || '#9CA3AF'}"></i></div>`).join('') || '<p class="text-xs text-gray-400 m-auto">Aún no hay predicciones.</p>';
             $('dash-logros').innerHTML = `<div class="text-3xl font-extrabold text-[#E5C579]">${hechos} <span class="text-sm text-gray-400 font-normal">de ${L.length}</span></div><div class="h-2 rounded bg-[#050505] border border-[#2B2B2B] overflow-hidden my-3"><i class="block h-full" style="width:${L.length ? Math.round(hechos / L.length * 100) : 0}%;background:#C5A04A"></i></div><button onclick="AL.abrir('alLogros')" class="text-[#C5A04A] hover:text-white font-semibold">Ver logros →</button>`;
-            $('dash-ultimas').innerHTML = P.slice(-5).reverse().map(p => `<div class="bg-[#050505] border border-[#2B2B2B] rounded-xl p-3 flex justify-between items-center gap-3"><div class="min-w-0"><div class="font-semibold text-white truncate">${esc(p.home)} vs ${esc(p.away)}</div><div class="text-gray-400">${esc(p.eleccion)} · cuota x${p.cuota} · ${formatearMoneda(p.monto || 0)}</div></div><b class="shrink-0" style="color:${col[p.estado] || '#9CA3AF'}">${esc(p.estado)}</b></div>`).join('') || '<p class="text-gray-400">Aún no has hecho predicciones. Elige un deporte para empezar.</p>';
+            $('dash-ultimas').innerHTML = P.slice(-5).reverse().map(p => `<div class="bg-[#050505] border border-[#2B2B2B] rounded-xl p-3 flex justify-between items-center gap-3"><div class="min-w-0"><div class="font-semibold text-white truncate">${esc(p.home)} vs ${esc(p.away)}</div><div class="text-gray-400">${esc(p.eleccion)} · cuota x${p.cuota} · ${formatearMoneda(p.monto || 0)}</div></div><b class="shrink-0" style="color:${col[p.estado] || '#9CA3AF'}">${esc(p.estado)}</b></div>`).join('') || '<p class="text-gray-400">Aún no has hecho predicciones. Elige un deporte en la barra lateral para empezar.</p>';
             const barra = (t, n, tot, c) => `<div><div class="flex justify-between mb-1"><span>${t}</span><b>${n}</b></div><div class="h-2 rounded bg-[#050505] border border-[#2B2B2B] overflow-hidden"><i class="block h-full" style="width:${tot ? Math.round(n / tot * 100) : 0}%;background:${c}"></i></div></div>`;
             $('dash-rend').innerHTML = barra('Ganadas', gan.length, P.length, '#A6E3A1') + barra('Perdidas', per.length, P.length, '#F38BA8') + barra('Pendientes', pen.length, P.length, '#9CA3AF');
         }
@@ -981,19 +993,20 @@
             try { renderDashboard(); } catch (e) { /* el resumen nunca debe romper la app */ }
         }
 
-        function mostrarDeportes() {
-            const contenedor = $('contenedor-deportes');
-            contenedor.innerHTML = '';
-            Object.keys(state.ligas).forEach(deporte => {
-                const card = document.createElement('div');
-                card.className = 'bg-[#141414] hover:bg-[#2B2B2B]/50 border border-[#2B2B2B] hover:border-[#C5A04A] cursor-pointer p-4 sm:p-8 rounded-2xl text-center space-y-3 sm:space-y-4 transition shadow-xl group';
-                card.innerHTML = `
-                    <div class="text-5xl sm:text-6xl group-hover:scale-110 transition">${ICONOS[deporte] || '🏆'}</div>
-                    <h3 class="text-sm sm:text-lg font-bold text-white uppercase">${esc(deporte)}</h3>
-                    <button class="w-full bg-[#050505] group-hover:bg-[#C5A04A] group-hover:text-[#050505] border border-[#2B2B2B] text-white font-bold py-2 rounded-xl transition text-sm">▶ JUGAR</button>`;
-                card.onclick = () => mostrarLigas(deporte);
-                contenedor.appendChild(card);
+        function renderNavDeportes() {
+            const c = $('nav-deportes'); if (!c) return;
+            c.querySelectorAll('.nav-it').forEach(b => b.remove());
+            Object.keys((state && state.ligas) || {}).forEach(deporte => {
+                const b = document.createElement('button');
+                b.type = 'button'; b.className = 'nav-it'; b.dataset.nav = 'dep-' + deporte;
+                b.title = deporte; b.setAttribute('aria-label', deporte);
+                b.innerHTML = `<span class="nav-ico">${ICONOS[deporte] || '🏆'}</span><span class="nav-txt">${esc(deporte)}</span>`;
+                b.onclick = () => mostrarLigas(deporte);
+                c.appendChild(b);
             });
+        }
+
+        function mostrarDeportes() {
             mostrarVista('deportes');
         }
 
@@ -3285,17 +3298,6 @@
         </div>
     </div>
 
-    <!-- LOGROS -->
-    <div id="alLogros" class="al-modal" role="dialog" aria-modal="true" aria-labelledby="alLogrosT">
-        <div class="al-card">
-            <div class="al-cab"><h3 id="alLogrosT">🏅 Mis logros</h3><button class="al-x" onclick="AL.cerrar('alLogros')" aria-label="Cerrar">✕</button></div>
-            <div class="al-cuerpo">
-                <div id="alLogrosResumen" class="al-rejilla" style="margin-bottom:10px"></div>
-                <div id="alLogrosLista" style="display:grid;gap:8px"></div>
-            </div>
-        </div>
-    </div>
-
     <!-- PANEL DE ADMINISTRACIÓN (solo con el correo de administrador) -->
     <div id="alAdmin" class="al-modal" role="dialog" aria-modal="true" aria-labelledby="alAdminT">
         <div class="al-card ancha">
@@ -3641,8 +3643,8 @@
 
         // ---------- Interfaz pública ----------
         function abrir(id) {
+            if (id === 'alLogros') { pintarLogros(); if (typeof mostrarVista === 'function') mostrarVista('logros'); window.scrollTo({ top: 0 }); return; }
             const m = el(id); if (!m) return;
-            if (id === 'alLogros') pintarLogros();
             if (id === 'alAdmin') { adminCargar(); }
             if (id === 'alAjustes') { aplicar(); actualizarInstalar(); }
             m.classList.add('abierto');

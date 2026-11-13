@@ -177,7 +177,7 @@
     <aside id="nav-lateral" aria-label="Navegación principal" aria-hidden="true">
         <div class="nav-cab"><div class="flex items-center gap-2"><span class="logo-img w-9 h-9 inline-block" role="img" aria-label="Arena Legends"></span><span class="nav-marca">ARENA<small>LEGENDS</small></span></div><button type="button" onclick="navCerrar()" aria-label="Cerrar menú" class="nav-x">✕</button></div>
         <button type="button" class="nav-it " data-nav="inicio" onclick="navIr('inicio')" aria-label="Inicio"><span class="nav-ico">🏠</span><span>Inicio</span></button>
-        <button type="button" class="nav-it " data-nav="ligas" onclick="navIr('ligas')" aria-label="Ligas"><span class="nav-ico">🏆</span><span>Ligas</span></button>
+        <div id="nav-deportes"><span class="nav-sep">Deportes</span></div>
         <div id="nav-torneo" style="display:none"><span class="nav-sep">Liga activa</span>
         <button type="button" class="nav-it " data-nav="t1" onclick="navIr('t1')" aria-label="Grupos"><span class="nav-ico">📋</span><span>Grupos</span></button>
         <button type="button" class="nav-it " data-nav="t2" onclick="navIr('t2')" aria-label="Calendario"><span class="nav-ico">📅</span><span>Calendario</span></button>
@@ -256,8 +256,17 @@
                 <div class="dm-card"><div class="dm-t">Logros</div><div id="dash-logros"></div></div>
                 <div class="dm-card"><div class="dm-t">Actividad reciente</div><div id="dash-ultimas"></div></div>
             </div>
-            <h2 class="text-xs font-semibold text-[#C5A04A] text-center">Elige un deporte</h2>
-            <div id="contenedor-deportes" class="grid grid-cols-2 gap-3"></div>
+        </section>
+
+        <!-- VISTA: LOGROS -->
+        <section id="vista-logros" class="space-y-3 hidden">
+            <div class="flex justify-between items-center">
+                <button onclick="mostrarDeportes()" class="bg-[#141414] border border-[#2B2B2B] text-gray-300 px-3 py-1.5 rounded-lg text-xs font-bold">← Volver</button>
+                <h2 class="text-xs font-semibold text-[#C5A04A]">🏅 Mis logros</h2>
+                <span class="w-14"></span>
+            </div>
+            <div id="alLogrosResumen" class="al-rejilla"></div>
+            <div id="alLogrosLista" style="display:grid;gap:8px"></div>
         </section>
 
         <!-- VISTA 2: LIGAS -->
@@ -879,9 +888,10 @@
         document.addEventListener('keydown', ev => { if (ev.key === 'Escape') navCerrar(); });
 
         function mostrarVista(nombre) {
-            ['deportes', 'ligas', 'torneo'].forEach(v => $(`vista-${v}`).classList.toggle('hidden', v !== nombre));
+            ['deportes', 'ligas', 'torneo', 'logros'].forEach(v => $(`vista-${v}`).classList.toggle('hidden', v !== nombre));
             const g = $('nav-torneo'); if (g) g.style.display = nombre === 'torneo' ? '' : 'none';
-            if (typeof navMarcar === 'function') navMarcar(nombre === 'deportes' ? 'inicio' : nombre === 'ligas' ? 'ligas' : '');
+            renderNavDeportes();
+            if (typeof navMarcar === 'function') navMarcar(nombre === 'deportes' ? 'inicio' : nombre === 'ligas' ? 'dep-' + deporteActual : nombre === 'logros' ? 'logros' : '');
             $('barra-simular').classList.toggle('hidden', nombre !== 'torneo');
             window.scrollTo({ top: 0 });
         }
@@ -910,7 +920,7 @@
             $('dash-barras-tot').textContent = P.length ? `${P.length} en total` : '';
             $('dash-barras').innerHTML = ult.map(p => `<div class="dm-bar" title="${esc(p.home)} vs ${esc(p.away)} · ${esc(p.estado)}"><span>${formatearMoneda(p.monto || 0)}</span><i style="height:${Math.max(8, Math.round((p.monto || 0) / maxM * 70))}%;background:${col[p.estado] || '#9CA3AF'}"></i></div>`).join('') || '<p class="dm-sub" style="margin:auto">Aún no hay predicciones.</p>';
             $('dash-logros').innerHTML = `<div class="dm-lg"><b style="font-size:22px;color:#E5C579">${hechos} <span style="font-size:12px;color:#9CA3AF;font-weight:400">de ${L.length}</span></b><a href="#" onclick="AL.abrir('alLogros');return false">Ver logros →</a></div><div class="dm-prog"><i style="width:${L.length ? Math.round(hechos / L.length * 100) : 0}%"></i></div>`;
-            $('dash-ultimas').innerHTML = P.slice(-3).reverse().map(p => `<div class="dm-fila"><div><strong>${esc(p.home)} vs ${esc(p.away)}</strong><span>${esc(p.eleccion)} · x${p.cuota} · ${formatearMoneda(p.monto || 0)}</span></div><b style="color:${col[p.estado] || '#9CA3AF'}">${esc(p.estado)}</b></div>`).join('') || '<p class="dm-sub">Aún no has hecho predicciones. Elige un deporte para empezar.</p>';
+            $('dash-ultimas').innerHTML = P.slice(-3).reverse().map(p => `<div class="dm-fila"><div><strong>${esc(p.home)} vs ${esc(p.away)}</strong><span>${esc(p.eleccion)} · x${p.cuota} · ${formatearMoneda(p.monto || 0)}</span></div><b style="color:${col[p.estado] || '#9CA3AF'}">${esc(p.estado)}</b></div>`).join('') || '<p class="dm-sub">Aún no has hecho predicciones. Elige un deporte en el menú ☰ para empezar.</p>';
         }
 
         function renderSaldo() {
@@ -918,16 +928,20 @@
             try { renderDashboard(); } catch (e) { /* el resumen nunca debe romper la app */ }
         }
 
-        function mostrarDeportes() {
-            const contenedor = $('contenedor-deportes');
-            contenedor.innerHTML = '';
-            Object.keys(state.ligas).forEach(deporte => {
-                const card = document.createElement('div');
-                card.className = 'bg-[#141414] border border-[#2B2B2B] p-4 rounded-xl text-center space-y-2 cursor-pointer active:scale-95 transition';
-                card.innerHTML = `<span class="text-4xl block">${ICONOS[deporte] || '🏆'}</span><h3 class="text-xs font-bold text-white uppercase">${esc(deporte)}</h3>`;
-                card.onclick = () => mostrarLigas(deporte);
-                contenedor.appendChild(card);
+        function renderNavDeportes() {
+            const c = $('nav-deportes'); if (!c) return;
+            c.querySelectorAll('.nav-it').forEach(b => b.remove());
+            Object.keys((state && state.ligas) || {}).forEach(deporte => {
+                const b = document.createElement('button');
+                b.type = 'button'; b.className = 'nav-it'; b.dataset.nav = 'dep-' + deporte;
+                b.setAttribute('aria-label', deporte);
+                b.innerHTML = `<span class="nav-ico">${ICONOS[deporte] || '🏆'}</span><span>${esc(deporte)}</span>`;
+                b.onclick = () => { navCerrar(); mostrarLigas(deporte); };
+                c.appendChild(b);
             });
+        }
+
+        function mostrarDeportes() {
             mostrarVista('deportes');
         }
 
@@ -3167,17 +3181,6 @@
         </div>
     </div>
 
-    <!-- LOGROS -->
-    <div id="alLogros" class="al-modal" role="dialog" aria-modal="true" aria-labelledby="alLogrosT">
-        <div class="al-card">
-            <div class="al-cab"><h3 id="alLogrosT">🏅 Mis logros</h3><button class="al-x" onclick="AL.cerrar('alLogros')" aria-label="Cerrar">✕</button></div>
-            <div class="al-cuerpo">
-                <div id="alLogrosResumen" class="al-rejilla" style="margin-bottom:10px"></div>
-                <div id="alLogrosLista" style="display:grid;gap:8px"></div>
-            </div>
-        </div>
-    </div>
-
     <!-- PANEL DE ADMINISTRACIÓN (solo con el correo de administrador) -->
     <div id="alAdmin" class="al-modal" role="dialog" aria-modal="true" aria-labelledby="alAdminT">
         <div class="al-card ancha">
@@ -3523,8 +3526,8 @@
 
         // ---------- Interfaz pública ----------
         function abrir(id) {
+            if (id === 'alLogros') { pintarLogros(); if (typeof mostrarVista === 'function') mostrarVista('logros'); window.scrollTo({ top: 0 }); return; }
             const m = el(id); if (!m) return;
-            if (id === 'alLogros') pintarLogros();
             if (id === 'alAdmin') { adminCargar(); }
             if (id === 'alAjustes') { aplicar(); actualizarInstalar(); }
             m.classList.add('abierto');
