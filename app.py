@@ -50,6 +50,7 @@ MAX_SESIONES_POR_CUENTA = 10         # al abrir la número 11 se cierra la más 
 # de X-Forwarded-For sin que el cliente pueda falsificarla. En tu PC (sin proxy) pon 0.
 PROXIES_CONFIABLES = int(os.environ.get("PROXIES_CONFIABLES", "1"))
 LIMITE_IP_POR_MIN = int(os.environ.get("LIMITE_IP_POR_MIN", "300"))        # peticiones /api por IP y minuto
+MAX_AVISOS_POR_HORA = int(os.environ.get("MAX_AVISOS_POR_HORA", "20"))   # correos de aviso al administrador por hora (en total)
 LIMITE_USUARIO_POR_MIN = int(os.environ.get("LIMITE_USUARIO_POR_MIN", "120"))  # peticiones /api por cuenta y minuto
 HEALTH_TOKEN = os.environ.get("HEALTH_TOKEN", "").strip()   # con este token /api/health da el detalle completo
 CODIGO_VENCE_SEGUNDOS = 600          # el código de verificación vale 10 minutos
@@ -517,16 +518,41 @@ def leer_crudo(clave):
         raise ErrorAlmacenamiento(str(e)) from e
 
 
+def _escribir_atomico(ruta, texto):
+    """Escribe en un archivo temporal y lo renombra: si el proceso se corta a mitad, el archivo
+    anterior queda intacto en vez de quedar a medias (un JSON truncado borraría el progreso)."""
+    os.makedirs(os.path.dirname(ruta), exist_ok=True)
+    tmp = f"{ruta}.{os.getpid()}.{threading.get_ident()}.tmp"
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            f.write(texto)
+        os.replace(tmp, ruta)
+    except OSError:
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
+        raise
+
+
 def guardar_crudo(clave, texto):
     if usa_upstash():
         _redis(["SET", clave, texto])
         return
     try:
-        os.makedirs(CARPETA_LOCAL, exist_ok=True)
-        with open(_ruta_local(clave), "w", encoding="utf-8") as f:
-            f.write(texto)
+        _escribir_atomico(_ruta_local(clave), texto)
     except OSError as e:
         raise ErrorAlmacenamiento(str(e)) from e
+
+
+def _respaldar_corrupto(codigo, crudo):
+    """Si el progreso guardado no se puede leer, se aparta una copia antes de empezar de cero:
+    así un fallo no borra el saldo en silencio y el administrador puede recuperarlo."""
+    try:
+        guardar_crudo(clave_de(codigo) + "_corrupto", crudo)
+        print("[progreso] Estado ilegible: se guardó una copia aparte antes de reiniciarlo.")
+    except ErrorAlmacenamiento:
+        print("[progreso] Estado ilegible y no se pudo guardar la copia.")
 
 
 def leer_estado(codigo):
@@ -536,6 +562,7 @@ def leer_estado(codigo):
     try:
         return json.loads(crudo)
     except ValueError:
+        _respaldar_corrupto(codigo, crudo)
         return None
 
 
@@ -546,6 +573,11 @@ def guardar_estado(codigo, data):
 _candados_locales = {}
 _candados_guardia = threading.Lock()
 SCRIPT_SOLTAR = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) end return 0"
+# Contar y poner vencimiento en un solo paso: si fueran dos comandos y el segundo fallara, la clave
+# quedaría sin vencimiento y esa IP o cuenta se bloquearía para siempre. Si ya hay una sin vencimiento, la repara.
+SCRIPT_CONTAR = ("local n = redis.call('INCR', KEYS[1]) "
+                 "if n == 1 or redis.call('TTL', KEYS[1]) < 0 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end "
+                 "return n")
 
 
 def _tomar_candado(clave):
@@ -629,9 +661,7 @@ def kv_set(clave, texto, ex=None):
         _redis(["SET", clave, texto] + (["EX", int(ex)] if ex else []))
         return
     try:
-        os.makedirs(os.path.dirname(_ruta_kv(clave)), exist_ok=True)
-        with open(_ruta_kv(clave), "w", encoding="utf-8") as f:
-            json.dump({"v": texto, "exp": time.time() + ex if ex else None}, f)
+        _escribir_atomico(_ruta_kv(clave), json.dumps({"v": texto, "exp": time.time() + ex if ex else None}))
     except OSError as e:
         raise ErrorAlmacenamiento(str(e)) from e
 
@@ -651,9 +681,7 @@ def kv_del(clave):
 def limite(clave, maximo, ventana, mensaje="Demasiados intentos. Espera un rato e intenta de nuevo."):
     """Cuenta cuántas veces se hizo algo en una ventana de tiempo y corta si se pasa."""
     if usa_upstash():
-        n = _redis(["INCR", clave])
-        if n == 1:
-            _redis(["EXPIRE", clave, int(ventana)])
+        n = int(_redis(["EVAL", SCRIPT_CONTAR, 1, clave, int(ventana)]))
     else:
         n = int(kv_get(clave) or 0) + 1
         reg = _ruta_kv(clave)
@@ -663,9 +691,7 @@ def limite(clave, maximo, ventana, mensaje="Demasiados intentos. Espera un rato 
                 previo = json.load(f).get("exp")
         except (OSError, ValueError):
             pass
-        os.makedirs(os.path.dirname(reg), exist_ok=True)
-        with open(reg, "w", encoding="utf-8") as f:
-            json.dump({"v": str(n), "exp": previo or time.time() + ventana}, f)
+        _escribir_atomico(reg, json.dumps({"v": str(n), "exp": previo or time.time() + ventana}))
     if n > maximo:
         raise ErrorLimite(mensaje)
 
@@ -753,6 +779,10 @@ def avisar_admin(asunto, detalle):
     """Le manda un aviso al responsable del proyecto (variable EMAIL_AVISOS en Render).
     Si no está configurada no hace nada. Va en segundo plano y nunca estorba al usuario."""
     if not EMAIL_AVISOS:
+        return
+    try:   # tope global: sin él, recargar en bucle gasta la cuota diaria de Brevo y dejaría de llegar el código a todos
+        limite("arena:rl:aviso", MAX_AVISOS_POR_HORA, 3600)
+    except (ErrorLimite, ErrorAlmacenamiento):
         return
     ahora = datetime.now(timezone(timedelta(hours=-5))).strftime("%d/%m/%Y %H:%M")  # hora de Colombia
     version = "PC" if PLANTILLA == "index.html" else "móvil"
@@ -905,6 +935,7 @@ def abrir(req):
         try:
             data = normalizar(guardado)
         except (KeyError, TypeError, ValueError, AttributeError):
+            _respaldar_corrupto(codigo, json.dumps(guardado, ensure_ascii=False))
             data = None
     if data is None:
         data = estado_inicial()
